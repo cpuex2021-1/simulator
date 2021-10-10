@@ -18,6 +18,7 @@ int now_addr = 0x0;
 int main(int argc, char* argv[]){
     if(argc < 3) {
         cout << "Usage: assembler [input file] [output file]" << endl;
+        exit(1);
     }
     fstream input;
     fstream output;
@@ -31,7 +32,6 @@ int main(int argc, char* argv[]){
     while(getline(input, str)){
         Parse pres(str);
         if(pres.type == label){
-            cout << pres.labl << endl;
             labels[pres.labl] = now_addr;
             line_num++;
         }else if(pres.type == instruction){
@@ -42,7 +42,7 @@ int main(int argc, char* argv[]){
             line_num++;
         }else if(pres.type == error){
             cerr << "Parsing Error at line " << line_num << endl;
-            break;
+            exit(1);
         }
     }
     input.close();

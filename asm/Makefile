@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-g -std=c++17
+CFLAGS=-O3 -Wall -std=c++17
 
 all: assembler
 
@@ -8,4 +8,4 @@ assembler:main.cpp Instructions.cpp Parse.cpp
 
 .PHOMY:clean
 clean:
-	rm -rf assembler
+	rm -rf assembler *.o

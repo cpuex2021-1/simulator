@@ -14,7 +14,7 @@ using namespace std;
 int label_to_addr(string str){
     try{
         return labels.at(str);
-    } catch (out_of_range e) {
+    } catch (out_of_range &e) {
         return stoi(str);
     }
 }
@@ -428,7 +428,7 @@ Parse :: Parse(string str){
                 2,
                 regs.at(match[2].str()),
                 imm & (0b11111 << 16),
-                imm & (1 << 16 - 1)
+                imm & ((1 << 16) -1)
             );
             code = ret.assemble();
         }
@@ -521,7 +521,7 @@ Parse :: Parse(string str){
             Jtype ret(
                 7,
                 1,
-                ((lab & (0b11111 << 16)) << 21) | ((rd & 0b11111) << 16) | (lab & (1 << 16 - 1))
+                ((lab & (0b11111 << 16)) << 21) | ((rd & 0b11111) << 16) | (lab & ((1 << 16) -1))
             );
             code = ret.assemble();
         }else if(match[1].str() ==  "jalr"){
@@ -530,11 +530,11 @@ Parse :: Parse(string str){
             Jtype ret(
                 7,
                 2,
-                (rs1 << 21) | (rd << 17) | (label_to_addr(match[4].str()) & (1 << 16 - 1))
+                (rs1 << 21) | (rd << 17) | (label_to_addr(match[4].str()) & ((1 << 16) -1))
             );
             code = ret.assemble();
         }else{
-            cerr << "Unknown Opecode" << endl;
+            cerr << "Unknown Opecode: " << match[1].str() << endl;
             code = 0;
         }
     }
