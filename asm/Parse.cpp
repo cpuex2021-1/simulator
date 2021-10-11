@@ -11,12 +11,12 @@
 
 using namespace std;
 
-int label_to_addr(string str){
+int label_to_addr(string str, int now_addr){
     try{
         return labels.at(str);
     }catch(out_of_range &e) {
         try{
-            return stoi(str);
+            return stoi(str) - now_addr;
         }catch(invalid_argument &e){
             cerr << "Unknown label: " << str << endl;
         }
@@ -470,7 +470,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 0,
                 regname_to_addr(match[2].str()),
                 regname_to_addr(match[3].str()),
-                label_to_addr(match[4].str())
+                label_to_addr(match[4].str(), now_addr)
             );
             code = ret.assemble();
         }else if(match[1].str() ==  "bne"){
@@ -479,7 +479,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 1,
                 regname_to_addr(match[2].str()),
                 regname_to_addr(match[3].str()),
-                label_to_addr(match[4].str())
+                label_to_addr(match[4].str(), now_addr)
             );
             code = ret.assemble();
         }else if(match[1].str() ==  "blt"){
@@ -488,7 +488,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 2,
                 regname_to_addr(match[2].str()),
                 regname_to_addr(match[3].str()),
-                label_to_addr(match[4].str())
+                label_to_addr(match[4].str(), now_addr)
             );
             code = ret.assemble();
         }else if(match[1].str() ==  "bge"){
@@ -497,7 +497,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 3,
                 regname_to_addr(match[2].str()),
                 regname_to_addr(match[3].str()),
-                label_to_addr(match[4].str())
+                label_to_addr(match[4].str(), now_addr)
             );
             code = ret.assemble();
         }else if(match[1].str() ==  "bltu"){
@@ -506,7 +506,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 4,
                 regname_to_addr(match[2].str()),
                 regname_to_addr(match[3].str()),
-                label_to_addr(match[4].str())
+                label_to_addr(match[4].str(), now_addr)
             );
             code = ret.assemble();
         }else if(match[1].str() ==  "bgeu"){
@@ -515,7 +515,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 5,
                 regname_to_addr(match[2].str()),
                 regname_to_addr(match[3].str()),
-                label_to_addr(match[4].str())
+                label_to_addr(match[4].str(), now_addr)
             );
             code = ret.assemble();
         }else if(match[1].str() ==  "sw"){
@@ -539,20 +539,20 @@ Parse :: Parse(string str, bool label_only, int now_addr){
         }
 
         else if(match[1].str() ==  "jump"){
-            int addr = label_to_addr(match[2].str()) - now_addr;
+            int addr = label_to_addr(match[2].str(), now_addr);
             Jtype ret(
                 7,
                 0,
-                addr
+                addr & ((1 << 25) - 1)
             );
             code = ret.assemble();
         }else if(match[1].str() ==  "jal"){
-            int lab = label_to_addr(match[3].str());
+            int lab = label_to_addr(match[3].str(), now_addr);
             int rd = regs[match[2].str()];
             Jtype ret(
                 7,
                 1,
-                ((lab & (0b11111 << 16)) << 21) | ((rd & 0b11111) << 16) | ((lab - now_addr) & ((1 << 16) -1))
+                ((lab & (0b11111 << 16)) << 21) | ((rd & 0b11111) << 16) | (lab & ((1 << 16) -1))
             );
             code = ret.assemble();
         }else if(match[1].str() ==  "jalr"){
@@ -561,7 +561,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
             Jtype ret(
                 7,
                 2,
-                (rs1 << 21) | (rd << 17) | ((label_to_addr(match[4].str()) - now_addr) & ((1 << 16) -1))
+                (rs1 << 21) | (rd << 17) | (label_to_addr(match[4].str(), now_addr) & ((1 << 16) -1))
             );
             code = ret.assemble();
         }else{
