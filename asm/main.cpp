@@ -30,15 +30,41 @@ int main(int argc, char* argv[]){
 
     string str;
     while(getline(input, str)){
-        Parse pres(str);
+        Parse pres(str, true, now_addr);
         if(pres.type == label){
             labels[pres.labl] = now_addr;
             line_num++;
-        }else if(pres.type == instruction){
+        }else if(pres.type == error){
+            cerr << "Parsing Error at line " << line_num << endl;
+            exit(1);
+        }else{
+            line_num++;
+        }
+    }
+    input.close();
+    output.close();
+
+    input.open(infile, ios::in);
+    output.open(outfile, ios::binary | ios::out);
+
+    line_num = 1;
+    now_addr = 0;
+
+    while(getline(input, str)){
+        #ifdef DEBUG
+        cout << "line:" << line_num << " ";
+        Debug_parse(str);
+        #endif
+
+        Parse pres(str, false, now_addr);
+        if(pres.type == instruction){
+            #ifdef DEBUG
+            pres.print_instr();
+            #endif
             output.write(reinterpret_cast<char *>(&pres.code), sizeof(pres.code));
             line_num++;
             now_addr += 0x4;
-        }else if(pres.type == none){
+        }else if(pres.type == none || pres.type == label){
             line_num++;
         }else if(pres.type == error){
             cerr << "Parsing Error at line " << line_num << endl;
