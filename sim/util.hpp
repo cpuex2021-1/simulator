@@ -1,0 +1,1 @@
+int getBits(int num, int start, int end);
