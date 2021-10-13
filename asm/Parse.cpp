@@ -14,10 +14,10 @@ using namespace std;
 
 int label_to_addr(string str, int now_addr){
     try{
-        return labels.at(str);
+        return labels.at(str) - now_addr;
     }catch(out_of_range &e) {
         try{
-            return stoi(str) - now_addr;
+            return stoi(str);
         }catch(invalid_argument &e){
             cerr << "Unknown label: " << str << endl;
         }

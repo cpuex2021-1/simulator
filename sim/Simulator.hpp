@@ -7,9 +7,10 @@ class Simulator
 {
 public:
     Memory* mem;
-    vector<int> reg;
-    vector<int> freg;
+    int* reg;
+    int* freg;
     int pc;
     Simulator(unsigned int memsize, unsigned int cachesize, int pc);
+    ~Simulator();
     void simulate(unsigned int instr);
 };

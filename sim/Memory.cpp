@@ -2,21 +2,22 @@
 
 using namespace std;
 
-Cache_elem::Cache_elem(int data_, int tag_)
-:data(data_), tag(tag_)
-{}
-
 Memory::Memory(unsigned int size_, unsigned int cache_size_)
 :size(size_), cache_size(cache_size_)
 {
-    cache.reserve(cache_size);
-    memory.reserve(size);
+    cache = new cache_elem[cache_size_ >> 2];
+    memory = new int[size >> 2];
+}
+
+Memory::~Memory(){
+    delete cache;
+    delete memory;
 }
 
 void Memory::write(unsigned int index, int data){
-    memory[index] = data;
+    memory[index >> 2] = data;
 }
 
 int Memory::read(unsigned int index){
-    return memory[index];
+    return memory[index >> 2];
 }
