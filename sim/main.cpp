@@ -12,7 +12,7 @@ Simulator sim(MEMSIZE, CACHESIZE, 0);
 
 int main(int argc, char* argv[]){
     if(argc < 2){
-        cout << "Usage: simulator [binary file]" << endl;
+        cout << "Usage: simulator [binary file] [register data output file] [memory data output file]" << endl;
     }
 
     fstream input;
@@ -27,10 +27,12 @@ int main(int argc, char* argv[]){
             cout << "PC:" << sim.pc << endl << "Instruction:";
             print_instruction(instr);
             for(int i=0; i<REGNUM; i++){
+                if(i % 8 == 0 && i>0) cout << endl;
                 cout << "x" << i << ":" << sim.reg[i] << " ";
             }
             cout << endl;
             for(int i=0; i<FREGNUM; i++){
+                if(i % 8 == 0 && i>0) cout << endl;
                 cout << "f" << i << ":" << sim.freg[i] << " ";
             }
             cout << endl;
@@ -46,7 +48,8 @@ int main(int argc, char* argv[]){
     }
 
     fstream regres, memres;
-
+    string regfilename = (argc < 4) ? "registerResult.txt" : string(argv[3]);
+    string memfilename = (argc < 4) ? "memResult.txt" : string(argv[4]);
     regres.open("registerResult.txt", ios::out);
     memres.open("memoryResult.txt", ios::out);
 
