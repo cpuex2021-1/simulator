@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 #include "Simulator.hpp"
 #include "util.hpp"
 
@@ -47,11 +48,10 @@ int main(int argc, char* argv[]){
         #endif
     }
 
-    fstream regres, memres;
+    fstream regres;
     string regfilename = (argc < 4) ? "registerResult.txt" : string(argv[3]);
     string memfilename = (argc < 4) ? "memResult.txt" : string(argv[4]);
     regres.open("registerResult.txt", ios::out);
-    memres.open("memoryResult.txt", ios::out);
 
     for(int i=0; i<REGNUM; i++){
         regres << "x" << i << ":" << sim.reg[i] << endl;
@@ -60,7 +60,5 @@ int main(int argc, char* argv[]){
         regres << "f" << i << ":" << sim.freg[i] << endl;
     }
 
-    for(int i=0; i<MEMSIZE; i+=4){
-        memres << "0x" << hex << i << ":" << hex << sim.mem->read(i) << endl;
-    }
+    sim.mem->print_memory(memfilename);
 }
