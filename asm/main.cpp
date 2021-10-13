@@ -39,6 +39,7 @@ int main(int argc, char* argv[]){
             exit(1);
         }else{
             line_num++;
+            now_addr += 0x4;
         }
     }
     input.close();

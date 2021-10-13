@@ -3,6 +3,7 @@
 #include <regex>
 #include <sstream>
 
+#define PSUEDO ""
 #define LABEL_EXPR "([\\w|\\.|\\-|\\d]+):\\s*"
 #define THREE_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s*([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*"
 #define TWO_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s*([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*"
@@ -13,10 +14,10 @@ using namespace std;
 
 int label_to_addr(string str, int now_addr){
     try{
-        return labels.at(str);
+        return labels.at(str) - now_addr;
     }catch(out_of_range &e) {
         try{
-            return stoi(str) - now_addr;
+            return stoi(str);
         }catch(invalid_argument &e){
             cerr << "Unknown label: " << str << endl;
         }
@@ -281,7 +282,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 5,
                 regname_to_addr(match[2].str()),
                 regname_to_addr(match[3].str()),
-                regname_to_addr(match[4].str()),
+                0,
                 0);
             code = ret.assemble();
         }else if(match[1].str() ==  "fmin"){
@@ -337,7 +338,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 3,
                 regname_to_addr(match[2].str()),
                 regname_to_addr(match[3].str()),
-                regname_to_addr(match[4].str()),
+                0,
                 0);
             code = ret.assemble();
         }else if(match[1].str() ==  "fmv.w.x"){
@@ -346,7 +347,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 4,
                 regname_to_addr(match[2].str()),
                 regname_to_addr(match[3].str()),
-                regname_to_addr(match[4].str()),
+                0,
                 0);
             code = ret.assemble();
         }
@@ -522,8 +523,8 @@ Parse :: Parse(string str, bool label_only, int now_addr){
             S_Btype ret(
                 6,
                 6,
-                regname_to_addr(match[2].str()),
                 regname_to_addr(match[4].str()),
+                regname_to_addr(match[2].str()),
                 stoi(match[3].str())
             );
             code = ret.assemble();
@@ -531,8 +532,8 @@ Parse :: Parse(string str, bool label_only, int now_addr){
             S_Btype ret(
                 6,
                 7,
-                regname_to_addr(match[2].str()),
                 regname_to_addr(match[4].str()),
+                regname_to_addr(match[2].str()),
                 stoi(match[3].str())
             );
             code = ret.assemble();
