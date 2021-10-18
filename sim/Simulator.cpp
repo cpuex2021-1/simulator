@@ -153,7 +153,7 @@ void Simulator::simulate(unsigned int instr)
             freg[rd] = fdiv(freg[rs1], freg[rs2]);
             pc += 4; return; break;
         case 4:
-            freg[rd] = fsqrt(freg[rs1], freg[rs2]);
+            freg[rd] = fsqrt(freg[rs1]);
             pc += 4; return; break;
         case 5:
             freg[rd] = fneg(freg[rs1]);

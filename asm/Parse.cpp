@@ -2,8 +2,9 @@
 #include <iostream>
 #include <regex>
 #include <sstream>
+#include <string>
 
-#define PSUEDO ""
+#define PSUEDO ".([\\w|\\.|\\-|\\d]+)\\s*([\\w|\\.|\\-|\\d]+)"
 #define LABEL_EXPR "([\\w|\\.|\\-|\\d]+):\\s*"
 #define THREE_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s*([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*"
 #define TWO_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s*([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*"
@@ -35,9 +36,19 @@ int regname_to_addr(string str){
     }
 }
 
-void Debug_parse(string str){
+void remove_comment(string& str){
+    int pos = str.find_first_of('#');
+    if(pos != string::npos){
+        str = str.substr(0, pos);
+    }
+}
+
+void Debug_parse(string str){    
+    remove_comment(str);
     smatch match;
-    if(regex_match(str, match, regex(LABEL_EXPR))){
+    if(regex_match(str, match, regex(PSUEDO))){
+        cout << "none" << endl;
+    } else if(regex_match(str, match, regex(LABEL_EXPR))){
         cout << "label" << endl;
     } else if(regex_match(str, match, regex(THREE_ARGS_EXPR)) || regex_match(str, match, regex(TWO_ARGS_EXPR)) || regex_match(str, match, regex(SW_LIKE_EXPR)) || regex_match(str, match, regex(ONE_ARGS_EXPR))){
         cout << "instruction" << endl;
@@ -51,9 +62,14 @@ void Debug_parse(string str){
     }
 }
 
+
 Parse :: Parse(string str, bool label_only, int now_addr){
+    remove_comment(str);
+    cout << str;;
     smatch match;
-    if(regex_match(str, match, regex(LABEL_EXPR))){
+    if(regex_match(str, match, regex(PSUEDO))){
+        type = none;
+    } else if(regex_match(str, match, regex(LABEL_EXPR))){
         type = label;
         labl = match[1].str();
     } else if(regex_match(str, match, regex(THREE_ARGS_EXPR)) || regex_match(str, match, regex(TWO_ARGS_EXPR)) || regex_match(str, match, regex(SW_LIKE_EXPR)) || regex_match(str, match, regex(ONE_ARGS_EXPR))){
@@ -273,7 +289,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 4,
                 regname_to_addr(match[2].str()),
                 regname_to_addr(match[3].str()),
-                regname_to_addr(match[4].str()),
+                0,
                 0);
             code = ret.assemble();
         }else if(match[1].str() ==  "fneg"){

@@ -14,6 +14,7 @@ Simulator sim(MEMSIZE, CACHESIZE, 0);
 int main(int argc, char* argv[]){
     if(argc < 2){
         cout << "Usage: simulator [binary file] [register data output file] [memory data output file]" << endl;
+        exit(0);
     }
 
     fstream input;
