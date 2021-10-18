@@ -39,7 +39,7 @@ int regname_to_addr(string str){
 void remove_comment(string& str){
     int pos = str.find_first_of('#');
     if(pos != string::npos){
-        str = str.substr(0, pos);
+        str = str.substr(0, pos) + "\n";
     }
 }
 
@@ -65,7 +65,6 @@ void Debug_parse(string str){
 
 Parse :: Parse(string str, bool label_only, int now_addr){
     remove_comment(str);
-    cout << str;;
     smatch match;
     if(regex_match(str, match, regex(PSUEDO))){
         type = none;

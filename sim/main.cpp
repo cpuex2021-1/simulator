@@ -4,8 +4,8 @@
 #include "Simulator.hpp"
 #include "util.hpp"
 
-#define MEMSIZE (1024 << 10)
-#define CACHESIZE (128 << 10)
+#define MEMSIZE (1 << 25)
+#define CACHESIZE (1 << 12)
 
 using namespace std;
 
@@ -27,7 +27,6 @@ int main(int argc, char* argv[]){
     while(sim.pc < filesize){
         #ifdef DEBUG
             cout << "PC:" << sim.pc << endl << "Instruction:";
-            print_instruction(instr);
             for(int i=0; i<REGNUM; i++){
                 if(i % 8 == 0 && i>0) cout << endl;
                 cout << "x" << i << ":" << sim.reg[i] << " ";

@@ -23,6 +23,10 @@ void Simulator::simulate(unsigned int instr)
     unsigned int op = getBits(instr, 2, 0, false);
     unsigned int funct3 = getBits(instr, 5, 3, false);
 
+    #ifdef DEBUG
+    print_instruction(instr);
+    #endif
+
     switch (op)
     {
     case 0:
@@ -341,9 +345,10 @@ void Simulator::simulate(unsigned int instr)
     }
     case 7:
     {
-        int imm = getBits(instr, 30, 6, true);
+        int addr = getBits(instr, 30, 6, true);
         int rs1 = getBits(instr, 31, 27, false);
         int rd = getBits(instr, 26, 22, false);
+        int imm = getBits(instr, 21, 6, true);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, imm);
@@ -352,7 +357,7 @@ void Simulator::simulate(unsigned int instr)
         switch (funct3)
         {
         case 0:
-            pc += imm;
+            pc += addr;
             return; break;
         case 1:
             reg[rd] = pc + 4;

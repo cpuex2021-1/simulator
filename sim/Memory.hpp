@@ -3,7 +3,7 @@ using namespace std;
 
 typedef struct cache_elem
 {
-    int data;
+    bool exist;
     int tag;
 }Cache_elem;
 
@@ -15,6 +15,7 @@ private:
     unsigned int cache_size;
     Cache_elem* cache;
     int *memory;
+    bool hit;
 public:
     Memory(unsigned int size, unsigned int cache_size);
     ~Memory();
