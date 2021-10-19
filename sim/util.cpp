@@ -5,7 +5,7 @@ using namespace std;
 int getBits(int num, int start, int end, bool sext){
     unsigned int mask = ((1 << (start - end + 1)) - 1) << end;
     int ans = (num & mask) >> end;
-    if(sext && ((num >> start) & 1)){
+    if(sext && (((num >> start) & 1) == 1)){
         int newmask = ((1 << (32 - (start - end + 1))) - 1) << (start - end + 1);
         ans |= newmask;
     }

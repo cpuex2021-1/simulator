@@ -1,4 +1,4 @@
-all:debug
+all:simulator
 
 simulator:util.hpp util.cpp FPU.hpp FPU.cpp Memory.hpp Memory.cpp Simulator.hpp Simulator.cpp main.cpp
 	g++ -O3 -Wall -o simulator *.cpp

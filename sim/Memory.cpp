@@ -1,13 +1,22 @@
 #include "Memory.hpp"
+#include "util.hpp"
 #include <iomanip>
+#include <iostream>
 #include <fstream>
+//hit rate
+//replace rate
+//valid rate
 
 using namespace std;
 
 Memory::Memory(unsigned int size_, unsigned int cache_size_)
-:size(size_), cache_size(cache_size_)
+:size(size_), cache_size(cache_size_), access(0), hitnum(0), validnum(0), replacenum(0)
 {
     cache = new cache_elem[cache_size_];
+    for(unsigned int i=0; i<cache_size_; i++){
+        cache[i].valid = false;
+        cache[i].tag = 0;
+    }
     memory = new int[size];
 }
 
@@ -17,10 +26,39 @@ Memory::~Memory(){
 }
 
 void Memory::write(unsigned int index, int data){
+    unsigned int tag = getBits(index, 24, 14, false);
+    unsigned int cindex = getBits(index, 13, 2, false);
+    access++;
+
+    if(!cache[cindex].valid){
+        validnum++;
+        cache[cindex].tag = tag;
+        cache[cindex].valid = true;
+    }
+    else if(tag == cache[cindex].tag){
+        hitnum++;
+    }else{
+        replacenum++;
+        cache[cindex].tag = tag;
+    }
     memory[index] = data;
 }
 
 int Memory::read(unsigned int index){
+    access++;
+    unsigned int tag = getBits(index, 24, 14, false);
+    unsigned int cindex = getBits(index, 13, 2, false);
+    if(!cache[cindex].valid){
+        validnum++;
+        cache[cindex].tag = tag;
+        cache[cindex].valid = true;
+    }
+    else if(tag == cache[cindex].tag){
+        hitnum++;
+    }else{
+        replacenum++;
+        cache[cindex].tag = tag;
+    }
     return memory[index];
 }
 
@@ -40,7 +78,18 @@ void Memory::print_memory(string filename){
             memres << " ";
         }
         memres.fill('0');
-        memres << setw(8) << hex << read(i) << " ";
+        memres << setw(8) << hex << memory[i] << " ";
     }
     memres.close();
+}
+
+void Memory::print_cache_summary(){
+    cout << "Cache summary" << endl;
+    cout << "\tValid rate   : " << (double)validnum / (double)cache_size << endl;
+    cout << "\tHit rate     : " << (double)hitnum / (double)access << endl;
+    cout << "\tReplace rate : " << (double)replacenum / (double)access << endl;
+}
+
+int Memory::read_without_cache(unsigned int index){
+    return memory[index];
 }
