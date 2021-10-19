@@ -9,8 +9,8 @@ private:
     int* reg;
     int* freg;
 public:
-    int pc;
-    int clk;
+    unsigned long long pc;
+    unsigned long long clk;
     Memory* mem;
     Simulator(unsigned int memsize, unsigned int cachesize, int pc);
     ~Simulator();

@@ -19,7 +19,7 @@ void print_instruction(unsigned int instruction){
     cout << endl;
 }
 
-void get_filesize(fstream& f, int& fsize){
+void get_filesize(fstream& f, unsigned long long& fsize){
     f.seekg(0, ios_base::end);
     fsize = f.tellg();
     f.seekg(0, ios_base::beg);

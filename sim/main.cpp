@@ -100,7 +100,7 @@ int main(int argc, char* argv[]){
 
     fstream input;
     input.open(string(argv[1]), ios::in | ios::binary);
-    int filesize;
+    unsigned long long filesize;
     get_filesize(input, filesize);
 
     unsigned int instr;
