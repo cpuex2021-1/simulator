@@ -23,27 +23,30 @@ void CLI(bool& run){
         cin >> comm;
         if(comm == "break"){
             int new_br;
-            cin >> new_br;
+            cin >> dec >> new_br;
             break_pc[new_br] = true;
             cout << "set breakpoint at " << new_br << endl;
         }else if(comm == "delete"){
             int new_br;
-            cin >> new_br;
+            cin >> dec >> new_br;
             break_pc[new_br] = false;
             cout << "deleted breakpoint at " << new_br << endl;
         }else if(comm == "clkbr"){
             int new_br;
-            cin >> new_br;
+            cin >> dec >> new_br;
             break_clk[new_br] = true;
             cout << "set breakpoint at " << new_br << endl;
         }else if(comm == "clkdel"){
             int new_br;
-            cin >> new_br;
+            cin >> dec >> new_br;
             break_clk[new_br] = false;
             cout << "deleted breakpoint at " << new_br << endl;
         }else if(comm == "run" || comm == "continue"){
             run = true;
             cout << "running" << endl;
+            return;
+        }else if(comm == "next"){
+            run = false;
             return;
         }else if(comm == "reg"){
             sim.print_register();
@@ -71,6 +74,7 @@ void CLI(bool& run){
             cout << "clkdel [clock cycle] : Delete breakpoint at [clock cycle]" << endl;
             cout << "run             : Run the program" << endl;
             cout << "continue        : Continue the program" << endl;
+            cout << "next            : Execute only one instruction" << endl;
             cout << "reg             : Show registers" << endl;
             cout << "mem [memory index (hexadecimal)]: Show the content of the memory at [memory index]" << endl;
             cout << "dump [filename] : Save memory data to [filename]" << endl;
