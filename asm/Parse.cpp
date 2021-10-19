@@ -37,7 +37,7 @@ int regname_to_addr(string str){
 }
 
 void remove_comment(string& str){
-    int pos = str.find_first_of('#');
+    const long unsigned int pos = str.find_first_of('#');
     if(pos != string::npos){
         str = str.substr(0, pos) + "\n";
     }
