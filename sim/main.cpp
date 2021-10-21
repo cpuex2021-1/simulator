@@ -74,7 +74,7 @@ void CLI(bool& run, bool read_or_eat){
             }
 
             break_pc[new_br_pc] = true;
-            cout << "set breakpoint at " << new_br << endl;
+            cout << "set breakpoint at " << new_br << "(PC: " << new_br_pc << ")" << endl;
         }else if((!read_or_eat) && comm == "delete"){
             string new_br;
             cin >> new_br;
@@ -96,7 +96,7 @@ void CLI(bool& run, bool read_or_eat){
                 }                
             }
             break_pc.erase(new_br_pc);
-            cout << "deleted breakpoint at " << new_br << endl;
+            cout << "deleted breakpoint at " << new_br << "(PC: " << new_br_pc << ")" << endl;
         }else if((!read_or_eat) && comm == "clkbr"){
             int new_br;
             cin >> dec >> new_br;
@@ -132,6 +132,8 @@ void CLI(bool& run, bool read_or_eat){
             cout << "PC: " << sim.pc << endl;
         }else if((!read_or_eat) && comm == "clk"){
             cout << "Clock: " << sim.clk << endl;
+        }else if((!read_or_eat) && comm == "instr"){
+            cout << "Instruction: "; print_instr(instructions[sim.pc/4]);
         }else if(comm == "help"){
             cout << "List of commands:" << endl;            
             cout << "help            : Show this help again" << endl;

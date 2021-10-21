@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-#define PSUEDO ".([\\w|\\.|\\-|\\d]+)\\s*([\\w|\\.|\\-|\\d]+)"
+#define PSUEDO "\\.([\\w|\\.|\\-|\\d]+)\\s*([\\w|\\.|\\-|\\d]+)"
 #define LABEL_EXPR "([\\w|\\.|\\-|\\d]+):\\s*"
 #define THREE_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s*([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*"
 #define TWO_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s*([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*"

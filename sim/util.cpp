@@ -107,3 +107,10 @@ string joking_face(){
         
     return faces[i];
 }
+
+void print_instr(unsigned int code){
+    for(int i=31; i>=0; i--){
+        cout << (code >> i & 1);
+    }
+    cout << endl;
+}
