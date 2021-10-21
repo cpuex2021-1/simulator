@@ -1,5 +1,5 @@
 all:
-	make debug -C asm
+	make -C asm
 	make -C sim
 	cp asm/assembler ./
 	cp sim/simulator ./

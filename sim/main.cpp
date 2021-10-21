@@ -2,8 +2,10 @@
 #include <fstream>
 #include <iomanip>
 #include <map>
+#include <vector>
 #include "Simulator.hpp"
 #include "util.hpp"
+#include "Instructions.hpp"
 
 #define MEMSIZE (1 << 25)
 #define CACHESIZE (1 << 12)
@@ -13,64 +15,134 @@ using namespace std;
 Simulator sim(MEMSIZE, CACHESIZE, 0);
 
 map<int,bool> break_pc, break_clk;
+vector<int> instructions;
 
-void CLI(bool& run){
+bool joke;
+
+void CLI(bool& run, bool read_or_eat){
     run = false;
     while (!run)
     {
-        cout << "(sim) ";
+        cout << ((read_or_eat) ? "(read [assembly] / eat [binary]) " : ((joke)?joking_face():"(sim) "));
         string comm;
         cin >> comm;
-        if(comm == "break"){
-            int new_br;
-            cin >> dec >> new_br;
-            break_pc[new_br] = true;
+        if(comm == "read" && read_or_eat){
+            string filename;
+            cin >> filename;
+            std::ifstream test(filename); 
+            if (!test)
+            {
+                std::cout << "The file \"" << filename << "\" doesn't exist" << std::endl;
+                continue;
+            }
+            cout << "Reading " << filename << "...";
+            setup(instructions, labels, filename, true);
+            cout << " complete!" << endl;
+            break;
+        }else if(comm == "eat" && read_or_eat){            
+            string filename;
+            cin >> filename;
+            std::ifstream test(filename); 
+            if (!test)
+            {
+                std::cout << "The file \"" << filename << "\" doesn't exist" << std::endl;
+                continue;
+            }
+            cout << "Eating " << filename << "...";
+            setup(instructions, labels, filename, false);
+            cout << " complete!" << endl;
+            break;
+        }else if((!read_or_eat) && comm == "break"){
+            string new_br;
+            cin >> new_br;
+            int new_br_pc;
+            try
+            {
+                new_br_pc = stoi(new_br);
+            }
+            catch(std::invalid_argument& e)
+            {
+                try
+                {
+                    new_br_pc = labels.at(new_br);
+                }
+                catch(std::out_of_range& e)
+                {
+                    cerr << "Label not found : " << new_br << endl;
+                    continue;
+                }                
+            }
+
+            break_pc[new_br_pc] = true;
             cout << "set breakpoint at " << new_br << endl;
-        }else if(comm == "delete"){
-            int new_br;
-            cin >> dec >> new_br;
-            break_pc[new_br] = false;
+        }else if((!read_or_eat) && comm == "delete"){
+            string new_br;
+            cin >> new_br;
+            int new_br_pc;
+            try
+            {
+                new_br_pc = stoi(new_br);
+            }
+            catch(std::invalid_argument& e)
+            {
+                try
+                {
+                    new_br_pc = labels.at(new_br);
+                }
+                catch(std::out_of_range& e)
+                {
+                    cerr << "Label not found : " << new_br << endl;
+                    continue;
+                }                
+            }
+            break_pc.erase(new_br_pc);
             cout << "deleted breakpoint at " << new_br << endl;
-        }else if(comm == "clkbr"){
+        }else if((!read_or_eat) && comm == "clkbr"){
             int new_br;
             cin >> dec >> new_br;
             break_clk[new_br] = true;
             cout << "set breakpoint at " << new_br << endl;
-        }else if(comm == "clkdel"){
+        }else if((!read_or_eat) && comm == "clkdel"){
             int new_br;
             cin >> dec >> new_br;
-            break_clk[new_br] = false;
+            break_clk.erase(new_br);
             cout << "deleted breakpoint at " << new_br << endl;
-        }else if(comm == "run" || comm == "continue"){
+        }else if((!read_or_eat) && (comm == "run" || comm == "continue")){
             run = true;
             cout << "running" << endl;
             return;
-        }else if(comm == "next"){
+        }else if((!read_or_eat) && comm == "next"){
             run = false;
             return;
-        }else if(comm == "reg"){
+        }else if((!read_or_eat) && comm == "reg"){
             sim.print_register();
-        }else if(comm == "dump"){
+        }else if((!read_or_eat) && comm == "dump"){
             string filename;
             cin >> filename;
+            cout << "Writing memory state into " << filename << "..." << endl;
             sim.mem->print_memory(filename);
-        }else if(comm == "mem"){
+        }else if((!read_or_eat) && comm == "mem"){
             int index;
             cin >> hex >> index;
             cout << sim.mem->read_without_cache(index) << endl;
         }else if(cin.eof() || comm == "exit"){
             if(cin.eof())cout << "exit" << endl;
             exit(0);
-        }else if(comm == "pc"){
+        }else if((!read_or_eat) && comm == "pc"){
             cout << "PC: " << sim.pc << endl;
-        }else if(comm == "clk"){
+        }else if((!read_or_eat) && comm == "clk"){
             cout << "Clock: " << sim.clk << endl;
         }else if(comm == "help"){
-            cout << "List of commands:" << endl;
+            cout << "List of commands:" << endl;            
             cout << "help            : Show this help again" << endl;
-            cout << "break [pc]      : Set breakpoint at [pc]" << endl;
-            cout << "clkbr [clock cycle] : Set breakpoint at [clock cycle]" << endl;
-            cout << "delete [pc]     : Delete breakpoint at [pc]" << endl;
+            if(read_or_eat){
+                cout << "read [filename] : read an assembly file" << endl;
+                cout << "eat [filename]  : eat a binary file" << endl;
+                continue;
+            }
+            cout << "break [pc/label]     : Set breakpoint at [pc/label]" << endl;
+            cout << "clkbr [clock cycle]  : Set breakpoint at [clock cycle]" << endl;
+            cout << "delete [pc/label]    : Delete breakpoint at [pc/label]" << endl;
             cout << "clkdel [clock cycle] : Delete breakpoint at [clock cycle]" << endl;
             cout << "run             : Run the program" << endl;
             cout << "continue        : Continue the program" << endl;
@@ -85,7 +157,11 @@ void CLI(bool& run){
             continue;
         }
         else{
-            cerr << "invalid command:" << comm << endl;
+            if(read_or_eat){
+                cout << "You must make ☆彡OreOre-V Simulator☆彡 \"read\" assembly or \"eat\" binary!" << endl;
+                continue;
+            }
+            cerr << "Invalid command:" << comm << endl;
             return;
         }
     } 
@@ -93,40 +169,41 @@ void CLI(bool& run){
 }
 
 int main(int argc, char* argv[]){
-    if(argc < 2){
-        cout << "Usage: simulator [binary file] [memory data output file (option)]" << endl;
-        exit(0);
+    if(argc > 1){
+        if(string(argv[1]) == "-j" || string(argv[1]) == "--joke"){
+            joke = true;
+        }
     }
+    if(joke) cout << "\\(^o^)/ ";
+    cout << "☆彡OreOre-V Simulator☆彡";
+    if(joke) cout << " \\(^o^)/";
+    cout << endl << "Type \"help\" to show available commands." << endl;
 
-    fstream input;
-    input.open(string(argv[1]), ios::in | ios::binary);
-    unsigned long long filesize;
-    get_filesize(input, filesize);
 
-    unsigned int instr;
     bool run = false;
 
-    cout << "☆彡OreOre-V Simulator☆彡" << endl << "Type \"help\" to show available commands." << endl;
+    CLI(run, true);
 
-    while(sim.pc < filesize){
+    if(instructions.size() <= 0){
+        exit(1);
+    }
+
+    while(sim.pc < instructions.size() * 4){
         #ifdef DEBUG
         cout << "PC:" << sim.pc << endl << "Instruction:";
         sim.print_register();
         #endif
 
         if(run == false){
-            CLI(run);
+            CLI(run, false);
         }else if(break_pc[sim.pc]){
             cout << "Stopped at PC " << sim.pc << endl;
-            CLI(run);
+            CLI(run, false);
         }else if(break_clk[sim.clk]){
             cout << "Stopped at clock " << sim.clk << endl;
-            CLI(run);
+            CLI(run, false);
         }
-
-        input.seekg((sim.pc / 4) * sizeof(unsigned int));
-        input.read((char *) &instr, sizeof(unsigned int));
-        sim.simulate(instr);
+        sim.simulate(instructions[sim.pc/4]);
         sim.clk++;
         
         #ifdef DEBUG
@@ -136,7 +213,7 @@ int main(int argc, char* argv[]){
 
     string memfilename = (argc < 4) ? "memResult.txt" : string(argv[4]);
     
-    cout << "Result Summary" << endl << "Register:" << endl;
+    cout << endl << "Result Summary" << endl << "Clock count: " << sim.clk << endl << "Register:" << endl;
     sim.print_register();
     cout << "Writing memory results into " << memfilename << "..." << endl;
     sim.mem->print_memory(memfilename);

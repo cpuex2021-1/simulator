@@ -24,8 +24,8 @@ Simulator::~Simulator(){
 
 void Simulator::simulate(unsigned int instr)
 {
-    unsigned int op = getBits(instr, 2, 0, false);
-    unsigned int funct3 = getBits(instr, 5, 3, false);
+    unsigned int op = getBits(instr, 2, 0);
+    unsigned int funct3 = getBits(instr, 5, 3);
 
     #ifdef DEBUG
     print_instruction(instr);
@@ -35,10 +35,10 @@ void Simulator::simulate(unsigned int instr)
     {
     case 0:
     {
-        unsigned int rd = getBits(instr, 26, 22, false);
-        unsigned int rs1 = getBits(instr, 31, 27, false);
-        unsigned int rs2 = getBits(instr, 10, 6, false);
-        unsigned int funct11 = getBits(instr, 21, 11, false);
+        unsigned int rd = getBits(instr, 26, 22);
+        unsigned int rs1 = getBits(instr, 31, 27);
+        unsigned int rs2 = getBits(instr, 10, 6);
+        unsigned int funct11 = getBits(instr, 21, 11);
         
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d funct11:%d\n", op, funct3, rd, rs1, rs2, funct11);
@@ -97,9 +97,9 @@ void Simulator::simulate(unsigned int instr)
     }
     case 1:
     {
-        unsigned int rd = getBits(instr, 26, 22, false);
-        unsigned int rs1 = getBits(instr, 31, 27, false);
-        unsigned int rs2 = getBits(instr, 10, 6, false);
+        unsigned int rd = getBits(instr, 26, 22);
+        unsigned int rs1 = getBits(instr, 31, 27);
+        unsigned int rs2 = getBits(instr, 10, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d\n", op, funct3, rd, rs1, rs2);
@@ -138,9 +138,9 @@ void Simulator::simulate(unsigned int instr)
     }
     case 2:
     {
-        unsigned int rd = getBits(instr, 26, 22, false);
-        unsigned int rs1 = getBits(instr, 31, 27, false);
-        unsigned int rs2 = getBits(instr, 10, 6, false);
+        unsigned int rd = getBits(instr, 26, 22);
+        unsigned int rs1 = getBits(instr, 31, 27);
+        unsigned int rs2 = getBits(instr, 10, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d\n", op, funct3, rd, rs1, rs2);
@@ -179,9 +179,9 @@ void Simulator::simulate(unsigned int instr)
     }
     case 3:
     {
-        unsigned int rd = getBits(instr, 26, 22, false);
-        unsigned int rs1 = getBits(instr, 31, 27, false);
-        unsigned int rs2 = getBits(instr, 10, 6, false);
+        unsigned int rd = getBits(instr, 26, 22);
+        unsigned int rs1 = getBits(instr, 31, 27);
+        unsigned int rs2 = getBits(instr, 10, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d\n", op, funct3, rd, rs1, rs2);
@@ -211,11 +211,11 @@ void Simulator::simulate(unsigned int instr)
     }
     case 4:
     {
-        unsigned int rs1 = getBits(instr, 31, 27, false);
-        unsigned int rd = getBits(instr, 26, 22, false);
-        int imm = getBits(instr, 21, 6, true);
-        int shamt = getBits(instr, 10, 6, true);
-        unsigned int judge = getBits(instr, 11, 11, false);
+        unsigned int rs1 = getBits(instr, 31, 27);
+        unsigned int rd = getBits(instr, 26, 22);
+        int imm = getSextBits(instr, 21, 6);
+        int shamt = getSextBits(instr, 10, 6);
+        unsigned int judge = getBits(instr, 11, 11);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, imm);
@@ -258,9 +258,9 @@ void Simulator::simulate(unsigned int instr)
     }
     case 5:
     {
-        unsigned int rs1 = getBits(instr, 31, 27, false);
-        unsigned int rd = getBits(instr, 26, 22, false);
-        int offset = getBits(instr, 21, 6, true);
+        unsigned int rs1 = getBits(instr, 31, 27);
+        unsigned int rd = getBits(instr, 26, 22);
+        int offset = getSextBits(instr, 21, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, offset);
@@ -284,9 +284,9 @@ void Simulator::simulate(unsigned int instr)
     }
     case 6:
     {
-        unsigned int rs1 = getBits(instr, 31, 27, false);
-        unsigned int rs2 = getBits(instr, 10, 6, false);
-        int imm = getBits(instr, 26, 11, true);
+        unsigned int rs1 = getBits(instr, 31, 27);
+        unsigned int rs2 = getBits(instr, 10, 6);
+        int imm = getSextBits(instr, 26, 11);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rs1:%d rs2:%d imm:%d\n", op, funct3, rs1, rs2, imm);
@@ -349,10 +349,10 @@ void Simulator::simulate(unsigned int instr)
     }
     case 7:
     {
-        int addr = getBits(instr, 30, 6, true);
-        int rs1 = getBits(instr, 31, 27, false);
-        int rd = getBits(instr, 26, 22, false);
-        int imm = getBits(instr, 21, 6, true);
+        int addr = getSextBits(instr, 30, 6);
+        unsigned int rs1 = getBits(instr, 31, 27);
+        unsigned int rd = getBits(instr, 26, 22);
+        int imm = getSextBits(instr, 21, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, imm);
@@ -459,12 +459,12 @@ map<int, string> fregName = {
 void Simulator::print_register(){
     for(int i=0; i<REGNUM; i++){
     if(i % 8 == 0 && i > 0) cout << endl;
-        cout << setw(5) << xregName[i] << ":" << setw(11) << reg[i] << " ";
+        cout << left << setw(5) << xregName[i] << ":" << right << setw(11) << reg[i] << " ";
     }
     cout << endl;
     for(int i=0; i<FREGNUM; i++){
         if(i % 8 == 0 && i>0) cout << endl;
-        cout << setw(5) << fregName[i] << ":" << setw(11) << freg[i] << " ";
+        cout << left << setw(5) << fregName[i] << ":" << right << setw(11) << freg[i] << " ";
     }
     cout << endl;
 }

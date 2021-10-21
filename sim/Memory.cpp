@@ -3,9 +3,6 @@
 #include <iomanip>
 #include <iostream>
 #include <fstream>
-//hit rate
-//replace rate
-//valid rate
 
 using namespace std;
 
@@ -26,8 +23,8 @@ Memory::~Memory(){
 }
 
 void Memory::write(unsigned int index, int data){
-    unsigned int tag = getBits(index, 24, 14, false);
-    unsigned int cindex = getBits(index, 13, 2, false);
+    unsigned int tag = getBits(index, 24, 14);
+    unsigned int cindex = getBits(index, 13, 2);
     access++;
 
     if(!cache[cindex].valid){
@@ -46,8 +43,8 @@ void Memory::write(unsigned int index, int data){
 
 int Memory::read(unsigned int index){
     access++;
-    unsigned int tag = getBits(index, 24, 14, false);
-    unsigned int cindex = getBits(index, 13, 2, false);
+    unsigned int tag = getBits(index, 24, 14);
+    unsigned int cindex = getBits(index, 13, 2);
     if(!cache[cindex].valid){
         validnum++;
         cache[cindex].tag = tag;
