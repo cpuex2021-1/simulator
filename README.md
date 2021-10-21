@@ -5,9 +5,13 @@
 
 ## 実行方法
 
-```$ simulator [input file(binary)] [mem info output file(option)]```
+```$ ./simulator```
 
 ## 説明
+
+***実行方法が変わりました***
+
+*アセンブリとバイナリを読むコマンド(read/eat)がそれぞれ追加されました。シミュレータを立ち上げてからファイルを読み込んでください*
 
 FPUはC++標準で対応
 
