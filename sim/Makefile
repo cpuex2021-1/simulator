@@ -1,6 +1,6 @@
 all:simulator
 CC=g++
-CFLAGS= -O3 -pg -Wall -o simulator 
+CFLAGS= -O3 -Wall -o simulator 
 
 simulator:*.cpp *.hpp
 	$(CC) $(CFLAGS) *.cpp
