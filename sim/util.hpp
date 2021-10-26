@@ -2,8 +2,8 @@
 #include <fstream>
 #include <string>
 #include <map>
-#include "Parse.hpp"
-#include "Instructions.hpp"
+#include "../asm/Parse.hpp"
+#include "../asm/Instructions.hpp"
 
 #define getBits(num, start, end) ((num >> end) & ((1 << (start - end + 1)) - 1))
 #define getSextBits(num, start, end) ((num >> end) & ((1 << (start - end + 1)) - 1)) | \

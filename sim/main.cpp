@@ -5,7 +5,7 @@
 #include <vector>
 #include "Simulator.hpp"
 #include "util.hpp"
-#include "Instructions.hpp"
+#include "../asm/Instructions.hpp"
 
 #define MEMSIZE (1 << 25)
 #define CACHESIZE (1 << 12)
