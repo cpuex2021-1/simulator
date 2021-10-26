@@ -14,9 +14,11 @@ using namespace std;
 
 Simulator sim(MEMSIZE, CACHESIZE, 0);
 
-map<int,bool> break_pc, break_clk;
+map<int,bool> break_pc;
+vector<unsigned long long> break_clk;
 vector<int> instructions;
 
+double start;
 bool joke;
 
 void CLI(bool& run, bool read_or_eat){
@@ -100,16 +102,18 @@ void CLI(bool& run, bool read_or_eat){
         }else if((!read_or_eat) && comm == "clkbr"){
             int new_br;
             cin >> dec >> new_br;
-            break_clk[new_br] = true;
+            break_clk.push_back(new_br);
+            sort(break_clk.begin(), break_clk.end());
             cout << "set breakpoint at " << new_br << endl;
         }else if((!read_or_eat) && comm == "clkdel"){
             int new_br;
             cin >> dec >> new_br;
-            break_clk.erase(new_br);
+            break_clk.erase(find(break_clk.begin(), break_clk.end(), new_br));
             cout << "deleted breakpoint at " << new_br << endl;
         }else if((!read_or_eat) && (comm == "run" || comm == "continue")){
             run = true;
             cout << "running" << endl;
+            start = elapsed();
             return;
         }else if((!read_or_eat) && comm == "next"){
             run = false;
@@ -190,7 +194,8 @@ int main(int argc, char* argv[]){
         exit(1);
     }
 
-    while(sim.pc < instructions.size() * 4){
+    
+    while(sim.pc < instructions.size()){
         #ifdef DEBUG
         cout << "PC:" << sim.pc << endl << "Instruction:";
         sim.print_register();
@@ -198,26 +203,31 @@ int main(int argc, char* argv[]){
 
         if(run == false){
             CLI(run, false);
-        }else if(break_pc[sim.pc]){
+        }else if(break_pc.size() != 0 && break_pc[sim.pc]){
             cout << "Stopped at PC " << sim.pc << endl;
             CLI(run, false);
-        }else if(break_clk[sim.clk]){
+        }else if(break_clk.size() != 0 && break_clk[0] != sim.clk){
             cout << "Stopped at clock " << sim.clk << endl;
+            break_clk.erase(break_clk.begin());
             CLI(run, false);
         }
-        sim.simulate(instructions[sim.pc/4]);
+        sim.simulate(instructions[sim.pc]);
         sim.clk++;
         
         #ifdef DEBUG
         cout << endl;
         #endif
     }
+    double end = elapsed();
+    cout << endl << "Result Summary" << endl << "Clock count: " << sim.clk << endl << "Time:" << (end - start) << endl;
 
-    string memfilename = (argc < 4) ? "memResult.txt" : string(argv[4]);
-    
-    cout << endl << "Result Summary" << endl << "Clock count: " << sim.clk << endl << "Register:" << endl;
-    sim.print_register();
-    cout << "Writing memory results into " << memfilename << "..." << endl;
-    sim.mem->print_memory(memfilename);
-    sim.mem->print_cache_summary();
+    if(false){
+        string memfilename = (argc < 4) ? "memResult.txt" : string(argv[4]);
+        
+        cout << endl << "Result Summary" << endl << "Clock count: " << sim.clk << endl << "Register:" << endl;
+        sim.print_register();
+        cout << "Writing memory results into " << memfilename << "..." << endl;
+        sim.mem->print_memory(memfilename);
+        sim.mem->print_cache_summary();
+    }
 }

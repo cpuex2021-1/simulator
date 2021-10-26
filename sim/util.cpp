@@ -114,3 +114,9 @@ void print_instr(unsigned int code){
     }
     cout << endl;
 }
+
+double elapsed(){
+    struct timespec tm;
+    clock_gettime(CLOCK_REALTIME, &tm);
+    return tm.tv_sec + tm.tv_nsec * 10e-9;
+}
