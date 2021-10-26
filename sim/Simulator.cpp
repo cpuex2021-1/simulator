@@ -51,45 +51,45 @@ void Simulator::simulate(unsigned int instr)
             {
             case 0:
                 reg[rd] = (int)reg[rs1] + (int)reg[rs2];
-                pc += 4; return; break;
+                pc++; return; break;
             case 1:
                 reg[rd] = (int)reg[rs1] - (int)reg[rs2];
-                pc += 4; return; break;
+                pc++; return; break;
             default:
                 break;
             }
             break;
         case 1:
             reg[rd] = (int)reg[rs1] << (int)reg[rs2];
-            pc += 4; return; break;
+            pc++; return; break;
         case 2:
             switch (funct11)
             {
             case 0:
                 reg[rd] = ((unsigned int)reg[rs1]) >> ((unsigned int)reg[rs2]);
-                pc += 4; return; break;
+                pc++; return; break;
             case 1:
                 reg[rd] = ((int)reg[rs1]) >> ((int)reg[rs2]);
-                pc += 4; return; break;
+                pc++; return; break;
             default:
                 break;
             }
             break;
         case 3:
             reg[rd] = ((int)reg[rs1] < (int)reg[rs2])? 1 : 0;
-            pc += 4; return; break;
+            pc++; return; break;
         case 4:
             reg[rd] = ((unsigned int)reg[rs1] < (unsigned int)reg[rs2])? 1 : 0;
-            pc += 4; return; break;
+            pc++; return; break;
         case 5:
             reg[rd] = (int)reg[rs1] ^ (int)reg[rs2];
-            pc += 4; return; break;
+            pc++; return; break;
         case 6:
             reg[rd] = (int)reg[rs1] | (int)reg[rs2];
-            pc += 4; return; break;
+            pc++; return; break;
         case 7:
             reg[rd] = (int)reg[rs1] & (int)reg[rs2];
-            pc += 4; return; break;
+            pc++; return; break;
         default:
             break;
         }
@@ -109,28 +109,28 @@ void Simulator::simulate(unsigned int instr)
         {
         case 0:
             reg[rd] = (int)reg[rs1] * (int)reg[rs2];
-            pc += 4; return; break;
+            pc++; return; break;
         case 1:
             reg[rd] = (long long)((long long)reg[rs1] * (long long)reg[rs2]) >> 32;
-            pc += 4; return; break;
+            pc++; return; break;
         case 2:
             reg[rd] = (long long)((long long)reg[rs1] * (unsigned long long)reg[rs2]) >> 32;
-            pc += 4; return; break;
+            pc++; return; break;
         case 3:
             reg[rd] = (unsigned long long)((unsigned long long)reg[rs1] * (unsigned long long)reg[rs2]) >> 32;
-            pc += 4; return; break;
+            pc++; return; break;
         case 4:
             reg[rd] = (int)reg[rs1] / (int)reg[rs2];
-            pc += 4; return; break;
+            pc++; return; break;
         case 5:
             reg[rd] = (unsigned int)reg[rs1] / (unsigned int)reg[rs2];
-            pc += 4; return; break;
+            pc++; return; break;
         case 6:
             reg[rd] = (int)reg[rs1] % (int)reg[rs2];
-            pc += 4; return; break;
+            pc++; return; break;
         case 7:
             reg[rd] = (unsigned int)reg[rs1] % (unsigned int)reg[rs2];
-            pc += 4; return; break;
+            pc++; return; break;
         default:
             break;
         }
@@ -150,28 +150,28 @@ void Simulator::simulate(unsigned int instr)
         {
         case 0:
             freg[rd] = fadd(freg[rs1], freg[rs2]);
-            pc += 4; return; break;
+            pc++; return; break;
         case 1:
             freg[rd] = fsub(freg[rs1], freg[rs2]);
-            pc += 4; return; break;
+            pc++; return; break;
         case 2:
             freg[rd] = fmul(freg[rs1], freg[rs2]);
-            pc += 4; return; break;
+            pc++; return; break;
         case 3:
             freg[rd] = fdiv(freg[rs1], freg[rs2]);
-            pc += 4; return; break;
+            pc++; return; break;
         case 4:
             freg[rd] = fsqrt(freg[rs1]);
-            pc += 4; return; break;
+            pc++; return; break;
         case 5:
             freg[rd] = fneg(freg[rs1]);
-            pc += 4; return; break;
+            pc++; return; break;
         case 6:
             freg[rd] = fmin(freg[rs1], freg[rs2]);
-            pc += 4; return; break;
+            pc++; return; break;
         case 7:
             freg[rd] = fmax(freg[rs1], freg[rs2]);
-            pc += 4; return; break;
+            pc++; return; break;
         default:
             break;
         }
@@ -191,19 +191,19 @@ void Simulator::simulate(unsigned int instr)
         {
         case 0:
             freg[rd] = feq(freg[rs1], freg[rs2]);
-            pc += 4; return; break;
+            pc++; return; break;
         case 1:
             freg[rd] = flt(freg[rs1], freg[rs2]);
-            pc += 4; return; break;
+            pc++; return; break;
         case 2:
             freg[rd] = fle(freg[rs1], freg[rs2]);
-            pc += 4; return; break;
+            pc++; return; break;
         case 3:
             reg[rd] = freg[rs1];
-            pc += 4; return; break;
+            pc++; return; break;
         case 4:
             freg[rd] = (int)reg[rs1];
-            pc += 4; return; break;
+            pc++; return; break;
         default:
             break;
         }
@@ -225,32 +225,32 @@ void Simulator::simulate(unsigned int instr)
         {
         case 0:
             reg[rd] = (int)reg[rs1] + imm;
-            pc += 4; return; break;
+            pc++; return; break;
         case 1:
             reg[rd] = (int)reg[rs1] << shamt;
-            pc += 4; return; break;
+            pc++; return; break;
         case 2:
             if(judge){
                 reg[rd] = (int)reg[rs1] >> shamt;
             }else{
                 reg[rd] = (unsigned int)reg[rs1] >> shamt;
             }
-            pc += 4; return; break;
+            pc++; return; break;
         case 3:
             reg[rd] = ((int)reg[rs1] < imm)? 1 : 0;
-            pc += 4; return; break;
+            pc++; return; break;
         case 4:
             reg[rd] = ((unsigned int)reg[rs1] < (unsigned int)imm)? 1 : 0;
-            pc += 4; return; break;
+            pc++; return; break;
         case 5:
             reg[rd] = (int)reg[rs1] ^ imm;
-            pc += 4; return; break;
+            pc++; return; break;
         case 6:
             reg[rd] = (int)reg[rs1] | imm;
-            pc += 4; return; break;
+            pc++; return; break;
         case 7:
             reg[rd] = (int)reg[rs1] & imm;
-            pc += 4; return; break;
+            pc++; return; break;
         default:
             break;
         }
@@ -270,13 +270,13 @@ void Simulator::simulate(unsigned int instr)
         {
         case 0:
             reg[rd] = mem->read((int)reg[rs1] + offset);
-            pc += 4; return; break;
+            pc++; return; break;
         case 1:
             freg[rd] = mem->read((int)reg[rs1] + offset);
-            pc += 4; return; break;
+            pc++; return; break;
         case 2:
             reg[rd] = ((rs1 << 16) + offset) << 12;
-            pc += 4; return; break;
+            pc++; return; break;
         default:
             break;
         }
@@ -298,50 +298,50 @@ void Simulator::simulate(unsigned int instr)
             if((int)reg[rs1] == (int)reg[rs2]){
                 pc += imm;
             }else{
-                pc += 4;
+                pc++;
             }
             return; break;
         case 1:
             if((int)reg[rs1] != (int)reg[rs2]){
                 pc += imm;
             }else{
-                pc += 4;
+                pc++;
             }
             return; break;
         case 2:
             if((int)reg[rs1] < (int)reg[rs2]){
                 pc += imm;
             }else{
-                pc += 4;
+                pc++;
             }
             return; break;
         case 3:
             if((int)reg[rs1] >= (int)reg[rs2]){
                 pc += imm;
             }else{
-                pc += 4;
+                pc++;
             }
             return; break;
         case 4:
             if((unsigned int)reg[rs1] < (unsigned int)reg[rs2]){
                 pc += imm;
             }else{
-                pc += 4;
+                pc++;
             }
             return; break;
         case 5:
             if((unsigned int)reg[rs1] >= (unsigned int)reg[rs2]){
                 pc += imm;
             }else{
-                pc += 4;
+                pc++;
             }
             return; break;
         case 6:
             mem->write((int)reg[rs1]+imm, (int)reg[rs2]);
-            pc += 4; return; break;
+            pc++; return; break;
         case 7:
             mem->write((int)reg[rs1]+imm, (int)freg[rs2]);
-            pc += 4; return; break;
+            pc++; return; break;
         default:
             break;
         }
@@ -364,7 +364,7 @@ void Simulator::simulate(unsigned int instr)
             pc += addr;
             return; break;
         case 1:
-            reg[rd] = pc + 4;
+            reg[rd] = pc + 1;
             pc += imm;
             return; break;
         case 2:

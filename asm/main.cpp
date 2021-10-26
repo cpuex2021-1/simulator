@@ -39,7 +39,7 @@ int main(int argc, char* argv[]){
             exit(1);
         }else{
             line_num++;
-            now_addr += 0x4;
+            now_addr += 1;
         }
     }
     input.close();
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]){
             #endif
             output.write(reinterpret_cast<char *>(&pres.code), sizeof(pres.code));
             line_num++;
-            now_addr += 0x4;
+            now_addr += 1;
         }else if(pres.type == none || pres.type == label){
             line_num++;
         }else if(pres.type == error){

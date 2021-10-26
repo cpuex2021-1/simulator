@@ -51,7 +51,7 @@ void setup(vector<int>& instr, map<std::string, unsigned int>& labels, string fi
                 exit(1);
             }else{
                 line_num++;
-                now_addr += 0x4;
+                now_addr += 1;
             }
         }
         input.close();
@@ -72,7 +72,7 @@ void setup(vector<int>& instr, map<std::string, unsigned int>& labels, string fi
                 #endif
                 instr.push_back(pres.code);
                 line_num++;
-                now_addr += 0x4;
+                now_addr += 1;
             }else if(pres.type == none || pres.type == label){
                 line_num++;
             }else if(pres.type == error){
