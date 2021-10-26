@@ -5,8 +5,10 @@
 #include "Parse.hpp"
 #include "Instructions.hpp"
 
-int getBits(int num, int start, int end);
-int getSextBits(int num, int start, int end);
+#define getBits(num, start, end) ((num >> end) & ((1 << (start - end + 1)) - 1))
+#define getSextBits(num, start, end) ((num >> end) & ((1 << (start - end + 1)) - 1)) | \
+    (((((num >> start) & 1) << (32 - (start - end + 1))) - ((num >> start) & 1)) << (start - end + 1))
+
 void print_instruction(unsigned int instr);
 void get_filesize(std::fstream& f, unsigned long long& fsize);
 void setup(std::vector<int>& instr, std::map<std::string, unsigned int>& labels, std::string filename, bool isasm);

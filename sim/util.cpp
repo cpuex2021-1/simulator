@@ -4,22 +4,6 @@
 #include <iostream>
 using namespace std;
 
-int getBits(int num, int start, int end){
-    unsigned int mask = ((1 << (start - end + 1)) - 1);
-    int ans = (num >> end) & mask;
-    return ans;
-}
-
-int getSextBits(int num, int start, int end){
-    unsigned int mask = ((1 << (start - end + 1)) - 1);
-    int ans = (num >> end) & mask;
-    if(((num >> start) & 1) == 1){
-        int newmask = ((1 << (32 - (start - end + 1))) - 1) << (start - end + 1);
-        ans |= newmask;
-    }
-    return ans;
-}
-
 void print_instruction(unsigned int instruction){
     for(int i=31; i>=0; i--){
         cout << ((instruction >> i) & 1);
