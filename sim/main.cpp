@@ -18,7 +18,6 @@ map<int,bool> break_pc;
 vector<unsigned long long> break_clk;
 vector<int> instructions;
 
-double start;
 bool joke;
 
 void CLI(bool& run, bool read_or_eat){
@@ -113,7 +112,6 @@ void CLI(bool& run, bool read_or_eat){
         }else if((!read_or_eat) && (comm == "run" || comm == "continue")){
             run = true;
             cout << "running" << endl;
-            start = elapsed();
             return;
         }else if((!read_or_eat) && comm == "next"){
             run = false;
@@ -206,7 +204,7 @@ int main(int argc, char* argv[]){
         }else if(break_pc.size() != 0 && break_pc[sim.pc]){
             cout << "Stopped at PC " << sim.pc << endl;
             CLI(run, false);
-        }else if(break_clk.size() != 0 && break_clk[0] != sim.clk){
+        }else if(break_clk.size() != 0 && break_clk[0] == sim.clk){
             cout << "Stopped at clock " << sim.clk << endl;
             break_clk.erase(break_clk.begin());
             CLI(run, false);
@@ -218,10 +216,8 @@ int main(int argc, char* argv[]){
         cout << endl;
         #endif
     }
-    double end = elapsed();
-    cout << endl << "Result Summary" << endl << "Clock count: " << sim.clk << endl << "Time:" << (end - start) << endl;
 
-    if(false){
+    if(true){
         string memfilename = (argc < 4) ? "memResult.txt" : string(argv[4]);
         
         cout << endl << "Result Summary" << endl << "Clock count: " << sim.clk << endl << "Register:" << endl;

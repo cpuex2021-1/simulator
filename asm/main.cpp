@@ -37,6 +37,8 @@ int main(int argc, char* argv[]){
         }else if(pres.type == error){
             cerr << "Parsing Error at line " << line_num << endl;
             exit(1);
+        }else if(pres.type == none){
+            line_num++;
         }else{
             line_num++;
             now_addr += 1;
@@ -47,6 +49,8 @@ int main(int argc, char* argv[]){
 
     input.open(infile, ios::in);
     output.open(outfile, ios::binary | ios::out);
+
+    output.write(reinterpret_cast<char *>(now_addr), sizeof(now_addr));
 
     line_num = 1;
     now_addr = 0;

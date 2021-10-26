@@ -33,6 +33,8 @@ void setup(vector<int>& instr, map<std::string, unsigned int>& labels, string fi
             }else if(pres.type == error){
                 cerr << "Parsing Error at line " << line_num << endl;
                 exit(1);
+            }else if(pres.type == none){
+                line_num++;
             }else{
                 line_num++;
                 now_addr += 1;
@@ -66,6 +68,7 @@ void setup(vector<int>& instr, map<std::string, unsigned int>& labels, string fi
         }
     }else{
         int code;
+        input.read((char *) &code, sizeof(unsigned int));
         while(input.read((char *) &code, sizeof(unsigned int))){
             instr.push_back(code);
         }
