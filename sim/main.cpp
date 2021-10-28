@@ -20,6 +20,8 @@ vector<int> instructions;
 
 bool joke;
 
+//double start_time, end_time;
+
 void CLI(bool& run, bool read_or_eat){
     run = false;
     while (!run)
@@ -112,6 +114,7 @@ void CLI(bool& run, bool read_or_eat){
         }else if((!read_or_eat) && (comm == "run" || comm == "continue")){
             run = true;
             cout << "running" << endl;
+            //start_time = elapsed();
             return;
         }else if((!read_or_eat) && comm == "next"){
             run = false;
@@ -217,13 +220,17 @@ int main(int argc, char* argv[]){
         #endif
     }
 
+    //end_time = elapsed();
+
     if(true){
         string memfilename = (argc < 4) ? "memResult.txt" : string(argv[4]);
         
-        cout << endl << "Result Summary" << endl << "Clock count: " << sim.clk << endl << "Register:" << endl;
+        cout << endl << "Result Summary" << endl << "Clock count: " << sim.clk << endl;
+        /* << "Time: " << (end_time - start_time) << endl << */
+        cout << "Register:" << endl;
         sim.print_register();
         cout << "Writing memory results into " << memfilename << "..." << endl;
-        sim.mem->print_memory(memfilename);
+        //sim.mem->print_memory(memfilename);
         sim.mem->print_cache_summary();
     }
 }

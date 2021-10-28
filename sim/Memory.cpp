@@ -1,8 +1,4 @@
 #include "Memory.hpp"
-#include "util.hpp"
-#include <iomanip>
-#include <iostream>
-#include <fstream>
 
 using namespace std;
 
@@ -20,25 +16,6 @@ Memory::Memory(unsigned int size_, unsigned int cache_size_)
 Memory::~Memory(){
     delete cache;
     delete memory;
-}
-
-void Memory::write(unsigned int index, int data){
-    unsigned int tag = getBits(index, 24, 14);
-    unsigned int cindex = getBits(index, 13, 2);
-    access++;
-
-    if(!cache[cindex].valid){
-        validnum++;
-        cache[cindex].tag = tag;
-        cache[cindex].valid = true;
-    }
-    else if(tag == cache[cindex].tag){
-        hitnum++;
-    }else{
-        replacenum++;
-        cache[cindex].tag = tag;
-    }
-    memory[index] = data;
 }
 
 int Memory::read(unsigned int index){
