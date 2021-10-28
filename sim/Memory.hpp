@@ -29,7 +29,7 @@ public:
     Memory(unsigned int size, unsigned int cache_size);
     ~Memory();
     inline void write(unsigned int index, int data);
-    int read(unsigned int index);
+    inline int read(unsigned int index);
     void print_memory(string filename);
     void print_cache_summary();
     int read_without_cache(unsigned int index);
@@ -53,4 +53,22 @@ inline void Memory::write(unsigned int index, int data){
         cache[cindex].tag = tag;
     }
     memory[index] = data;
+}
+
+inline int Memory::read(unsigned int index){
+    access++;
+    unsigned int tag = getBits(index, 24, 14);
+    unsigned int cindex = getBits(index, 13, 2);
+    if(!cache[cindex].valid){
+        validnum++;
+        cache[cindex].tag = tag;
+        cache[cindex].valid = true;
+    }
+    else if(tag == cache[cindex].tag){
+        hitnum++;
+    }else{
+        replacenum++;
+        cache[cindex].tag = tag;
+    }
+    return memory[index];
 }

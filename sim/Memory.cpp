@@ -18,24 +18,6 @@ Memory::~Memory(){
     delete memory;
 }
 
-int Memory::read(unsigned int index){
-    access++;
-    unsigned int tag = getBits(index, 24, 14);
-    unsigned int cindex = getBits(index, 13, 2);
-    if(!cache[cindex].valid){
-        validnum++;
-        cache[cindex].tag = tag;
-        cache[cindex].valid = true;
-    }
-    else if(tag == cache[cindex].tag){
-        hitnum++;
-    }else{
-        replacenum++;
-        cache[cindex].tag = tag;
-    }
-    return memory[index];
-}
-
 void Memory::print_memory(string filename){
     fstream memres;
     memres.open(filename, ios::out);
