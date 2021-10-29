@@ -230,7 +230,7 @@ int main(int argc, char* argv[]){
         cout << "Register:" << endl;
         sim.print_register();
         cout << "Writing memory results into " << memfilename << "..." << endl;
-        //sim.mem->print_memory(memfilename);
+        sim.mem->print_memory(memfilename);
         sim.mem->print_cache_summary();
     }
 }
