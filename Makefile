@@ -7,4 +7,4 @@ all:
 clean:
 	make clean -C asm
 	make clean -C sim
-	rm -f assembler simulator *.txt
+	rm -f assembler simulator memResult.txt
