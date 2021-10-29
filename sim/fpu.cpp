@@ -8,7 +8,7 @@ void FPU::initdiv(){
         exit(1);
     }
     for(int i=0; i<1024; i++){
-        fscanf(fp, "%lx", &init_grad[i]);
+        fscanf(fp, "%lx", &div_grad[i]);
     }
     fclose(fp);
 }
@@ -21,7 +21,7 @@ void FPU::initsqr(){
         exit(1);
     }
     for(int i=0; i<1024; i++){
-        fscanf(fp, "%lx", &init_grad[i]);
+        fscanf(fp, "%lx", &sqrt_grad[i]);
     }
     fclose(fp);
 }

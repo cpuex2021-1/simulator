@@ -10,7 +10,8 @@ class FPU
 private:
     void initdiv();
     void initsqr();
-    long init_grad[1024];
+    long div_grad[1024];
+    long sqrt_grad[1024];
     inline int finv(int x);
 public:
     FPU();
@@ -70,8 +71,8 @@ inline int FPU::finv(int x){
     if(ae >253 ) e = 0; else  e = 253- ae;
 
     long a,b;
-    a = init_grad[key] &  ((1ll<<13)-1);
-    b = (init_grad[key]>>13) << 13 ; 
+    a = div_grad[key] &  ((1ll<<13)-1);
+    b = (div_grad[key]>>13) << 13 ; 
     long m_ =  b -  2 * a * diff;
     int m = m_ >> 13;
     x = (as<<31) | (e<<23) | m;
@@ -86,8 +87,8 @@ inline int FPU::fdiv(int x, int y){
     long xm = (1 << 23) | (x & 0x7fffff);
     long key = (y>>13) & 0x3ff;
     long diff = y & 0x1fff;
-    long init = (init_grad[key] & 0xfffffe000);
-    long grad = init_grad[key] & 0x1fff;
+    long init = (div_grad[key] & 0xfffffe000);
+    long grad = div_grad[key] & 0x1fff;
     long ym_ = init - 2 * diff * grad;
     //long ym =  (1<<23) | (ym>>13);
     long ym = (1l << 23) + (finv(y) & 0x7fffff);
@@ -110,8 +111,8 @@ inline int FPU::fsqrt(int a){
     int e = (a>>23 ) & 0xff;
     long key = (a>>14) & 0x3ff;
     long diff = a & 0x3fff;
-    long init = (init_grad[key] >> 13) << 13;
-    long grad = init_grad[key] & 0x1fff;
+    long init = (sqrt_grad[key] >> 13) << 13;
+    long grad = sqrt_grad[key] & 0x1fff;
     /*if(diff==1023){
         printf("key:%ld", key);
         printf("diff:%ld\n", diff);
