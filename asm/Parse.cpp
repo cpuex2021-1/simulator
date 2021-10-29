@@ -577,7 +577,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
             Jtype ret(
                 7,
                 2,
-                (rs1 << 21) | (rd << 17) | (label_to_addr(match[4].str(), now_addr) & ((1 << 16) -1))
+                (rs1 << 21) | (rd << 16) | (label_to_addr(match[4].str(), now_addr) & ((1 << 16) -1))
             );
             code = ret.assemble();
         }else{
