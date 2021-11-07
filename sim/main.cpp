@@ -17,8 +17,10 @@ Simulator sim(MEMSIZE, CACHESIZE, 0);
 map<int,bool> break_pc;
 vector<unsigned long long> break_clk;
 vector<int> instructions;
+vector<string> str_instr;
 
 bool joke;
+bool isasm;
 
 //double start_time, end_time;
 
@@ -39,7 +41,8 @@ void CLI(bool& run, bool read_or_eat){
                 continue;
             }
             cout << "Reading " << filename << "...";
-            setup(instructions, labels, filename, true);
+            setup(instructions, str_instr, labels, filename, true);
+            isasm = true;
             cout << " complete!" << endl;
             break;
         }else if(comm == "eat" && read_or_eat){            
@@ -52,8 +55,9 @@ void CLI(bool& run, bool read_or_eat){
                 continue;
             }
             cout << "Eating " << filename << "...";
-            setup(instructions, labels, filename, false);
+            setup(instructions, str_instr, labels, filename, false);
             cout << " complete!" << endl;
+            isasm = false;
             break;
         }else if((!read_or_eat) && comm == "break"){
             string new_br;
@@ -116,10 +120,10 @@ void CLI(bool& run, bool read_or_eat){
             cout << "running" << endl;
             //start_time = elapsed();
             return;
-        }else if((!read_or_eat) && comm == "next"){
+        }else if((!read_or_eat) && (comm == "next" || comm == "n")){
             run = false;
             return;
-        }else if((!read_or_eat) && comm == "reg"){
+        }else if((!read_or_eat) && (comm == "reg" || comm == "r")){
             sim.print_register();
         }else if((!read_or_eat) && comm == "dump"){
             string filename;
@@ -138,7 +142,11 @@ void CLI(bool& run, bool read_or_eat){
         }else if((!read_or_eat) && comm == "clk"){
             cout << "Clock: " << sim.clk << endl;
         }else if((!read_or_eat) && comm == "instr"){
-            cout << "Instruction: "; print_instr(instructions[sim.pc/4]);
+            if(isasm){
+                cout << "Instruction: " << str_instr[sim.pc] << endl;
+            }else{
+                cout << "Instruction: "; print_instr(instructions[sim.pc]);
+            }
         }else if(comm == "help"){
             cout << "List of commands:" << endl;            
             cout << "help            : Show this help again" << endl;

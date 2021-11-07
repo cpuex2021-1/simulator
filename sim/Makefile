@@ -7,6 +7,9 @@ simulator:*.cpp *.hpp ../asm/Instructions.cpp ../asm/Parse.cpp
 
 prof:*.cpp *.hpp ../asm/Instructions.cpp ../asm/Parse.cpp
 	$(CC) $(CFLAGS) -pg ../asm/Instructions.cpp ../asm/Parse.cpp *.cpp
+
+gdb:*.cpp *.hpp ../asm/Instructions.cpp ../asm/Parse.cpp
+	$(CC) $(CFLAGS) -g ../asm/Instructions.cpp ../asm/Parse.cpp *.cpp
 	
 clean:
 	rm -f simulator

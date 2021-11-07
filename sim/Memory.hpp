@@ -17,8 +17,8 @@ typedef struct cache_elem
 class Memory
 {
 private:
-    unsigned int size;
-    unsigned int cache_size;
+    int size;
+    int cache_size;
     Cache_elem* cache;
     int *memory;
     int access;
@@ -28,15 +28,19 @@ private:
 public:
     Memory(unsigned int size, unsigned int cache_size);
     ~Memory();
-    inline void write(unsigned int index, int data);
-    inline int read(unsigned int index);
+    inline void write(int index, int data);
+    inline int read(int index);
     void print_memory(string filename);
     void print_cache_summary();
     int read_without_cache(unsigned int index);
 };
 
 
-inline void Memory::write(unsigned int index, int data){
+inline void Memory::write(int index, int data){
+    if(index < 0 || index >= size){
+        cerr << "Memory index out of range: " << index << endl;
+        exit(1);
+    }
     unsigned int tag = getBits(index, 24, 14);
     unsigned int cindex = getBits(index, 13, 2);
     access++;
@@ -55,7 +59,11 @@ inline void Memory::write(unsigned int index, int data){
     memory[index] = data;
 }
 
-inline int Memory::read(unsigned int index){
+inline int Memory::read(int index){
+    if(index < 0 || index >= size){
+        cerr << "Memory index out of range: " << index << endl;
+        exit(1);
+    }
     access++;
     unsigned int tag = getBits(index, 24, 14);
     unsigned int cindex = getBits(index, 13, 2);

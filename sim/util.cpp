@@ -18,7 +18,7 @@ void get_filesize(fstream& f, unsigned long long& fsize){
 }
 
 
-void setup(vector<int>& instr, map<std::string, unsigned int>& labels, string filename, bool isasm){
+void setup(vector<int>& instr, vector<string>& str_instr, map<std::string, unsigned int>& labels, string filename, bool isasm){
     fstream input;
     input.open(filename, ios::in);
     if(isasm){
@@ -56,6 +56,7 @@ void setup(vector<int>& instr, map<std::string, unsigned int>& labels, string fi
                 #ifdef DEBUG
                 pres.print_instr();
                 #endif
+                str_instr.push_back(str);
                 instr.push_back(pres.code);
                 line_num++;
                 now_addr += 1;

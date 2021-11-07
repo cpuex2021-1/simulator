@@ -193,13 +193,13 @@ inline void Simulator::simulate(unsigned int instr)
         switch (funct3)
         {
         case 0:
-            freg[rd] = fpu.feq(freg[rs1], freg[rs2]);
+            reg[rd] = fpu.feq(freg[rs1], freg[rs2]);
             pc++; reg[0] = 0; return; break;
         case 1:
-            freg[rd] = fpu.flt(freg[rs1], freg[rs2]);
+            reg[rd] = fpu.flt(freg[rs1], freg[rs2]);
             pc++; reg[0] = 0; return; break;
         case 2:
-            freg[rd] = fpu.fle(freg[rs1], freg[rs2]);
+            reg[rd] = fpu.fle(freg[rs1], freg[rs2]);
             pc++; reg[0] = 0; return; break;
         case 3:
             reg[rd] = freg[rs1];
@@ -263,7 +263,7 @@ inline void Simulator::simulate(unsigned int instr)
     {
         unsigned int rs1 = getBits(instr, 31, 27);
         unsigned int rd = getBits(instr, 26, 22);
-        int offset = getSextBits(instr, 21, 6);
+        unsigned int offset = getBits(instr, 21, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, offset);
