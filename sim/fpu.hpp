@@ -84,12 +84,13 @@ inline int FPU::fdiv(int x, int y){
     int ys = y>>31;
     int xe = (x>>23) & 0xff;
     int ye = (y>>23) & 0xff;
+    int zero = xe == 0;
     long xm = (1 << 23) | (x & 0x7fffff);
     long key = (y>>13) & 0x3ff;
     long diff = y & 0x1fff;
     long init = (div_grad[key] & 0xfffffe000);
     long grad = div_grad[key] & 0x1fff;
-    long ym_ = init - 2 * diff * grad;
+    //long ym_ = init - 2 * diff * grad;
     //long ym =  (1<<23) | (ym>>13);
     long ym = (1l << 23) + (finv(y) & 0x7fffff);
     long m_ = xm * ym;
@@ -103,7 +104,11 @@ inline int FPU::fdiv(int x, int y){
     }
     int e = e_ & 0xff;
     int s = xs ^ ys;
-    return (s << 31 ) | (e<<23) | m;
+    if(zero){
+        return 0;
+    }else{
+        return (s << 31 ) | (e<<23) | m;
+    }
 }
 
 inline int FPU::fsqrt(int a){
@@ -237,12 +242,14 @@ inline int FPU::fmul(int a,int b){
     s  = s1 ^ s2;
 
 
-    int e1, e2, eadd, en,ep, e;
+    int e1, e2, eadd, en,ep, e, zero;
     e1 = (a>>23) & 0xff;
     e2 = (b>>23) & 0xff;
     eadd = e1 + e2;
     en = eadd - 127;
     ep = eadd - 126;
+    zero = e1==0 || e2==0;
+
 
     long m1,m2;
     m1 = (a & 0x7fffff) + 0x800000;
@@ -268,5 +275,9 @@ inline int FPU::fmul(int a,int b){
         }
         m = (mul>>23) & 0x7fffff;
     }
-    return (s<<31) + (e<<23) + m;
+    if(zero){
+        return 0;
+    } else {
+        return (s<<31) + (e<<23) + m;
+    }
 }
