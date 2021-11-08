@@ -49,3 +49,18 @@ void Memory::print_cache_summary(){
 int Memory::read_without_cache(unsigned int index){
     return memory[index];
 }
+
+void Memory::reset(){
+    delete cache;
+    delete memory;
+    cache = new cache_elem[cache_size];
+    for(int i=0; i<cache_size; i++){
+        cache[i].valid = false;
+        cache[i].tag = 0;
+    }
+    memory = new int[size];    
+    access = 0;
+    hitnum = 0;
+    validnum = 0;
+    replacenum = 0;
+}

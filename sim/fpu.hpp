@@ -85,11 +85,11 @@ inline int FPU::fdiv(int x, int y){
     int xe = (x>>23) & 0xff;
     int ye = (y>>23) & 0xff;
     long xm = (1 << 23) | (x & 0x7fffff);
-    long key = (y>>13) & 0x3ff;
-    long diff = y & 0x1fff;
-    long init = (div_grad[key] & 0xfffffe000);
-    long grad = div_grad[key] & 0x1fff;
-    long ym_ = init - 2 * diff * grad;
+    //long key = (y>>13) & 0x3ff;
+    //long diff = y & 0x1fff;
+    //long init = (div_grad[key] & 0xfffffe000);
+    //long grad = div_grad[key] & 0x1fff;
+    //long ym_ = init - 2 * diff * grad;
     //long ym =  (1<<23) | (ym>>13);
     long ym = (1l << 23) + (finv(y) & 0x7fffff);
     long m_ = xm * ym;

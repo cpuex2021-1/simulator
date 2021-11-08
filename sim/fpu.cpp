@@ -8,7 +8,7 @@ void FPU::initdiv(){
         exit(1);
     }
     for(int i=0; i<1024; i++){
-        fscanf(fp, "%lx", &div_grad[i]);
+        if(fscanf(fp, "%lx", &div_grad[i]) < 0) perror("error occured in initdiv()");
     }
     fclose(fp);
 }
@@ -21,7 +21,7 @@ void FPU::initsqr(){
         exit(1);
     }
     for(int i=0; i<1024; i++){
-        fscanf(fp, "%lx", &sqrt_grad[i]);
+        if(fscanf(fp, "%lx", &sqrt_grad[i]) < 0) perror("error occured in initsqr()");
     }
     fclose(fp);
 }
