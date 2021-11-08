@@ -474,7 +474,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 5,
                 2,
                 regname_to_addr(match[2].str()),
-                (imm >> 16) & 0b11111,
+                ((unsigned int)imm >> 16) & 0b11111,
                 imm & ((1 << 16) -1)
             );
             code = ret.assemble();

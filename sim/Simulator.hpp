@@ -278,7 +278,7 @@ inline void Simulator::simulate(unsigned int instr)
             freg[rd] = mem->read((int)reg[rs1] + offset);
             pc++; reg[0] = 0; return; break;
         case 2:
-            reg[rd] = ((rs1 << 16) + offset) << 12;
+            reg[rd] = (((rs1 << 16) + offset) & ((1 << 20) - 1)) << 12;
             pc++; reg[0] = 0; return; break;
         default:
             break;
