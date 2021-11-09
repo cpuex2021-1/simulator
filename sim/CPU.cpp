@@ -92,12 +92,12 @@ void CPU::print_register(){
     cout << " ";
     for(int i=0; i<REGNUM; i++){
     if(i % 8 == 0 && i > 0) cout << endl << " ";
-        cout << left << setw(6) << xregName[i] + ":" << hex << right << setw(8) << reg[i] << " ";
+        cout << left << setw(6) << xregName[i] + ":" << hex << right << setw(8) << reg[i] << " " << dec;
     }
     cout << endl << " ";
     for(int i=0; i<FREGNUM; i++){
         if(i % 8 == 0 && i>0) cout << endl << " ";
-        cout << left << setw(6) << fregName[i] + ":" << hex << right << setw(8) << freg[i] << " ";
+        cout << left << setw(6) << fregName[i] + ":" << hex << right << setw(8) << freg[i] << " " << dec;
     }
     cout << endl;
 }
@@ -109,6 +109,7 @@ void CPU::reset(){
     for(int i=0; i<FREGNUM; i++){
         freg[i] = 0;
     }
+    reg[2] = (1 << 25)-2;
     pc = 0;
     clk = 0;
     mem->reset();
