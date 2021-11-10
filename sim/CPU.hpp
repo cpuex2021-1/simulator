@@ -15,12 +15,12 @@
 class CPU
 {
 private:
-    int* reg;
-    int* freg;
     typedef enum{IF, DC, MA1, MA2, WB} STAGE;
     int dests[5];
     int srcs[5][2];
 public:
+    int* reg;
+    int* freg;
     unsigned long long pc;
     unsigned long long clk;
     Memory* mem;

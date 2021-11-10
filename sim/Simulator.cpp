@@ -28,7 +28,7 @@ int Simulator::read_asm(string filename){
         return -1;
     }
     cout << "Reading " << filename << "...";
-    setup(instructions, str_instr, labels, filename, true);
+    setup(instructions, str_instr, line_to_pc, pc_to_line, labels, filename, true);
     isasm = true;
     cout << " complete!" << endl;
     return 0;
@@ -41,7 +41,7 @@ int Simulator::eat_bin(string filename){
         return -1;
     }
     cout << "Eating " << filename << "...";
-    setup(instructions, str_instr, labels, filename, false);
+    setup(instructions, str_instr, line_to_pc, pc_to_line, labels, filename, false);
     cout << " complete!" << endl;
     isasm = false;
     return 0;
@@ -151,9 +151,9 @@ void Simulator::show_clock(){
 void Simulator::show_instruction(){
     if(isasm){
         cout << "Instruction (Assembly): " << str_instr[cpu->pc] << endl;        
-        cout << "Instruction (Binary): "; print_instr(instructions[cpu->pc]);
+        cout << "Instruction (Binary): "; print_instr(instructions[pc_to_line[cpu->pc]]);
     }else{
-        cout << "Instruction (Binary): "; print_instr(instructions[cpu->pc]);
+        cout << "Instruction (Binary): "; print_instr(instructions[pc_to_line[cpu->pc]]);
     }
 }
 void Simulator::show_cache(){
@@ -175,4 +175,14 @@ int Simulator::get_clock(){
 }
 int Simulator::get_pc(){
     return cpu->pc;
+}
+
+int Simulator::brk_unified(int bp){
+    if(break_pc[bp]){
+        del_brk(to_string(bp));
+        return 0;
+    }else{
+        set_brk(to_string(bp));
+        return 1;
+    }
 }

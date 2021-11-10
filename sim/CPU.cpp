@@ -8,8 +8,11 @@ CPU::CPU(unsigned int memsize, unsigned int cachesize, int pc_)
     clk = 0;
     mem = new Memory(memsize, cachesize);
     reg = new int[REGNUM];
-    reg[2] = memsize-1;
     freg = new int[FREGNUM];
+    for(int i=0; i<REGNUM; i++){
+        reg[i] = 0; freg[i] = 0;
+    }
+    reg[2] = memsize-1;
 }
 
 CPU::~CPU(){

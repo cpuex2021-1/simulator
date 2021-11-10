@@ -13,18 +13,22 @@
 class Simulator
 {
 private:
-    void reset();
     map<int,bool> break_pc;
     vector<unsigned long long> break_clk;
     vector<int> instructions;
-    vector<string> str_instr;
-    CPU* cpu;
 public:
+    vector<string> str_instr;
+    vector<int> line_to_pc;
+    vector<int> pc_to_line;
+
+    CPU* cpu;
     bool isasm;
+    void reset();
     int read_asm(string filename);
     int eat_bin(string filename);
     int set_brk(string bp);
     int del_brk(string bp);
+    int brk_unified(int bp);
     void clk_set_brk(int new_br);
     void clk_del_brk(int new_br);
     int rerun();
