@@ -2,6 +2,7 @@
 
 simObj::simObj(QObject *parent) : QObject(parent)
 {
+    needReset = false;
 }
 
 void simObj::run(){

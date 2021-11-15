@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>☆彡OreOre-V Simulator☆彡</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -46,6 +46,20 @@
            </widget>
           </item>
           <item>
+           <widget class="QLabel" name="pc">
+            <property name="text">
+             <string>PC: 0</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="clk">
+            <property name="text">
+             <string>CLOCK:0</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="horizontalSpacer_3">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -59,16 +73,16 @@
            </spacer>
           </item>
           <item>
-           <widget class="QLabel" name="pc">
+           <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>PC: 0</string>
+             <string>Line:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="clk">
-            <property name="text">
-             <string>CLOCK:0</string>
+           <widget class="QSpinBox" name="InstLinespinBox">
+            <property name="maximum">
+             <number>1000000000</number>
             </property>
            </widget>
           </item>
@@ -403,22 +417,6 @@
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuOreOre_V_Simulator">
-    <property name="title">
-     <string>OreOre-V Simulator</string>
-    </property>
-   </widget>
-   <addaction name="menuOreOre_V_Simulator"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>

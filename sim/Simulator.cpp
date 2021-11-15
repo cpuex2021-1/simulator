@@ -7,6 +7,7 @@ using std::string;
 using std::map;
 
 Simulator::Simulator()
+    : ready(false)
 {
     cpu = new CPU(MEMSIZE, CACHESIZE, 0);
     isasm = false;

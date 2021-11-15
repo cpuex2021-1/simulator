@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     , mem_addr(0)
     , inst_line(0)
     , isReghex(false)
+    , running(false)
 {
     ui->setupUi(this);
     ui->RegTable->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -19,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->MemTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->Instructions->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->Instructions->setSelectionMode(QAbstractItemView::NoSelection);
+    ui->MemTable->horizontalHeader()->setVisible(true);
+    ui->MemTable->verticalHeader()->setVisible(true);
 
     simObj* simt = new simObj;
     simt->moveToThread(&simThread);
@@ -231,6 +234,7 @@ void MainWindow::refreshMemView(){
 }
 
 void MainWindow::refreshInstView(){
+    if(!sobj.sim.ready) return;
     auto& instt = ui->Instructions;
     for(int i=0; i<instt->rowCount(); i++){
         if(instt->verticalHeaderItem(i) == NULL){
@@ -240,7 +244,7 @@ void MainWindow::refreshInstView(){
         }
         instt->verticalHeader()->setVisible(true);
         if(sobj.sim.ready){
-            string in = (i < (int)sobj.sim.str_instr.size()) ? sobj.sim.str_instr[i + inst_line] : "";
+            string in = (i + inst_line < (int)sobj.sim.str_instr.size()) ? sobj.sim.str_instr[i + inst_line] : "";
             if(instt->item(i,0) == NULL){
                 instt->setItem(i, 0, new QTableWidgetItem(in.data()));
             }else{
@@ -308,7 +312,26 @@ void MainWindow::refreshAll(){
     string clk_txt = string("CLOCK: ") + to_string(sobj.sim.get_clock());
     ui->pc->setText(pc_text.data());
     ui->clk->setText(clk_txt.data());
-    if(sobj.sim.pc_to_line(sobj.sim.get_pc()) >= ui->Instructions->rowCount()) inst_line = sobj.sim.pc_to_line(sobj.sim.get_pc());
+    if(sobj.sim.ready && running){
+        if(sobj.sim.pc_to_line(sobj.sim.get_pc()) >= ui->Instructions->rowCount() + inst_line) inst_line = sobj.sim.pc_to_line(sobj.sim.get_pc());
+        else if(sobj.sim.pc_to_line(sobj.sim.get_pc()) < inst_line) inst_line = sobj.sim.pc_to_line(sobj.sim.get_pc());
+    }
+
+    if(!sobj.sim.ready){
+        ui->pushButton->setDisabled(true);
+        ui->pushButton_2->setDisabled(true);
+        ui->pushButton_3->setDisabled(true);
+    }else{
+        if(sobj.needReset){
+            ui->pushButton->setDisabled(true);
+            ui->pushButton_2->setDisabled(true);
+            ui->pushButton_3->setDisabled(false);
+        }else{
+            ui->pushButton->setDisabled(false);
+            ui->pushButton_2->setDisabled(false);
+            ui->pushButton_3->setDisabled(false);
+        }
+    }
     refreshInstView();
     refreshMemView();
     refreshRegView();
@@ -317,6 +340,7 @@ void MainWindow::refreshAll(){
 void MainWindow::on_pushButton_released()
 {
     if(sobj.sim.str_instr.size() <= 0) return;
+    running = true;
     emit tellSimRun();
 }
 
@@ -327,6 +351,7 @@ void MainWindow::on_pushButton_2_released()
     if(sobj.needReset) sobj.sim.reset();
     int ret = sobj.sim.step();
     sobj.needReset = (ret == 0) ? true : false;
+    running = true;
     refreshAll();
 }
 
@@ -334,6 +359,20 @@ void MainWindow::on_pushButton_2_released()
 void MainWindow::on_pushButton_3_clicked()
 {
     sobj.sim.reset();
+    running = false;
+    sobj.needReset = false;
+    inst_line = 0;
+    refreshAll();
+}
+
+
+void MainWindow::on_InstLinespinBox_valueChanged(int arg1)
+{
+    if(arg1 >= (int)sobj.sim.str_instr.size()){
+        inst_line = std::max(0, (int)sobj.sim.str_instr.size()-1);
+        ui->InstLinespinBox->setValue(inst_line);
+    }
+    else inst_line = arg1;
     refreshAll();
 }
 

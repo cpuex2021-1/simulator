@@ -37,6 +37,8 @@ private slots:
 
     void refreshAll();
 
+    void on_InstLinespinBox_valueChanged(int arg1);
+
 private:
     Ui::MainWindow *ui;
     QThread simThread;
@@ -48,6 +50,7 @@ private:
     int mem_addr;
     int inst_line;
     bool isReghex;
+    bool running;
     simObj sobj;
 
 signals:
