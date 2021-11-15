@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -18,8 +19,10 @@ private:
     vector<int> instructions;
 public:
     vector<string> str_instr;
-    vector<int> line_to_pc;
-    vector<int> pc_to_line;
+    vector<int> l_to_p;
+    vector<int> p_to_l;
+
+    bool ready;
 
     CPU* cpu;
     bool isasm;
@@ -45,6 +48,8 @@ public:
     int get_clock();
     void show_cache();
     void show_result();
+    int pc_to_line(int);
+    int line_to_pc(int);
     Simulator();
     ~Simulator();
 };

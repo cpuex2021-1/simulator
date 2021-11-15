@@ -17,7 +17,8 @@ SOURCES += \
     ../sim/fpu.cpp \
     ../sim/util.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    simobj.cpp
 
 HEADERS += \
     ../asm/Instructions.hpp \
@@ -27,7 +28,8 @@ HEADERS += \
     ../sim/Simulator.hpp \
     ../sim/fpu.hpp \
     ../sim/util.hpp \
-    mainwindow.h
+    mainwindow.h \
+    simobj.h
 
 FORMS += \
     mainwindow.ui

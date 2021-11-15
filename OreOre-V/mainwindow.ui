@@ -39,29 +39,36 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="filename"/>
-          </item>
-          <item>
            <widget class="QPushButton" name="pushButton_9">
             <property name="text">
-             <string>Load</string>
+             <string>Open</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_5">
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>13</width>
+              <height>21</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="pc">
             <property name="text">
-             <string>Line:</string>
+             <string>PC: 0</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_3"/>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_10">
+           <widget class="QLabel" name="clk">
             <property name="text">
-             <string>Show</string>
+             <string>CLOCK:0</string>
             </property>
            </widget>
           </item>
@@ -82,7 +89,7 @@
            <number>42</number>
           </attribute>
           <attribute name="verticalHeaderVisible">
-           <bool>true</bool>
+           <bool>false</bool>
           </attribute>
           <row/>
           <row/>
@@ -255,13 +262,13 @@
         <item>
          <widget class="QTableWidget" name="MemTable">
           <property name="rowCount">
-           <number>4</number>
+           <number>11</number>
           </property>
           <property name="columnCount">
            <number>8</number>
           </property>
           <attribute name="horizontalHeaderVisible">
-           <bool>true</bool>
+           <bool>false</bool>
           </attribute>
           <attribute name="horizontalHeaderCascadingSectionResizes">
            <bool>true</bool>
@@ -270,7 +277,7 @@
            <bool>true</bool>
           </attribute>
           <attribute name="verticalHeaderVisible">
-           <bool>true</bool>
+           <bool>false</bool>
           </attribute>
           <attribute name="verticalHeaderCascadingSectionResizes">
            <bool>true</bool>
@@ -278,6 +285,41 @@
           <attribute name="verticalHeaderHighlightSections">
            <bool>true</bool>
           </attribute>
+          <row>
+           <property name="text">
+            <string>新しい行</string>
+           </property>
+          </row>
+          <row>
+           <property name="text">
+            <string>新しい行</string>
+           </property>
+          </row>
+          <row>
+           <property name="text">
+            <string>新しい行</string>
+           </property>
+          </row>
+          <row>
+           <property name="text">
+            <string>新しい行</string>
+           </property>
+          </row>
+          <row>
+           <property name="text">
+            <string>新しい行</string>
+           </property>
+          </row>
+          <row>
+           <property name="text">
+            <string>新しい行</string>
+           </property>
+          </row>
+          <row>
+           <property name="text">
+            <string>新しい行</string>
+           </property>
+          </row>
           <row/>
           <row/>
           <row/>
@@ -371,6 +413,12 @@
      <height>25</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuOreOre_V_Simulator">
+    <property name="title">
+     <string>OreOre-V Simulator</string>
+    </property>
+   </widget>
+   <addaction name="menuOreOre_V_Simulator"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>

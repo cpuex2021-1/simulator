@@ -2,7 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QThread>
 #include "../sim/Simulator.hpp"
+#include "simobj.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -33,18 +35,23 @@ private slots:
 
     void on_pushButton_3_clicked();
 
+    void refreshAll();
+
 private:
     Ui::MainWindow *ui;
+    QThread simThread;
     void SetTableWidth();
     void resizeEvent(QResizeEvent* event);
-    void SetUpSim();
     void refreshRegView();
     void refreshMemView();
     void refreshInstView();
-    void refreshAll();
-    Simulator sim;
-    int mem_adder;
+    int mem_addr;
     int inst_line;
     bool isReghex;
+    simObj sobj;
+
+signals:
+    void tellSimRun();
+    void tellSimRead();
 };
 #endif // MAINWINDOW_H

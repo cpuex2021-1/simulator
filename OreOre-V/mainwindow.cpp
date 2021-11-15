@@ -2,11 +2,12 @@
 #include "ui_mainwindow.h"
 #include <string>
 #include <stdlib.h>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , mem_adder(0)
+    , mem_addr(0)
     , inst_line(0)
     , isReghex(false)
 {
@@ -18,11 +19,20 @@ MainWindow::MainWindow(QWidget *parent)
     ui->MemTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->Instructions->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->Instructions->setSelectionMode(QAbstractItemView::NoSelection);
+
+    simObj* simt = new simObj;
+    simt->moveToThread(&simThread);
+    connect(&sobj, &simObj::finished, this, &MainWindow::refreshAll);
+    connect(this, &MainWindow::tellSimRead, &sobj, &simObj::read);
+    connect(this, &MainWindow::tellSimRun, &sobj, &simObj::run);
+    simThread.start();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    simThread.quit();
+    simThread.wait();
 }
 
 void MainWindow::SetTableWidth(){
@@ -58,11 +68,6 @@ void MainWindow::resizeEvent(QResizeEvent *event){
     refreshMemView();
     refreshRegView();
 }
-
-void MainWindow::SetUpSim(){
-
-}
-
 
 map<int, string> xregs = {
     {0, "zero"},
@@ -160,10 +165,10 @@ void MainWindow::refreshRegView(){
                     stringstream ss;
                     if(isReghex){
                         ss.fill('0');
-                        ss << hex << "0x" << setw(8) << sim.cpu->reg[(i * regt->columnCount() + j) / 2] << dec;
+                        ss << hex << "0x" << setw(8) << sobj.sim.cpu->reg[(i * regt->columnCount() + j) / 2] << dec;
                         ss.fill(' ');
                     }else{
-                        ss << dec << sim.cpu->reg[(i * regt->columnCount() + j) / 2];
+                        ss << dec << sobj.sim.cpu->reg[(i * regt->columnCount() + j) / 2];
                     }
                     if(regt->item(i,j) == NULL){
                         regt->setItem(i, j, new QTableWidgetItem(ss.str().data()));
@@ -174,10 +179,10 @@ void MainWindow::refreshRegView(){
                     stringstream ss;
                     if(isReghex){
                         ss.fill('0');
-                        ss << hex << "0x" << setw(8) << sim.cpu->freg[(i * regt->columnCount() + j) / 2 - 32] << dec;
+                        ss << hex << "0x" << setw(8) << sobj.sim.cpu->freg[(i * regt->columnCount() + j) / 2 - 32] << dec;
                         ss.fill(' ');
                     }else{
-                        float* f = (float*)&(sim.cpu->freg[(i * regt->columnCount() + j) / 2 - 32]);
+                        float* f = (float*)&(sobj.sim.cpu->freg[(i * regt->columnCount() + j) / 2 - 32]);
                         ss << (*f);
                     }
                     if(regt->item(i,j) == NULL){
@@ -196,7 +201,7 @@ void MainWindow::refreshMemView(){
     auto& memt = ui->MemTable;
     for(int i=0; i<memt->rowCount(); i++){
         stringstream ss;
-        ss << "0x" << hex << (mem_adder + (i * 8));
+        ss << "0x" << hex << (mem_addr + (i * 8));
         if(memt->verticalHeaderItem(i) == NULL){
             memt->setVerticalHeaderItem(i, new QTableWidgetItem(ss.str().data()));
         }else{
@@ -207,8 +212,8 @@ void MainWindow::refreshMemView(){
         for(int j=0; j<memt->columnCount(); j++){
             stringstream ss;
             ss.fill('0');
-            int index = i * memt->columnCount() + j + mem_adder;
-            if (index < sim.cpu->mem->size) ss << "0x" << hex << sim.cpu->mem->read_without_cache(index) << dec;
+            int index = i * memt->columnCount() + j + mem_addr;
+            if (index < sobj.sim.cpu->mem->size) ss << "0x" << hex << sobj.sim.cpu->mem->read_without_cache(index) << dec;
             ss.fill(' ');
             if(memt->item(i, j) == NULL){
                 memt->setItem(i, j, new QTableWidgetItem(ss.str().data()));
@@ -216,6 +221,11 @@ void MainWindow::refreshMemView(){
                 memt->item(i, j)->setText(ss.str().data());
             }
             memt->item(i,j)->setTextAlignment(Qt::AlignRight);
+            if(index == (int)strtol(ui->address->text().toStdString().data(), NULL, 16)){
+                memt->item(i,j)->setBackground(QBrush(Qt::green));
+            }else{
+                memt->item(i,j)->setBackground(QBrush(Qt::white));
+            }
         }
     }
 }
@@ -228,15 +238,20 @@ void MainWindow::refreshInstView(){
         }else{
             instt->verticalHeaderItem(i)->setText(to_string(inst_line + i).data());
         }
-        string in = (i < sim.str_instr.size()) ? sim.str_instr[i + inst_line] : "";
-        if(instt->item(i,0) == NULL){
-            instt->setItem(i, 0, new QTableWidgetItem(in.data()));
-        }else{
-            instt->item(i, 0)->setText(in.data());
-            instt->item(i, 0)->setBackground(QBrush(Qt::white));
+        if(sobj.sim.ready){
+            string in = (i < (int)sobj.sim.str_instr.size()) ? sobj.sim.str_instr[i + inst_line] : "";
+            if(instt->item(i,0) == NULL){
+                instt->setItem(i, 0, new QTableWidgetItem(in.data()));
+            }else{
+                instt->item(i, 0)->setText(in.data());
+                instt->item(i, 0)->setBackground(QBrush(Qt::white));
+            }
         }
     }
-    instt->item(sim.pc_to_line[sim.get_pc()],0)->setBackground(QBrush(Qt::yellow));
+    if(sobj.sim.ready){
+        int highlight_line = sobj.sim.pc_to_line(sobj.sim.get_pc()) - inst_line;
+        if(highlight_line >= 0 && highlight_line < instt->rowCount()) instt->item(highlight_line,0)->setBackground(QBrush(Qt::yellow));
+    }
 }
 
 void MainWindow::on_pushButton_7_released()
@@ -257,33 +272,42 @@ void MainWindow::on_pushButton_8_released()
 
 void MainWindow::on_pushButton_9_released()
 {
-    sim.isasm=true;
-    sim.read_asm(ui->filename->text().toStdString());
-    refreshInstView();
+    sobj.sim.isasm=true;
+    auto filename = QFileDialog::getOpenFileName(this, tr("Open Assembly"), "", tr("Assembly Files (*.s)"));
+    sobj.filename = filename.toStdString();
+    emit tellSimRead();
 }
 
 
 void MainWindow::on_address_textChanged(const QString &arg1)
 {
-    mem_adder = (int)strtol(arg1.toStdString().data(), NULL, 16);
+    mem_addr = (int)strtol(arg1.toStdString().data(), NULL, 16);
+    if(mem_addr < 0 || mem_addr > sobj.sim.cpu->mem->size) mem_addr = 0;
+    mem_addr -= min(mem_addr, 16);
+    mem_addr -= mem_addr % 8;
     refreshMemView();
 }
 
 
 void MainWindow::on_Instructions_cellClicked(int row, int column)
 {
-    if(sim.str_instr.size() <= 0) return;
-    int ret = sim.brk_unified(sim.line_to_pc[row]);
+    if(sobj.sim.str_instr.size() <= 0) return;
+    int ret = sobj.sim.brk_unified(sobj.sim.line_to_pc(row));
 
     if(ret){
-        ui->Instructions->item(sim.pc_to_line[sim.line_to_pc[row]], column)->setForeground(QBrush(Qt::red));
+        ui->Instructions->item(sobj.sim.pc_to_line(sobj.sim.line_to_pc(row)), column)->setForeground(QBrush(Qt::red));
     }else{
-        ui->Instructions->item(sim.pc_to_line[sim.line_to_pc[row]], column)->setForeground(QBrush(Qt::black));
+        ui->Instructions->item(sobj.sim.pc_to_line(sobj.sim.line_to_pc(row)), column)->setForeground(QBrush(Qt::black));
     }
     refreshInstView();
 }
 
 void MainWindow::refreshAll(){
+    string pc_text = string("PC: ") + to_string(sobj.sim.get_pc());
+    string clk_txt = string("CLOCK: ") + to_string(sobj.sim.get_clock());
+    ui->pc->setText(pc_text.data());
+    ui->clk->setText(clk_txt.data());
+    if(sobj.sim.pc_to_line(sobj.sim.get_pc()) >= ui->Instructions->rowCount()) inst_line = sobj.sim.pc_to_line(sobj.sim.get_pc());
     refreshInstView();
     refreshMemView();
     refreshRegView();
@@ -291,23 +315,24 @@ void MainWindow::refreshAll(){
 
 void MainWindow::on_pushButton_released()
 {
-    if(sim.str_instr.size() <= 0) return;
-    sim.run();
-    refreshAll();
+    if(sobj.sim.str_instr.size() <= 0) return;
+    emit tellSimRun();
 }
 
 
 void MainWindow::on_pushButton_2_released()
 {
-    if(sim.str_instr.size() <= 0) return;
-    sim.step();
+    if(sobj.sim.str_instr.size() <= 0) return;
+    if(sobj.needReset) sobj.sim.reset();
+    int ret = sobj.sim.step();
+    sobj.needReset = (ret == 0) ? true : false;
     refreshAll();
 }
 
 
 void MainWindow::on_pushButton_3_clicked()
 {
-    sim.reset();
+    sobj.sim.reset();
     refreshAll();
 }
 
