@@ -2,6 +2,8 @@
 
 ***GUIはgui branchにあります***
 
+***main branchのWindowsのバイナリはちゃんと動かなそう***
+
 ## ビルド方法(CLI)
 
 ```$ make```
