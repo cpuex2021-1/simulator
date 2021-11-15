@@ -1,6 +1,6 @@
 all:simulator
 CC=g++
-CFLAGS= -O3 -Wall -o simulator 
+CFLAGS= -O3 -Wall -std=c++17 -o simulator 
 
 simulator:*.cpp *.hpp ../asm/Instructions.cpp ../asm/Parse.cpp
 	$(CC) $(CFLAGS) ../asm/Instructions.cpp ../asm/Parse.cpp *.cpp
