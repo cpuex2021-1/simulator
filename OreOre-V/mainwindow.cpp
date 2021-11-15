@@ -238,6 +238,7 @@ void MainWindow::refreshInstView(){
         }else{
             instt->verticalHeaderItem(i)->setText(to_string(inst_line + i).data());
         }
+        instt->verticalHeader()->setVisible(true);
         if(sobj.sim.ready){
             string in = (i < (int)sobj.sim.str_instr.size()) ? sobj.sim.str_instr[i + inst_line] : "";
             if(instt->item(i,0) == NULL){
@@ -295,9 +296,9 @@ void MainWindow::on_Instructions_cellClicked(int row, int column)
     int ret = sobj.sim.brk_unified(sobj.sim.line_to_pc(row));
 
     if(ret){
-        ui->Instructions->item(sobj.sim.pc_to_line(sobj.sim.line_to_pc(row)), column)->setForeground(QBrush(Qt::red));
+        ui->Instructions->item(sobj.sim.pc_to_line(sobj.sim.line_to_pc(row + inst_line)) - inst_line, column)->setForeground(QBrush(Qt::red));
     }else{
-        ui->Instructions->item(sobj.sim.pc_to_line(sobj.sim.line_to_pc(row)), column)->setForeground(QBrush(Qt::black));
+        ui->Instructions->item(sobj.sim.pc_to_line(sobj.sim.line_to_pc(row + inst_line)) - inst_line, column)->setForeground(QBrush(Qt::black));
     }
     refreshInstView();
 }
