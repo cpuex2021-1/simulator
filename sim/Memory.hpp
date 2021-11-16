@@ -40,7 +40,7 @@ public:
 inline void Memory::write(int index, int data){
     if(index < 0 || index >= size){
         cerr << "Memory index out of range: " << index << endl;
-        exit(1);
+        return;
     }
     unsigned int tag = getBits(index, 24, 14);
     unsigned int cindex = getBits(index, 13, 2);
