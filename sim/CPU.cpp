@@ -21,7 +21,7 @@ CPU::~CPU(){
     delete freg;
 }
 
-map<int, string> xregName = {
+map<int, string> xregName{
     {0, "zero"},
     {1, "ra"},
     {2, "sp"},
@@ -56,7 +56,7 @@ map<int, string> xregName = {
     {31, "t6"}
 };
 
-map<int, string> fregName = {
+map<int, string> fregName {
     {0, "ft0"},
     {1, "ft1"},
     {2, "ft2"},

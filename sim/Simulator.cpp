@@ -115,23 +115,25 @@ int Simulator::rerun(){
     return cont();
 }
 int Simulator::cont(){
-    while(cpu->pc < instructions.size()){
-        #ifdef DEBUG
-        cout << "PC:" << cpu->pc << endl << "Instruction:";
-        cpu->print_register();
-        #endif
+    if(step()){
+        while(cpu->pc < instructions.size()){
+            #ifdef DEBUG
+            cout << "PC:" << cpu->pc << endl << "Instruction:";
+            cpu->print_register();
+            #endif
 
-        if(break_pc.size() != 0 && break_pc[cpu->pc]){
-            return 1;
-        }else if(break_clk.size() != 0 && break_clk[0] == cpu->clk){
-            return 2;
+            if(break_pc.size() != 0 && break_pc[cpu->pc]){
+                return 1;
+            }else if(break_clk.size() != 0 && break_clk[0] == cpu->clk){
+                return 2;
+            }
+            cpu->simulate(instructions[cpu->pc]);
+            cpu->clk++;
+            
+            #ifdef DEBUG
+            cout << endl;
+            #endif
         }
-        cpu->simulate(instructions[cpu->pc]);
-        cpu->clk++;
-        
-        #ifdef DEBUG
-        cout << endl;
-        #endif
     }
     return 0;
 }
