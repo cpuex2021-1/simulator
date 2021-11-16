@@ -1,5 +1,10 @@
 # simulator
-## ビルド方法
+
+***GUIはgui branchにあります***
+
+***main branchのWindowsのバイナリはちゃんと動かなそう***
+
+## ビルド方法(CLI)
 
 ```$ make```
 
@@ -24,3 +29,16 @@ FPUはC++標準で対応
 ```$ make```
 
 すると、アセンブラとシミュレータが同時にビルドできます。
+
+## ビルド方法(GUI on Ubuntu)
+
+```shell
+sudo apt install qtbase5-dev qttools5-dev-tools qt5-default
+mkdir OreOre-V/build
+cd OreOre-V/build
+qmake ../OreOre-V.pro
+make
+```
+すると`OreOre-V/build/`下に実行ファイル`OreOre-V`が生成される。
+
+
