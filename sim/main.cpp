@@ -97,6 +97,7 @@ void CLI(bool joke){
                         break;
                     }
                 }
+                if(ret < 0) continue;
             }else{
                 cout << "running" << endl;
                 ret = sim.run();
