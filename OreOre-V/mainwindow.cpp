@@ -324,7 +324,6 @@ void MainWindow::on_Instructions_cellClicked(int row, int column)
 void MainWindow::refreshAll(){
     string pc_text = string("PC: ") + to_string(sobj.sim.get_pc());
     ui->InstLinespinBox->setValue(inst_line);
-    ui->address->setValue(mem_addr);
     ui->pc->setText(pc_text.data());
     if(sobj.sim.ready && running){
         if(sobj.sim.pc_to_line(sobj.sim.get_pc()) >= ui->Instructions->rowCount() + inst_line) inst_line = sobj.sim.pc_to_line(sobj.sim.get_pc());
@@ -411,9 +410,9 @@ void MainWindow::on_MemScrollBar_valueChanged(int value)
         if(mem_addr >= MEMSIZE){
             mem_addr = std::max(0, MEMSIZE-1);
         }
+        mem_addr -= mem_addr % 8;
+        ui->address->setValue(mem_addr);
     }
-    mem_addr -= min(mem_addr, 16);
-    mem_addr -= mem_addr % 8;
     refreshAll();
 }
 
