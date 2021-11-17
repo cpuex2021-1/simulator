@@ -217,3 +217,7 @@ int Simulator::pc_to_line(int pc){
         return p_to_l.at(pc);
     }
 }
+
+bool Simulator::isbrk(int pc){
+    return break_pc[pc];
+}

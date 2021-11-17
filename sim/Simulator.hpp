@@ -47,6 +47,7 @@ public:
     void show_result();
     int pc_to_line(int);
     int line_to_pc(int);
+    bool isbrk(int);
     Simulator();
     ~Simulator();
 };
