@@ -39,8 +39,9 @@ public:
 
 inline void Memory::write(int index, int data){
     if(index < 0 || index >= size){
-        cerr << "Memory index out of range: " << index << endl;
-        return;
+        stringstream ss;
+        ss << "Memory index out of range (write): " << index;
+        throw std::out_of_range(ss.str());
     }
     unsigned int tag = getBits(index, 24, 14);
     unsigned int cindex = getBits(index, 13, 2);
@@ -62,8 +63,9 @@ inline void Memory::write(int index, int data){
 
 inline int Memory::read(int index){
     if(index < 0 || index >= size){
-        cerr << "Memory index out of range: " << index << endl;
-        exit(1);
+        stringstream ss;
+        ss << "Memory index out of range (read): " << index;
+        throw std::out_of_range(ss.str());
     }
     access++;
     unsigned int tag = getBits(index, 24, 14);
