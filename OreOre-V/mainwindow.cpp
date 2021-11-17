@@ -304,9 +304,9 @@ void MainWindow::on_pushButton_9_released()
 }
 
 
-void MainWindow::on_address_textChanged(const QString &arg1)
+void MainWindow::on_address_valueChanged(int value)
 {
-    mem_addr = (int)strtol(arg1.toStdString().data(), NULL, 16);
+    mem_addr = value;
     if(mem_addr < 0 || mem_addr > MEMSIZE) mem_addr = 0;
     mem_addr -= min(mem_addr, 16);
     mem_addr -= mem_addr % 8;
@@ -412,6 +412,8 @@ void MainWindow::on_MemScrollBar_valueChanged(int value)
             mem_addr = std::max(0, MEMSIZE-1);
         }
     }
+    mem_addr -= min(mem_addr, 16);
+    mem_addr -= mem_addr % 8;
     refreshAll();
 }
 

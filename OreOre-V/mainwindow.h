@@ -25,8 +25,6 @@ private slots:
 
     void on_pushButton_9_released();
 
-    void on_address_textChanged(const QString &arg1);
-
     void on_Instructions_cellClicked(int row, int column);
 
     void on_pushButton_released();
@@ -42,6 +40,8 @@ private slots:
     void on_verticalScrollBar_valueChanged(int value);
 
     void on_MemScrollBar_valueChanged(int value);
+
+    void on_address_valueChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;
