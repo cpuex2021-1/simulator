@@ -256,7 +256,15 @@ void MainWindow::refreshInstView(){
     if(sobj.sim.ready){
         int highlight_line = sobj.sim.pc_to_line(sobj.sim.get_pc()) - inst_line;
         if(highlight_line >= 0 && highlight_line < instt->rowCount()) instt->item(highlight_line,0)->setBackground(QBrush(Qt::yellow));
+        for(int i=0; i<instt->rowCount(); i++){
+            if(sobj.sim.isbrk(sobj.sim.line_to_pc(i + inst_line))){
+                ui->Instructions->item(sobj.sim.pc_to_line(sobj.sim.line_to_pc(row + inst_line)) - inst_line, column)->setForeground(QBrush(Qt::red));
+            }else{
+                ui->Instructions->item(sobj.sim.pc_to_line(sobj.sim.line_to_pc(row + inst_line)) - inst_line, column)->setForeground(QBrush(Qt::black));
+            }
+        }
     }
+    
 }
 
 void MainWindow::on_pushButton_7_released()
@@ -298,12 +306,6 @@ void MainWindow::on_Instructions_cellClicked(int row, int column)
 {
     if(sobj.sim.str_instr.size() <= 0) return;
     int ret = sobj.sim.brk_unified(sobj.sim.line_to_pc(row));
-
-    if(ret){
-        ui->Instructions->item(sobj.sim.pc_to_line(sobj.sim.line_to_pc(row + inst_line)) - inst_line, column)->setForeground(QBrush(Qt::red));
-    }else{
-        ui->Instructions->item(sobj.sim.pc_to_line(sobj.sim.line_to_pc(row + inst_line)) - inst_line, column)->setForeground(QBrush(Qt::black));
-    }
     refreshInstView();
 }
 
@@ -315,6 +317,7 @@ void MainWindow::refreshAll(){
     if(sobj.sim.ready && running){
         if(sobj.sim.pc_to_line(sobj.sim.get_pc()) >= ui->Instructions->rowCount() + inst_line) inst_line = sobj.sim.pc_to_line(sobj.sim.get_pc());
         else if(sobj.sim.pc_to_line(sobj.sim.get_pc()) < inst_line) inst_line = sobj.sim.pc_to_line(sobj.sim.get_pc());
+        running = false;
     }
 
     if(!sobj.sim.ready){
