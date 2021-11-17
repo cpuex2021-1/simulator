@@ -1,0 +1,7 @@
+*.s
+*.out
+*.txt
+*.exe
+simulator
+assembler
+etc
