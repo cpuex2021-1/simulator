@@ -11,10 +11,9 @@ clean:
 
 gui:
 	mkdir -p OreOre-V/build
-	cd OreOre-V/build
-	qmake ../OreOre-V.pro
-	make
-	cd ../../
+	qmake -o OreOre-V/build/Makefile OreOre-V/OreOre-V.pro
+	make -C OreOre-V/build
+	cp OreOre-V/build/OreOre-V ./gui-simulator
 
 exec-gui:gui
-	./OreOre-V/build/OreOre-V
+	./gui-simulator
