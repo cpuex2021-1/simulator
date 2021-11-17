@@ -18,7 +18,7 @@ void get_filesize(fstream& f, unsigned long long& fsize){
 }
 
 
-void setup(vector<int>& instr, vector<string>& str_instr, map<std::string, unsigned int>& labels, string filename, bool isasm){
+void setup(vector<int>& instr, vector<string>& str_instr, vector<int>& line_to_pc, vector<int>& pc_to_line, map<std::string, unsigned int>& labels, string filename, bool isasm){
     fstream input;
     input.open(filename, ios::in);
     if(isasm){
@@ -27,6 +27,8 @@ void setup(vector<int>& instr, vector<string>& str_instr, map<std::string, unsig
         string str;
         while(getline(input, str)){
             Parse pres(str, true, now_addr);
+            str_instr.push_back(str);
+
             if(pres.type == label){
                 labels[pres.labl] = now_addr;
                 line_num++;
@@ -50,14 +52,14 @@ void setup(vector<int>& instr, vector<string>& str_instr, map<std::string, unsig
             cout << "line:" << line_num << " ";
             Debug_parse(str);
             #endif
-
+            line_to_pc.push_back(now_addr);
             Parse pres(str, false, now_addr);
             if(pres.type == instruction){
                 #ifdef DEBUG
                 pres.print_instr();
                 #endif
-                str_instr.push_back(str);
                 instr.push_back(pres.code);
+                pc_to_line.push_back(line_num - 1);
                 line_num++;
                 now_addr += 1;
             }else if(pres.type == none || pres.type == label){

@@ -17,7 +17,6 @@ typedef struct cache_elem
 class Memory
 {
 private:
-    int size;
     int cache_size;
     Cache_elem* cache;
     int *memory;
@@ -26,6 +25,7 @@ private:
     int validnum;
     int replacenum;
 public:
+    int size;
     Memory(unsigned int size, unsigned int cache_size);
     ~Memory();
     inline void write(int index, int data);
