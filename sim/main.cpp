@@ -113,7 +113,10 @@ void CLI(bool joke){
                 cout << "Some error occured in the simulator" << endl;
             }
         }else if((!read_or_eat) && (comm == "next" || comm == "n")){
-            if(sim.step() == 0) break;
+            if(sim.step() == 0){
+                sim.show_result();
+                break;
+            }
         }else if((!read_or_eat) && (comm == "reg" || comm == "r")){
             sim.show_reg();
         }else if((!read_or_eat) && comm == "dump"){
