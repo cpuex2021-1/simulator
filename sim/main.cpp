@@ -7,9 +7,6 @@
 #include "util.hpp"
 #include "../asm/Instructions.hpp"
 
-#define MEMSIZE (1 << 25)
-#define CACHESIZE (1 << 12)
-
 using std::cout;
 using std::endl;
 
@@ -26,6 +23,7 @@ void CLI(bool joke){
     if(joke) cout << " \\(^o^)/";
     cout << endl << "Type \"help\" to show available commands." << endl;
     bool read_or_eat = true;
+    cli_loop:
     while (1)
     {
         cout << ((read_or_eat) ? "(read [assembly] / eat [binary]) " : ((joke)?joking_face():"(sim) "));
@@ -69,7 +67,16 @@ void CLI(bool joke){
             cout << "deleted breakpoint at " << new_br << endl;
         }else if((!read_or_eat) && (comm == "continue" || comm == "c")){
             cout << "continuing" << endl;
-            int ret = sim.cont();
+            int ret;
+            try
+            {
+                ret = sim.cont();
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << '\n';
+                continue;
+            }            
             if(ret == 1){
                 cout << "Stopped at PC: " << sim.get_pc() << endl;
             }else if(ret == 2){
@@ -90,8 +97,15 @@ void CLI(bool joke){
                     string opt;
                     cin >> opt;
                     if(opt == "y"){
-                        cout << "restarting" << endl;
-                        ret = sim.rerun();
+                        cout << "restarting" << endl;try
+                        {
+                            ret = sim.rerun();
+                        }
+                        catch(const std::exception& e)
+                        {
+                            std::cerr << e.what() << '\n';
+                            goto cli_loop;
+                        }                
                         break;
                     }else if(opt == "n"){
                         break;
@@ -100,7 +114,15 @@ void CLI(bool joke){
                 if(ret < 0) continue;
             }else{
                 cout << "running" << endl;
-                ret = sim.run();
+                try
+                {
+                    ret = sim.run();
+                }
+                catch(const std::exception& e)
+                {
+                    std::cerr << e.what() << '\n';
+                    continue;
+                }                
             }
             if(ret == 1){
                 cout << "Stopped at PC: " << sim.get_pc() << endl;
@@ -113,7 +135,10 @@ void CLI(bool joke){
                 cout << "Some error occured in the simulator" << endl;
             }
         }else if((!read_or_eat) && (comm == "next" || comm == "n")){
-            if(sim.step() == 0) break;
+            if(sim.step() == 0){
+                sim.show_result();
+                break;
+            }
         }else if((!read_or_eat) && (comm == "reg" || comm == "r")){
             sim.show_reg();
         }else if((!read_or_eat) && comm == "dump"){

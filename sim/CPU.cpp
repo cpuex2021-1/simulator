@@ -6,7 +6,7 @@ CPU::CPU(unsigned int memsize, unsigned int cachesize, int pc_)
 {
     pc = pc_;
     clk = 0;
-    mem = new Memory(memsize, cachesize);
+    mem = new Memory();
     reg = new int[REGNUM];
     freg = new int[FREGNUM];
     for(int i=0; i<REGNUM; i++){

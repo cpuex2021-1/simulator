@@ -271,7 +271,7 @@ inline void CPU::simulate(unsigned int instr)
     {
         unsigned int rs1 = getBits(instr, 31, 27);
         unsigned int rd = getBits(instr, 26, 22);
-        unsigned int offset = getBits(instr, 21, 6);
+        unsigned int offset = getSextBits(instr, 21, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, offset);
@@ -298,7 +298,6 @@ inline void CPU::simulate(unsigned int instr)
         unsigned int rs1 = getBits(instr, 31, 27);
         unsigned int rs2 = getBits(instr, 10, 6);
         int imm = getSextBits(instr, 26, 11);
-
         #ifdef DEBUG
         printf("op:%d funct3:%d rs1:%d rs2:%d imm:%d\n", op, funct3, rs1, rs2, imm);
         #endif
@@ -396,3 +395,6 @@ inline void CPU::simulate(unsigned int instr)
     exit(1);
     return;
 }
+
+extern map<int, string> xregName;
+extern map<int, string> fregName; 

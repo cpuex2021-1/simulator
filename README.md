@@ -2,6 +2,8 @@
 
 ***GUIはgui branchにあります***
 
+***main branchのWindowsのバイナリはちゃんと動かなそう***
+
 ## ビルド方法(CLI)
 
 ```$ make```
@@ -37,6 +39,6 @@ cd OreOre-V/build
 qmake ../OreOre-V.pro
 make
 ```
-すると`OreOre-V/`下に実行ファイル`OreOre-V`が生成される。
+すると`OreOre-V/build/`下に実行ファイル`OreOre-V`が生成される。
 
 
