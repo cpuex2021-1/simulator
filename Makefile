@@ -7,7 +7,8 @@ all:
 clean:
 	make clean -C asm
 	make clean -C sim
-	rm -f assembler simulator memResult.txt
+	make clean -C OreOre-V/build
+	rm -f assembler simulator gui-simulator memResult.txt
 
 gui:
 	mkdir -p OreOre-V/build
