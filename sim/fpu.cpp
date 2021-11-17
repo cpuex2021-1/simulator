@@ -1,6 +1,6 @@
 #include "fpu.hpp"
 
-long sqrt_grad_[1024] = {
+long long sqrt_grad_[1024] = {
 0x6a09f1699, 0x6a6467693, 
 0x6abec968e, 0x6b1913688, 
 0x6b7347683, 0x6bcd6367d, 
@@ -259,7 +259,7 @@ long sqrt_grad_[1024] = {
 0xff7ff6fff, 0xffc002ffd 
 };
 
-long div_grad_[1024] = {
+long long div_grad_[1024] = {
 0xfffffbff7, 0xff801bfe8, 
 0xff007bfd8, 0xfe8119fc8, 
 0xfe01f9fb8, 0xfd8317fa8, 
