@@ -8,8 +8,8 @@
 class FPU
 {
 private:
-    long *div_grad;
-    long *sqrt_grad;
+    long long *div_grad;
+    long long *sqrt_grad;
     inline int finv(int x);
 public:
     FPU();
