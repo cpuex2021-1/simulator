@@ -8,8 +8,6 @@
 class FPU
 {
 private:
-    //void initdiv();
-    //void initsqr();
     long *div_grad;
     long *sqrt_grad;
     inline int finv(int x);
