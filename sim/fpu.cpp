@@ -29,8 +29,8 @@ void FPU::initsqr(){
 
 FPU::FPU()
 {
-    initdiv();
-    initsqr();
+    //initdiv();
+    //initsqr();
 }
 
 FPU::~FPU()

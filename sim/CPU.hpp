@@ -8,12 +8,19 @@
 #define REGNUM 32
 #define FREGNUM 32
 
+#define CACHESTALL 20
+#define DATAHAZARD 1
+#define BRANCH 2
+
 class CPU
 {
 private:
+    typedef enum{IF, DC, MA1, MA2, WB} STAGE;
+    int dests[5];
+    int srcs[5][2];
+public:
     int* reg;
     int* freg;
-public:
     unsigned long long pc;
     unsigned long long clk;
     Memory* mem;

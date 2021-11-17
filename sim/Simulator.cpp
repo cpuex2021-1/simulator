@@ -7,6 +7,7 @@ using std::string;
 using std::map;
 
 Simulator::Simulator()
+    : ready(false)
 {
     cpu = new CPU(MEMSIZE, CACHESIZE, 0);
     isasm = false;
@@ -28,8 +29,13 @@ int Simulator::read_asm(string filename){
         return -1;
     }
     cout << "Reading " << filename << "...";
-    setup(instructions, str_instr, labels, filename, true);
+    setup(instructions, str_instr, l_to_p, p_to_l, labels, filename, true);
     isasm = true;
+    if(instructions.size() <= 0){
+        ready = false;
+        return -1;
+    }
+    ready = true;
     cout << " complete!" << endl;
     return 0;
 }
@@ -41,7 +47,12 @@ int Simulator::eat_bin(string filename){
         return -1;
     }
     cout << "Eating " << filename << "...";
-    setup(instructions, str_instr, labels, filename, false);
+    setup(instructions, str_instr, l_to_p, p_to_l, labels, filename, false);
+    if(instructions.size() <= 0){
+        ready = false;
+        return -1;
+    }
+    ready = true;
     cout << " complete!" << endl;
     isasm = false;
     return 0;
@@ -153,9 +164,9 @@ void Simulator::show_clock(){
 void Simulator::show_instruction(){
     if(isasm){
         cout << "Instruction (Assembly): " << str_instr[cpu->pc] << endl;        
-        cout << "Instruction (Binary): "; print_instr(instructions[cpu->pc]);
+        cout << "Instruction (Binary): "; print_instr(instructions[p_to_l[cpu->pc]]);
     }else{
-        cout << "Instruction (Binary): "; print_instr(instructions[cpu->pc]);
+        cout << "Instruction (Binary): "; print_instr(instructions[p_to_l[cpu->pc]]);
     }
 }
 void Simulator::show_cache(){
@@ -177,4 +188,32 @@ int Simulator::get_clock(){
 }
 int Simulator::get_pc(){
     return cpu->pc;
+}
+
+int Simulator::brk_unified(int bp){
+    if(break_pc[bp]){
+        del_brk(to_string(bp));
+        return 0;
+    }else{
+        set_brk(to_string(bp));
+        return 1;
+    }
+}
+
+int Simulator::line_to_pc(int l){
+    if(l < 0) return 0;
+    else if(l >= (int)l_to_p.size()){
+        return l_to_p.at(l_to_p.size() - 1);
+    }else{
+        return l_to_p.at(l);
+    }
+}
+
+int Simulator::pc_to_line(int pc){
+    if(pc < 0) return 0;
+    else if(pc >= (int)p_to_l.size()){
+        return p_to_l.at(p_to_l.size()-1);
+    }else{
+        return p_to_l.at(pc);
+    }
 }
