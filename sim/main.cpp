@@ -7,9 +7,6 @@
 #include "util.hpp"
 #include "../asm/Instructions.hpp"
 
-#define MEMSIZE (1 << 25)
-#define CACHESIZE (1 << 12)
-
 using std::cout;
 using std::endl;
 

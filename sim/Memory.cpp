@@ -2,15 +2,15 @@
 
 using namespace std;
 
-Memory::Memory(unsigned int size_, unsigned int cache_size_)
-:size(size_), cache_size(cache_size_), access(0), hitnum(0), validnum(0), replacenum(0)
+Memory::Memory()
+:access(0), hitnum(0), validnum(0), replacenum(0)
 {
-    cache = new cache_elem[cache_size_];
-    for(unsigned int i=0; i<cache_size_; i++){
+    cache = new cache_elem[CACHESIZE];
+    for(unsigned int i=0; i<CACHESIZE; i++){
         cache[i].valid = false;
         cache[i].tag = 0;
     }
-    memory = new int[size];
+    memory = new int[MEMSIZE];
 }
 
 Memory::~Memory(){
@@ -26,7 +26,7 @@ void Memory::print_memory(string filename){
     memres << " ";
     for (int i=8; i < 16; i++) memres << setw(8) << hex << i << " ";
 
-    for(int i=0; i<(int)size; i++){
+    for(int i=0; i<(int)MEMSIZE; i++){
         if(i % 16 == 0){
             memres.fill('0');
             memres << endl << "0x" << setw(8) << hex << i << "\t";
@@ -41,9 +41,21 @@ void Memory::print_memory(string filename){
 
 void Memory::print_cache_summary(){
     cout << "Cache summary" << endl;
-    cout << "\tValid rate   : " << (double)validnum / (double)cache_size << endl;
-    cout << "\tHit rate     : " << (double)hitnum / (double)access << endl;
-    cout << "\tReplace rate : " << (double)replacenum / (double)access << endl;
+    cout << "\tValid rate   : " << getValidRate() << endl;
+    cout << "\tHit rate     : " << getHitRate() << endl;
+    cout << "\tReplace rate : " << getReplaceRate() << endl;
+}
+
+double Memory::getValidRate(){
+    return (double)validnum / (double)CACHESIZE;
+}
+
+double Memory::getHitRate(){
+    return (double)hitnum / (double)access;
+}
+
+double Memory::getReplaceRate(){
+    return (double)replacenum / (double)access;
 }
 
 int Memory::read_without_cache(unsigned int index){
@@ -53,12 +65,12 @@ int Memory::read_without_cache(unsigned int index){
 void Memory::reset(){
     delete cache;
     delete memory;
-    cache = new cache_elem[cache_size];
-    for(int i=0; i<cache_size; i++){
+    cache = new cache_elem[CACHESIZE];
+    for(int i=0; i<CACHESIZE; i++){
         cache[i].valid = false;
         cache[i].tag = 0;
     }
-    memory = new int[size];    
+    memory = new int[MEMSIZE];    
     access = 0;
     hitnum = 0;
     validnum = 0;
