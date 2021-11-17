@@ -39,6 +39,10 @@ private slots:
 
     void on_InstLinespinBox_valueChanged(int arg1);
 
+    void on_verticalScrollBar_valueChanged(int value);
+
+    void on_MemScrollBar_valueChanged(int value);
+
 private:
     Ui::MainWindow *ui;
     QThread simThread;

@@ -42,3 +42,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 DISTFILES += \
     ../asm/.gitignore \
     ../asm/README.md
+
+RESOURCES += \
+    resources.qrc

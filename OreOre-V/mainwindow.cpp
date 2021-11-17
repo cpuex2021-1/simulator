@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->MemTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->Instructions->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->Instructions->setSelectionMode(QAbstractItemView::NoSelection);
+    ui->Instructions->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->MemTable->horizontalHeader()->setVisible(true);
     ui->MemTable->verticalHeader()->setVisible(true);
 
@@ -50,10 +51,10 @@ void MainWindow::SetTableWidth(){
             RegT->setColumnWidth(i, (RegT->width() / RegT->columnCount()) * 1.5);
         }
     }
-    while(MemT->rowCount()*MemT->rowHeight(0) < MemT->height() * 2){
+    while(MemT->rowCount()*MemT->rowHeight(0) < MemT->height()){
         MemT->setRowCount(MemT->rowCount() + 1);
     }
-    while(MemT->rowCount()*MemT->rowHeight(0) > MemT->height() * 2){
+    while(MemT->rowCount()*MemT->rowHeight(0) > MemT->height()){
         MemT->setRowCount(MemT->rowCount() - 1);
     }
     while(InstT->rowCount()*InstT->rowHeight(0) < InstT->height()){
@@ -214,10 +215,16 @@ void MainWindow::refreshMemView(){
     for(int i=0; i<memt->rowCount(); i++){
         for(int j=0; j<memt->columnCount(); j++){
             stringstream ss;
-            ss.fill('0');
             int index = i * memt->columnCount() + j + mem_addr;
-            if (index < sobj.sim.cpu->mem->size) ss << "0x" << hex << sobj.sim.cpu->mem->read_without_cache(index) << dec;
-            ss.fill(' ');
+            if (index < MEMSIZE){
+                if(isReghex){
+                    ss.fill('0');
+                    ss << "0x" << hex << sobj.sim.cpu->mem->read_without_cache(index) << dec;
+                    ss.fill(' ');
+                }else{
+                    ss << sobj.sim.cpu->mem->read_without_cache(index);
+                }
+            }
             if(memt->item(i, j) == NULL){
                 memt->setItem(i, j, new QTableWidgetItem(ss.str().data()));
             }else{
@@ -231,6 +238,10 @@ void MainWindow::refreshMemView(){
             }
         }
     }
+    stringstream ss;
+    auto& memtmp = sobj.sim.cpu->mem;
+    ss << "Valid rate: " << setw(12) << memtmp->getValidRate() << "\tHit rate: " << setw(12) << memtmp->getHitRate() << "\tReplace rate: " << setw(12) << memtmp->getReplaceRate();
+    ui->CacheSummary->setText(ss.str().data());
 }
 
 void MainWindow::refreshInstView(){
@@ -257,10 +268,10 @@ void MainWindow::refreshInstView(){
         int highlight_line = sobj.sim.pc_to_line(sobj.sim.get_pc()) - inst_line;
         if(highlight_line >= 0 && highlight_line < instt->rowCount()) instt->item(highlight_line,0)->setBackground(QBrush(Qt::yellow));
         for(int i=0; i<instt->rowCount(); i++){
-            if(sobj.sim.isbrk(sobj.sim.line_to_pc(i + inst_line))){
-                ui->Instructions->item(sobj.sim.pc_to_line(sobj.sim.line_to_pc(row + inst_line)) - inst_line, column)->setForeground(QBrush(Qt::red));
+            if(sobj.sim.isbrk(sobj.sim.line_to_pc(i + inst_line)) && sobj.sim.pc_to_line(sobj.sim.line_to_pc(i + inst_line)) == i + inst_line){
+                ui->Instructions->item(i, 0)->setForeground(QBrush(Qt::red));
             }else{
-                ui->Instructions->item(sobj.sim.pc_to_line(sobj.sim.line_to_pc(row + inst_line)) - inst_line, column)->setForeground(QBrush(Qt::black));
+                ui->Instructions->item(i, 0)->setForeground(QBrush(Qt::black));
             }
         }
     }
@@ -270,14 +281,14 @@ void MainWindow::refreshInstView(){
 void MainWindow::on_pushButton_7_released()
 {
     isReghex = false;
-    refreshRegView();
+    refreshAll();
 }
 
 
 void MainWindow::on_pushButton_8_released()
 {
     isReghex = true;
-    refreshRegView();
+    refreshAll();
 }
 
 
@@ -288,6 +299,7 @@ void MainWindow::on_pushButton_9_released()
     sobj.sim.isasm=true;
     auto filename = QFileDialog::getOpenFileName(this, tr("Open Assembly"), "", tr("Assembly Files (*.s)"));
     sobj.filename = filename.toStdString();
+    ui->pushButton_9->setDisabled(true);
     emit tellSimRead();
 }
 
@@ -295,7 +307,7 @@ void MainWindow::on_pushButton_9_released()
 void MainWindow::on_address_textChanged(const QString &arg1)
 {
     mem_addr = (int)strtol(arg1.toStdString().data(), NULL, 16);
-    if(mem_addr < 0 || mem_addr > sobj.sim.cpu->mem->size) mem_addr = 0;
+    if(mem_addr < 0 || mem_addr > MEMSIZE) mem_addr = 0;
     mem_addr -= min(mem_addr, 16);
     mem_addr -= mem_addr % 8;
     refreshMemView();
@@ -305,15 +317,15 @@ void MainWindow::on_address_textChanged(const QString &arg1)
 void MainWindow::on_Instructions_cellClicked(int row, int column)
 {
     if(sobj.sim.str_instr.size() <= 0) return;
-    int ret = sobj.sim.brk_unified(sobj.sim.line_to_pc(row));
-    refreshInstView();
+    sobj.sim.brk_unified(sobj.sim.line_to_pc(inst_line + row));
+    refreshAll();
 }
 
 void MainWindow::refreshAll(){
     string pc_text = string("PC: ") + to_string(sobj.sim.get_pc());
-    string clk_txt = string("CLOCK: ") + to_string(sobj.sim.get_clock());
+    ui->InstLinespinBox->setValue(inst_line);
+    ui->address->setValue(mem_addr);
     ui->pc->setText(pc_text.data());
-    ui->clk->setText(clk_txt.data());
     if(sobj.sim.ready && running){
         if(sobj.sim.pc_to_line(sobj.sim.get_pc()) >= ui->Instructions->rowCount() + inst_line) inst_line = sobj.sim.pc_to_line(sobj.sim.get_pc());
         else if(sobj.sim.pc_to_line(sobj.sim.get_pc()) < inst_line) inst_line = sobj.sim.pc_to_line(sobj.sim.get_pc());
@@ -376,6 +388,30 @@ void MainWindow::on_InstLinespinBox_valueChanged(int arg1)
         ui->InstLinespinBox->setValue(inst_line);
     }
     else inst_line = arg1;
+    refreshAll();
+}
+
+
+void MainWindow::on_verticalScrollBar_valueChanged(int value)
+{
+    if(sobj.sim.ready){
+        inst_line = sobj.sim.str_instr.size() * value / 99;
+        if(inst_line >= (int)sobj.sim.str_instr.size()){
+            inst_line = std::max(0, (int)sobj.sim.str_instr.size()-1);
+        }
+    }
+    refreshAll();
+}
+
+
+void MainWindow::on_MemScrollBar_valueChanged(int value)
+{
+    if(sobj.sim.ready){
+        mem_addr = (int)(((long long) MEMSIZE * (long long)value) / 99);
+        if(mem_addr >= MEMSIZE){
+            mem_addr = std::max(0, MEMSIZE-1);
+        }
+    }
     refreshAll();
 }
 
