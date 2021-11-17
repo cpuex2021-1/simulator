@@ -8,19 +8,16 @@
 #include "util.hpp"
 #include "../asm/Instructions.hpp"
 
-#define MEMSIZE (1 << 25)
-#define CACHESIZE (1 << 12)
-
 class Simulator
 {
 private:
     map<int,bool> break_pc;
     vector<unsigned long long> break_clk;
     vector<int> instructions;
-public:
-    vector<string> str_instr;
     vector<int> l_to_p;
     vector<int> p_to_l;
+public:
+    vector<string> str_instr;
 
     bool ready;
 
@@ -50,6 +47,7 @@ public:
     void show_result();
     int pc_to_line(int);
     int line_to_pc(int);
+    bool isbrk(int);
     Simulator();
     ~Simulator();
 };

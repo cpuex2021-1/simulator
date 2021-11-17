@@ -395,3 +395,6 @@ inline void CPU::simulate(unsigned int instr)
     exit(1);
     return;
 }
+
+extern map<int, string> xregName;
+extern map<int, string> fregName; 
