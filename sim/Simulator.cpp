@@ -127,7 +127,7 @@ int Simulator::cont(){
             }else if(break_clk.size() != 0 && break_clk[0] == cpu->clk){
                 return 2;
             }
-            cpu->simulate(instructions[cpu->pc]);
+            cpu->simulate_acc(instructions[cpu->pc]);
             cpu->clk++;
             
             #ifdef DEBUG
@@ -138,13 +138,26 @@ int Simulator::cont(){
     return 0;
 }
 int Simulator::step(){
-    cpu->simulate(instructions[cpu->pc]);
+    cpu->simulate_acc(instructions[cpu->pc]);
     cpu->clk++;
+    vector<int> P(5,0);
+    getPipelineInfo(P);
+    vector<string> stages =
+    {
+        "IF",
+        "DC",
+        "MA",
+        "WB"
+    };
+    for(int i=0; i<PIPELINE_STAGES; i++){
+        cout << stages[i] << ":" << ((P[i] < 0)? "" : str_instr[pc_to_line(P[i])]) << endl;
+    }
     if(cpu->pc >= instructions.size()){
         return 0;
     }else{
         return 1;
     }
+
 }
 void Simulator::show_reg(){
     cpu->print_register();
@@ -220,4 +233,8 @@ int Simulator::pc_to_line(int pc){
 
 bool Simulator::isbrk(int pc){
     return break_pc[pc];
+}
+
+void Simulator::getPipelineInfo(vector<int>& P){
+    return cpu->getPipelineInfo(P);
 }

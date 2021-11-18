@@ -48,6 +48,7 @@ public:
     int pc_to_line(int);
     int line_to_pc(int);
     bool isbrk(int);
+    void getPipelineInfo(vector<int>& P);
     Simulator();
     ~Simulator();
 };

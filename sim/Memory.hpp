@@ -30,6 +30,7 @@ private:
     int hitnum;
     int validnum;
     int replacenum;
+    bool cachehit;
 public:
     Memory();
     ~Memory();
@@ -42,6 +43,9 @@ public:
     double getValidRate();
     double getHitRate();
     double getReplaceRate();
+    inline bool checkCacheHit(){
+        return cachehit;
+    }
 
 private:
     inline void update_cache(int index){
@@ -55,6 +59,7 @@ private:
             cache[cindex].valid = true;
         }
         else if(tag == cache[cindex].tag){
+            cachehit = true;
             hitnum++;
         }else{
             replacenum++;
@@ -70,6 +75,7 @@ inline void Memory::write(int index, int data){
         ss << "Memory index out of range (write): " << index;
         throw std::out_of_range(ss.str());
     }
+    cachehit = false;
     update_cache(index);
     memory[index] = data;
 }
@@ -80,6 +86,7 @@ inline int Memory::read(int index){
         ss << "Memory index out of range (read): " << index;
         throw std::out_of_range(ss.str());
     }
+    cachehit = false;
     update_cache(index);
     return memory[index];
 }
