@@ -43,6 +43,16 @@ private slots:
 
     void on_address_valueChanged(int arg1);
 
+    void on_ClockSpin_editingFinished();
+
+    void on_pushButton_5_released();
+
+    void on_memUpButton_released();
+
+    void on_memDownButton_released();
+
+    void on_SimulatorModeButton_released();
+
 private:
     Ui::MainWindow *ui;
     QThread simThread;

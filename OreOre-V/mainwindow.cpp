@@ -183,9 +183,16 @@ void MainWindow::refreshInstView(){
         }else{
             instt->verticalHeaderItem(i)->setText(to_string(inst_line + i).data());
         }
+
         instt->verticalHeader()->setVisible(true);
         if(sobj.sim.ready){
             string in = (i + inst_line < (int)sobj.sim.str_instr.size()) ? sobj.sim.str_instr[i + inst_line] : "";
+            string stage;
+            bool flushed = false;
+            if(sobj.sim.getPipelineInfoByLineNum(inst_line + i, stage, flushed)){
+                if(flushed) in += string("\t") + string("Flushed");
+                else in += string("\t") + stage;
+            }
             if(instt->item(i,0) == NULL){
                 instt->setItem(i, 0, new QTableWidgetItem(in.data()));
             }else{
@@ -229,7 +236,9 @@ void MainWindow::on_pushButton_9_released()
     sobj.sim.isasm=true;
     auto filename = QFileDialog::getOpenFileName(this, tr("Open Assembly"), "", tr("Assembly Files (*.s)"));
     sobj.filename = filename.toStdString();
-    ui->pushButton_9->setDisabled(true);
+    if(sobj.filename != string("")){
+        sobj.sim.full_reset();
+    }
     emit tellSimRead();
 }
 
@@ -253,8 +262,10 @@ void MainWindow::on_Instructions_cellClicked(int row, int column)
 
 void MainWindow::refreshAll(){
     string pc_text = string("PC: ") + to_string(sobj.sim.get_pc());
+    ui->ClockSpin->setValue(sobj.sim.get_clock());
     ui->InstLinespinBox->setValue(inst_line);
     ui->pc->setText(pc_text.data());
+
     if(sobj.sim.ready && running){
         if(sobj.sim.pc_to_line(sobj.sim.get_pc()) >= ui->Instructions->rowCount() + inst_line) inst_line = sobj.sim.pc_to_line(sobj.sim.get_pc());
         else if(sobj.sim.pc_to_line(sobj.sim.get_pc()) < inst_line) inst_line = sobj.sim.pc_to_line(sobj.sim.get_pc());
@@ -265,15 +276,18 @@ void MainWindow::refreshAll(){
         ui->pushButton->setDisabled(true);
         ui->pushButton_2->setDisabled(true);
         ui->pushButton_3->setDisabled(true);
+        ui->pushButton_5->setDisabled(true);
     }else{
         if(sobj.needReset){
             ui->pushButton->setDisabled(true);
             ui->pushButton_2->setDisabled(true);
             ui->pushButton_3->setDisabled(false);
+            ui->pushButton_5->setDisabled(true);
         }else{
             ui->pushButton->setDisabled(false);
             ui->pushButton_2->setDisabled(false);
             ui->pushButton_3->setDisabled(false);
+            ui->pushButton_5->setDisabled(false);
         }
     }
     refreshInstView();
@@ -317,6 +331,9 @@ void MainWindow::on_InstLinespinBox_valueChanged(int arg1)
         ui->InstLinespinBox->setValue(inst_line);
     }
     else inst_line = arg1;
+    if(inst_line != sobj.sim.str_instr.size() * ui->verticalScrollBar->value() / 99){
+        ui->verticalScrollBar->setValue(inst_line * 99 / sobj.sim.str_instr.size());
+    }
     refreshAll();
 }
 
@@ -344,5 +361,42 @@ void MainWindow::on_MemScrollBar_valueChanged(int value)
         ui->address->setValue(mem_addr);
     }
     refreshAll();
+}
+
+void MainWindow::on_ClockSpin_editingFinished()
+{
+}
+
+
+void MainWindow::on_pushButton_5_released()
+{
+    if(!sobj.sim.ready) return;
+    unsigned long long clkbr = ui->ClockSpin->value();
+    sobj.sim.clk_set_brk(clkbr);
+    tellSimRun();
+}
+
+
+void MainWindow::on_memUpButton_released()
+{
+    ui->address->setValue(ui->address->value() + 8 * ui->MemTable->rowCount());
+}
+
+
+void MainWindow::on_memDownButton_released()
+{
+    ui->address->setValue(max(ui->address->value() - 8 * ui->MemTable->rowCount(), 0));
+}
+
+
+void MainWindow::on_SimulatorModeButton_released()
+{
+    if(ui->SimulatorModeButton->text().toStdString() == string("Accurate Mode")){
+        ui->SimulatorModeButton->setText("Fast Mode");
+        sobj.sim.setMode(fast);
+    }else{
+        ui->SimulatorModeButton->setText("Accurate Mode");
+        sobj.sim.setMode(accurate);
+    }
 }
 

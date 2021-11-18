@@ -116,6 +116,7 @@ void CPU::reset(){
     pc = 0;
     clk = 0;
     mem->reset();
+    p.reset();
 }
 
 

@@ -21,6 +21,8 @@ using std::cerr;
 using std::endl;
 using std::stringstream;
 
+typedef struct Pinfo {int pc; bool flushed;} pinfo;
+
 class Pipeline
 {
 private:
@@ -76,18 +78,17 @@ public:
             stallNum = stallnum;
             return 0;
         }else{
-            int ans;
+            int ans = 0;
             if(stallNum){
-                if(pipe[(ifidx + (PIPELINE_STAGES - 1)) % PIPELINE_STAGES].rd != 0 \
-                 && (pipe[(ifidx + (PIPELINE_STAGES - 1)) % PIPELINE_STAGES].rd == rs1 || pipe[(ifidx + (PIPELINE_STAGES - 1)) % PIPELINE_STAGES].rd == rs2) \
-                 && pipe[(ifidx + (PIPELINE_STAGES - 1)) % PIPELINE_STAGES].valid
-                ){
-                    ans = stallNum;
-                }else{
-                    ans = 0;
+                bool checkstall = false;
+                int i = 1;
+                for(; i < PIPELINE_STAGES && (!checkstall) && i <= stallNum; i++){
+                    checkstall |= pipe[(ifidx + (PIPELINE_STAGES - i)) % PIPELINE_STAGES].rd != 0 \
+                            && pipe[(ifidx + (PIPELINE_STAGES - i)) % PIPELINE_STAGES].valid \
+                            && (pipe[(ifidx + (PIPELINE_STAGES - i)) % PIPELINE_STAGES].rd == rs1 || \
+                            pipe[(ifidx + (PIPELINE_STAGES - i)) % PIPELINE_STAGES].rd == rs2);
                 }
-            }else{
-                ans = 0;
+                ans = stallNum - i + 1;
             }
             stallNum = 0;
             return ans;
@@ -114,9 +115,16 @@ public:
         }
     }
 
-    inline void getPipelineInfo(vector<int>& P){        
+    inline void getPipelineInfo(vector<pinfo>& P){
         for(int i=0; i<PIPELINE_STAGES; i++){
-            P[i] = pipe[(ifidx - i + PIPELINE_STAGES) % PIPELINE_STAGES].instr_idx;
+            P[i].pc = pipe[(ifidx - i + PIPELINE_STAGES) % PIPELINE_STAGES].instr_idx;
+            P[i].flushed = pipe[(ifidx - i + PIPELINE_STAGES) % PIPELINE_STAGES].flushed;
+        }
+    }
+
+    void reset(){
+        for(int i=0; i<PIPELINE_STAGES; i++){
+            pipe[i].set_nop();
         }
     }
 };
@@ -140,7 +148,7 @@ public:
     inline void simulate_acc(unsigned int instr);
     void print_register();
     void reset();
-    inline void getPipelineInfo(vector<int>& P){
+    inline void getPipelineInfo(vector<pinfo>& P){
         return p.getPipelineInfo(P);
     }    
 };
@@ -947,6 +955,7 @@ inline void CPU::simulate_acc(unsigned int instr)
 
     int numStall = p.checkstall(numstall, rs1, rs2);
     p.update_pipeline(former_pc, rd, rs1, rs2, numStall, isFlush, clk);
+    clk++;
     return;
 }
 
