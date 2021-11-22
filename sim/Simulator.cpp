@@ -7,7 +7,7 @@ using std::string;
 using std::map;
 
 Simulator::Simulator()
-    : ready(false)
+    : mode(accurate), ready(false)
 {
     cpu = new CPU(MEMSIZE, CACHESIZE, 0);
     isasm = false;
@@ -19,6 +19,16 @@ Simulator::~Simulator()
 
 void Simulator::reset(){
     cpu->reset();
+}
+
+void Simulator::full_reset(){
+    cpu->reset();
+    instructions = vector<int>();
+    l_to_p = vector<int>();
+    p_to_l = vector<int>();
+    break_pc = map<int,bool>();
+    break_clk = vector<unsigned long long>();
+    str_instr = vector<string>();
 }
 
 int Simulator::read_asm(string filename){
@@ -124,11 +134,12 @@ int Simulator::cont(){
 
             if(break_pc.size() != 0 && break_pc[cpu->pc]){
                 return 1;
-            }else if(break_clk.size() != 0 && break_clk[0] == cpu->clk){
+            }else if(break_clk.size() != 0 && break_clk[0] <= cpu->clk){
+                clk_del_brk(break_clk[0]);
                 return 2;
             }
-            cpu->simulate(instructions[cpu->pc]);
-            cpu->clk++;
+            if(mode == accurate) cpu->simulate_acc(instructions[cpu->pc]);
+            else if(mode == fast) cpu->simulate_fast(instructions[cpu->pc]);
             
             #ifdef DEBUG
             cout << endl;
@@ -138,13 +149,14 @@ int Simulator::cont(){
     return 0;
 }
 int Simulator::step(){
-    cpu->simulate(instructions[cpu->pc]);
-    cpu->clk++;
+    if(mode == accurate) cpu->simulate_acc(instructions[cpu->pc]);
+    else if(mode == fast) cpu->simulate_fast(instructions[cpu->pc]);
     if(cpu->pc >= instructions.size()){
         return 0;
     }else{
         return 1;
     }
+
 }
 void Simulator::show_reg(){
     cpu->print_register();
@@ -220,4 +232,32 @@ int Simulator::pc_to_line(int pc){
 
 bool Simulator::isbrk(int pc){
     return break_pc[pc];
+}
+
+void Simulator::getPipelineInfo(vector<pinfo>& P){
+    return cpu->getPipelineInfo(P);
+}
+
+vector<string> stages = {
+    "WB",
+    "IF",
+    "Dec & RF",
+    "ALU + MA"
+};
+
+bool Simulator::getPipelineInfoByLineNum(int l, string& s, bool& flushed){
+    vector<pinfo> P(PIPELINE_STAGES);
+    getPipelineInfo(P);
+    for(int i=0; i<PIPELINE_STAGES; i++){
+        if(P[i].pc == line_to_pc(l) && pc_to_line(line_to_pc(l)) == l){
+            s = stages[i];
+            flushed = P[i].flushed;
+            return true;
+        }
+    }
+    return false;
+}
+
+void Simulator::setMode(int m){
+    mode = m;
 }

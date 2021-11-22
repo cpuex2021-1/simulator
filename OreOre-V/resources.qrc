@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/etc">
+        <file>OreOre-V.png</file>
+    </qresource>
+</RCC>

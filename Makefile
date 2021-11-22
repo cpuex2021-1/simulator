@@ -7,14 +7,14 @@ all:
 clean:
 	make clean -C asm
 	make clean -C sim
-	rm -f assembler simulator memResult.txt
+	make clean -C OreOre-V/build
+	rm -f assembler simulator gui-simulator memResult.txt
 
 gui:
 	mkdir -p OreOre-V/build
-	cd OreOre-V/build
-	qmake ../OreOre-V.pro
-	make
-	cd ../../
+	qmake -o OreOre-V/build/Makefile OreOre-V/OreOre-V.pro
+	make -C OreOre-V/build
+	cp OreOre-V/build/OreOre-V ./gui-simulator
 
 exec-gui:gui
-	./OreOre-V/build/OreOre-V
+	./gui-simulator

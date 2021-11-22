@@ -8,6 +8,8 @@
 #include "util.hpp"
 #include "../asm/Instructions.hpp"
 
+typedef enum {accurate, fast} Mode;
+
 class Simulator
 {
 private:
@@ -16,6 +18,7 @@ private:
     vector<int> instructions;
     vector<int> l_to_p;
     vector<int> p_to_l;
+    int mode;
 public:
     vector<string> str_instr;
 
@@ -24,6 +27,7 @@ public:
     CPU* cpu;
     bool isasm;
     void reset();
+    void full_reset();
     int read_asm(string filename);
     int eat_bin(string filename);
     int set_brk(string bp);
@@ -48,6 +52,9 @@ public:
     int pc_to_line(int);
     int line_to_pc(int);
     bool isbrk(int);
+    void getPipelineInfo(vector<pinfo>& P);
+    bool getPipelineInfoByLineNum(int, string&, bool&);
+    void setMode(int);
     Simulator();
     ~Simulator();
 };

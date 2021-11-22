@@ -116,4 +116,16 @@ void CPU::reset(){
     pc = 0;
     clk = 0;
     mem->reset();
+    p.reset();
+}
+
+
+void CPU::throw_err(int instr){
+    stringstream sserr;
+    sserr << "Invalid_instruction: ";
+    for(int i=31; i>=0; i--){
+        sserr << (instr >> i & 1);
+    }
+    sserr << endl;
+    throw invalid_argument(sserr.str());
 }
