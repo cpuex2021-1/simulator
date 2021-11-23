@@ -88,7 +88,7 @@ public:
                             && (pipe[(ifidx + (PIPELINE_STAGES - i)) % PIPELINE_STAGES].rd == rs1 || \
                             pipe[(ifidx + (PIPELINE_STAGES - i)) % PIPELINE_STAGES].rd == rs2);
                 }
-                ans = stallNum - i + 1;
+                ans = stallNum - i + 2;
             }
             stallNum = 0;
             return ans;
@@ -902,11 +902,11 @@ inline void CPU::simulate_acc(unsigned int instr)
             reg[0] = 0; break;
         case 6:
             mem->write((int)reg[rs1]+imm, (int)reg[rs2]);
-            numstall = (mem->checkCacheHit()) ? DATAHAZARD : CACHESTALL;
+            //numstall = (mem->checkCacheHit()) ? DATAHAZARD : CACHESTALL;
             pc++; reg[0] = 0; break;
         case 7:
             mem->write((int)reg[rs1]+imm, (int)freg[rs2]);
-            numstall = (mem->checkCacheHit()) ? DATAHAZARD : CACHESTALL;
+            //numstall = (mem->checkCacheHit()) ? DATAHAZARD : CACHESTALL;
             rs2 += 16;
             pc++; reg[0] = 0; break;
         default:
