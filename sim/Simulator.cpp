@@ -39,7 +39,7 @@ int Simulator::read_asm(string filename){
         return -1;
     }
     cout << "Reading " << filename << "...";
-    setup(instructions, str_instr, l_to_p, p_to_l, labels, filename, true);
+    setup(filename, true);
     isasm = true;
     if(instructions.size() <= 0){
         ready = false;
@@ -57,7 +57,7 @@ int Simulator::eat_bin(string filename){
         return -1;
     }
     cout << "Eating " << filename << "...";
-    setup(instructions, str_instr, l_to_p, p_to_l, labels, filename, false);
+    setup(filename, false);
     if(instructions.size() <= 0){
         ready = false;
         return -1;
@@ -260,4 +260,65 @@ bool Simulator::getPipelineInfoByLineNum(int l, string& s, bool& flushed){
 
 void Simulator::setMode(int m){
     mode = m;
+}
+
+void Simulator::setup(string filename, bool isasm){
+    fstream input;
+    input.open(filename, ios::in);
+    if(isasm){
+        int now_addr = 0;
+        int line_num = 1;
+        string str;
+        while(getline(input, str)){
+            Parse pres(str, true, now_addr);
+            str_instr.push_back(str);
+
+            if(pres.type == label){
+                labels[pres.labl] = now_addr;
+                line_num++;
+            }else if(pres.type == error){
+                cerr << "Parsing Error at line " << line_num << endl;
+                exit(1);
+            }else if(pres.type == none){
+                line_num++;
+            }else{
+                line_num++;
+                now_addr += 1;
+            }
+        }
+        input.close();
+        input.open(filename, ios::in);
+        line_num = 1;
+        now_addr = 0;
+
+        while(getline(input, str)){
+            #ifdef DEBUG
+            cout << "line:" << line_num << " ";
+            Debug_parse(str);
+            #endif
+            l_to_p.push_back(now_addr);
+            Parse pres(str, false, now_addr);
+            if(pres.type == instruction){
+                #ifdef DEBUG
+                pres.print_instr();
+                #endif
+                instructions.push_back(pres.code);
+                p_to_l.push_back(line_num - 1);
+                line_num++;
+                now_addr += 1;
+            }else if(pres.type == none || pres.type == label){
+                line_num++;
+            }else if(pres.type == error){
+                cerr << "Parsing Error at line " << line_num << endl;
+                exit(1);
+            }
+        }
+    }else{
+        int code;
+        input.read((char *) &code, sizeof(unsigned int));
+        while(input.read((char *) &code, sizeof(unsigned int))){
+            instructions.push_back(code);
+        }
+    }
+    input.close();
 }

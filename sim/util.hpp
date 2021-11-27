@@ -15,7 +15,6 @@ inline int getSextBits(int num, int start, int end){
 }
 void print_instruction(unsigned int instr);
 void get_filesize(std::fstream& f, unsigned long long& fsize);
-void setup(std::vector<int>& instr, std::vector<std::string>& str_instr, std::vector<int>& line_to_pc, std::vector<int>& pc_to_line, std::map<std::string, unsigned int>& labels, std::string filename, bool isasm);
 string joking_face();
 void print_instr(unsigned int instr);
 double elapsed();

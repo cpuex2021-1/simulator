@@ -19,6 +19,7 @@ private:
     vector<int> l_to_p;
     vector<int> p_to_l;
     int mode;
+    void setup(string filename, bool isasm);
 public:
     vector<string> str_instr;
 
