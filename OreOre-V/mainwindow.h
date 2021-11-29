@@ -53,6 +53,8 @@ private slots:
 
     void on_SimulatorModeButton_released();
 
+    void on_revertButton_released();
+
 private:
     Ui::MainWindow *ui;
     QThread simThread;
