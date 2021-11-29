@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>966</width>
+    <width>1225</width>
     <height>600</height>
    </rect>
   </property>
@@ -171,7 +171,7 @@
           <item>
            <widget class="QPushButton" name="SimulatorModeButton">
             <property name="text">
-             <string>Acurrate Mode</string>
+             <string>Accurate Mode</string>
             </property>
            </widget>
           </item>
@@ -519,6 +519,13 @@
        <widget class="QPushButton" name="pushButton_2">
         <property name="text">
          <string>Step</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="revertButton">
+        <property name="text">
+         <string>Revert</string>
         </property>
        </widget>
       </item>

@@ -62,6 +62,10 @@ int Memory::read_without_cache(unsigned int index){
     return memory[index];
 }
 
+void Memory::write_without_cache(unsigned int index, int data){
+    memory[index] = data;
+}
+
 void Memory::reset(){
     delete cache;
     delete memory;

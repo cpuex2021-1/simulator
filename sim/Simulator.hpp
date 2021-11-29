@@ -55,6 +55,7 @@ public:
     void getPipelineInfo(vector<pinfo>& P);
     bool getPipelineInfoByLineNum(int, string&, bool&);
     void setMode(int);
+    void revert();
     Simulator();
     ~Simulator();
 };

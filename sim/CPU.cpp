@@ -2,17 +2,17 @@
 
 using namespace std;
 
-CPU::CPU(unsigned int memsize, unsigned int cachesize, int pc_)
+CPU::CPU(int pc_)
 {
     pc = pc_;
     clk = 0;
     mem = new Memory();
-    reg = new int[REGNUM];
-    freg = new int[FREGNUM];
+    reg = new int[REGNUM + FREGNUM];
+    freg = &reg[REGNUM];
     for(int i=0; i<REGNUM; i++){
         reg[i] = 0; freg[i] = 0;
     }
-    reg[2] = memsize-1;
+    reg[2] = MEMSIZE-1;
 }
 
 CPU::~CPU(){
@@ -117,6 +117,7 @@ void CPU::reset(){
     clk = 0;
     mem->reset();
     p.reset();
+    log.reset();
 }
 
 
@@ -128,4 +129,21 @@ void CPU::throw_err(int instr){
     }
     sserr << endl;
     throw invalid_argument(sserr.str());
+}
+
+
+void CPU::revert(){
+    if(log.logSize <= 0) return;
+    auto logd = log.pop();
+    if(logd.isreg){
+        if(logd.index){
+            reg[logd.index] = logd.former_val;
+        }
+    }else{
+        mem->write_without_cache(logd.index, logd.former_val);
+    }
+
+    pc = logd.pc;
+
+    p.revert(pc, clk);
 }

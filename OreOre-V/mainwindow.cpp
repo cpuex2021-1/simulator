@@ -277,17 +277,20 @@ void MainWindow::refreshAll(){
         ui->pushButton_2->setDisabled(true);
         ui->pushButton_3->setDisabled(true);
         ui->pushButton_5->setDisabled(true);
+        ui->revertButton->setDisabled(true);
     }else{
         if(sobj.needReset){
             ui->pushButton->setDisabled(true);
             ui->pushButton_2->setDisabled(true);
             ui->pushButton_3->setDisabled(false);
             ui->pushButton_5->setDisabled(true);
+            ui->revertButton->setDisabled(false);
         }else{
             ui->pushButton->setDisabled(false);
             ui->pushButton_2->setDisabled(false);
             ui->pushButton_3->setDisabled(false);
             ui->pushButton_5->setDisabled(false);
+            ui->revertButton->setDisabled(false);
         }
     }
     refreshInstView();
@@ -400,3 +403,10 @@ void MainWindow::on_SimulatorModeButton_released()
     }
 }
 
+
+void MainWindow::on_revertButton_released()
+{
+    sobj.sim.revert();
+    if(sobj.needReset) sobj.needReset = false;
+    refreshAll();
+}

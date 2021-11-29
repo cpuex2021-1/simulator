@@ -9,7 +9,7 @@ using std::map;
 Simulator::Simulator()
     : mode(accurate), ready(false)
 {
-    cpu = new CPU(MEMSIZE, CACHESIZE, 0);
+    cpu = new CPU(0);
     isasm = false;
 }
 
@@ -239,10 +239,10 @@ void Simulator::getPipelineInfo(vector<pinfo>& P){
 }
 
 vector<string> stages = {
-    "WB",
     "IF",
     "Dec & RF",
-    "ALU + MA"
+    "ALU + MA",
+    "WB"
 };
 
 bool Simulator::getPipelineInfoByLineNum(int l, string& s, bool& flushed){
@@ -260,4 +260,8 @@ bool Simulator::getPipelineInfoByLineNum(int l, string& s, bool& flushed){
 
 void Simulator::setMode(int m){
     mode = m;
+}
+
+void Simulator::revert(){
+    cpu->revert();
 }

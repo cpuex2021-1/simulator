@@ -6,7 +6,6 @@
 #include <iostream>
 #include <iomanip>
 #include <map>
-#include <unordered_map>
 #define REGNUM 32
 #define FREGNUM 32
 
@@ -14,12 +13,14 @@
 #define DATAHAZARD 1
 #define BRANCH 2
 #define PIPELINE_STAGES 4
+#define LOG_SIZE 1000
 
 using std::exception;
 using std::cout;
 using std::cerr;
 using std::endl;
 using std::stringstream;
+
 
 typedef struct Pinfo {int pc; bool flushed;} pinfo;
 
@@ -65,7 +66,7 @@ private:
             flushed = false;
         }
     };
-    Sinfo pipe[PIPELINE_STAGES];
+    Sinfo pipe[LOG_SIZE];
     int stallNum;
     
 public:
@@ -83,10 +84,10 @@ public:
                 bool checkstall = false;
                 int i = 1;
                 for(; i < PIPELINE_STAGES && (!checkstall) && i <= stallNum; i++){
-                    checkstall |= pipe[(ifidx + (PIPELINE_STAGES - i)) % PIPELINE_STAGES].rd != 0 \
-                            && pipe[(ifidx + (PIPELINE_STAGES - i)) % PIPELINE_STAGES].valid \
-                            && (pipe[(ifidx + (PIPELINE_STAGES - i)) % PIPELINE_STAGES].rd == rs1 || \
-                            pipe[(ifidx + (PIPELINE_STAGES - i)) % PIPELINE_STAGES].rd == rs2);
+                    checkstall |= pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].rd != 0 \
+                            && pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].valid \
+                            && (pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].rd == rs1 || \
+                            pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].rd == rs2);
                 }
                 ans = stallNum - i + 1;
             }
@@ -98,35 +99,92 @@ public:
     inline void update_pipeline(int instr_idx, int rd, int rs1, int rs2, int numstall, bool flush, unsigned long long &clk){
         if(flush){
             pipe[ifidx].set(instr_idx, rd, rs1, rs2);
-            ifidx++; ifidx %= PIPELINE_STAGES;
+            ifidx++; ifidx %= LOG_SIZE;
             for(int i=0; i<BRANCH; i++){
                 pipe[ifidx].flush(instr_idx + i + 1);
-                ifidx++; ifidx %= PIPELINE_STAGES;
+                ifidx++; ifidx %= LOG_SIZE;
             }
             clk += BRANCH;
         }else{
             for(int i=0; i<numstall; i++){
                 pipe[ifidx].set_nop();
-                ifidx++; ifidx %= PIPELINE_STAGES;
+                ifidx++; ifidx %= LOG_SIZE;
             }
             pipe[ifidx].set(instr_idx, rd, rs1, rs2);
-            ifidx++; ifidx %= PIPELINE_STAGES;
+            ifidx++; ifidx %= LOG_SIZE;
             clk += numstall;
         }
     }
 
     inline void getPipelineInfo(vector<pinfo>& P){
-        for(int i=0; i<PIPELINE_STAGES; i++){
-            P[i].pc = pipe[(ifidx - i + PIPELINE_STAGES) % PIPELINE_STAGES].instr_idx;
-            P[i].flushed = pipe[(ifidx - i + PIPELINE_STAGES) % PIPELINE_STAGES].flushed;
+        for(int i=0; i<P.size(); i++){
+            P[i].pc = pipe[(ifidx - 1 - i + 2 * LOG_SIZE) % LOG_SIZE].instr_idx;
+            P[i].flushed = pipe[(ifidx -1 - i + 2 * LOG_SIZE) % LOG_SIZE].flushed;
         }
     }
 
     void reset(){
-        for(int i=0; i<PIPELINE_STAGES; i++){
+        for(int i=0; i<LOG_SIZE; i++){
             pipe[i].set_nop();
         }
     }
+
+    void revert(int pc, unsigned long long &clk){
+        ifidx += LOG_SIZE - 1; ifidx %= LOG_SIZE; clk--;
+        int cnt = 0;
+        while((pipe[ifidx].instr_idx != pc && (!pipe[ifidx].flushed)) || cnt > LOG_SIZE){
+            pipe[ifidx].set_nop();
+            ifidx += LOG_SIZE - 1; ifidx %= LOG_SIZE; clk--; cnt++;
+        }
+    }
+};
+
+class Log
+{
+private:
+public:
+    class LogData{
+    public:
+        int pc;
+        bool isreg;
+        int index;
+        int former_val;
+        LogData()
+        :pc(0), isreg(false), index(0), former_val(0) 
+        {};
+    };
+    LogData log[LOG_SIZE];
+    unsigned int logHead;
+    unsigned long long logSize;
+    inline void push(int pc, bool isreg, int index, int former_val){
+        log[logHead].pc = pc;
+        log[logHead].isreg = isreg;
+        log[logHead].index = index;
+        log[logHead].former_val = former_val;
+        logHead++; logHead %= LOG_SIZE;
+        logSize += (logSize > LOG_SIZE)? 0 : 1;
+    }
+    inline LogData pop(){
+        if(logHead){
+            logHead += LOG_SIZE - 1;
+            logHead %= LOG_SIZE;
+        }
+        logSize = (logSize <= 0)? 0 : logSize - 1;
+        return log[logHead];
+    }
+
+    void reset(){
+        for(int i = 0; i < LOG_SIZE; i++){
+            log[i].pc = 0;
+            log[i].isreg = false;
+            log[i].index = 0;
+            log[i].former_val = 0;
+        }
+        logHead=0; logSize=0;
+    }
+    Log()
+    :logHead(0), logSize(0)
+    {}
 };
 
 
@@ -135,19 +193,22 @@ class CPU
 private:
     void throw_err(int instr);
     Pipeline p;
+    Log log;
 public:
     int* reg;
     int* freg;
+
     unsigned long long pc;
     unsigned long long clk;
     Memory* mem;
     FPU fpu;
-    CPU(unsigned int memsize, unsigned int cachesize, int pc);
+    CPU(int pc);
     ~CPU();
     inline void simulate_fast(unsigned int instr);
     inline void simulate_acc(unsigned int instr);
     void print_register();
     void reset();
+    void revert();
     inline void getPipelineInfo(vector<pinfo>& P){
         return p.getPipelineInfo(P);
     }    
@@ -548,6 +609,9 @@ inline void CPU::simulate_acc(unsigned int instr)
     int numstall = 0;
     bool isFlush = false;
 
+    long long memAddr = -1;
+    int former_val = 0;
+
     switch (op)
     {
     case 0:
@@ -618,6 +682,7 @@ inline void CPU::simulate_acc(unsigned int instr)
     case 1:
     {
         rd = getBits(instr, 26, 22);
+        former_val = reg[rd];
         rs1 = getBits(instr, 31, 27);
         rs2 = getBits(instr, 10, 6);
 
@@ -660,6 +725,7 @@ inline void CPU::simulate_acc(unsigned int instr)
     case 2:
     {
         rd = getBits(instr, 26, 22);
+        former_val = reg[rd];
         rs1 = getBits(instr, 31, 27);
         rs2 = getBits(instr, 10, 6);
 
@@ -670,46 +736,54 @@ inline void CPU::simulate_acc(unsigned int instr)
         switch (funct3)
         {
         case 0:
+            former_val = freg[rd];
             freg[rd] = fpu.fadd(freg[rs1], freg[rs2]);
             rd += 16;
             rs1 += 16;
             rs2 += 16;
             pc++; reg[0] = 0; break;
         case 1:
+            former_val = freg[rd];
             freg[rd] = fpu.fsub(freg[rs1], freg[rs2]);
             rd += 16;
             rs1 += 16;
             rs2 += 16;
             pc++; reg[0] = 0; break;
         case 2:
+            former_val = freg[rd];
             freg[rd] = fpu.fmul(freg[rs1], freg[rs2]);
             rd += 16;
             rs1 += 16;
             rs2 += 16;
             pc++; reg[0] = 0; break;
         case 3:
+            former_val = freg[rd];
             freg[rd] = fpu.fdiv(freg[rs1], freg[rs2]);
             rd += 16;
             rs1 += 16;
             rs2 += 16;
             pc++; reg[0] = 0; break;
         case 4:
+            former_val = freg[rd];
             freg[rd] = fpu.fsqrt(freg[rs1]);
             rd += 16;
             rs1 += 16;
             pc++; reg[0] = 0; break;
         case 5:
+            former_val = freg[rd];
             freg[rd] = fpu.fneg(freg[rs1]);
             rd += 16;
             rs1 += 16;
             pc++; reg[0] = 0; break;
         case 6:
+            former_val = freg[rd];
             freg[rd] = fpu.fmin(freg[rs1], freg[rs2]);
             rd += 16;
             rs1 += 16;
             rs2 += 16;
             pc++; reg[0] = 0; break;
         case 7:
+            former_val = freg[rd];
             freg[rd] = fpu.fmax(freg[rs1], freg[rs2]);
             rd += 16;
             rs1 += 16;
@@ -724,6 +798,7 @@ inline void CPU::simulate_acc(unsigned int instr)
     case 3:
     {
         rd = getBits(instr, 26, 22);
+        former_val = reg[rd];
         rs1 = getBits(instr, 31, 27);
         rs2 = getBits(instr, 10, 6);
 
@@ -753,6 +828,7 @@ inline void CPU::simulate_acc(unsigned int instr)
             rs1 += 16;
             pc++; reg[0] = 0; break;
         case 4:
+            former_val = freg[rd];
             freg[rd] = (int)reg[rs1];
             rd += 16;
             rs1 += 16;
@@ -767,6 +843,7 @@ inline void CPU::simulate_acc(unsigned int instr)
     {
         rs1 = getBits(instr, 31, 27);
         rd = getBits(instr, 26, 22);
+        former_val = reg[rd];
         int imm = getSextBits(instr, 21, 6);
         int shamt = getSextBits(instr, 10, 6);
         unsigned int judge = getBits(instr, 11, 11);
@@ -815,6 +892,7 @@ inline void CPU::simulate_acc(unsigned int instr)
     {
         rs1 = getBits(instr, 31, 27);
         rd = getBits(instr, 26, 22);
+        former_val = reg[rd];
         unsigned int offset = getSextBits(instr, 21, 6);
 
         #ifdef DEBUG
@@ -828,6 +906,7 @@ inline void CPU::simulate_acc(unsigned int instr)
             numstall = (mem->checkCacheHit()) ? DATAHAZARD : CACHESTALL;
             pc++; reg[0] = 0; break;
         case 1:
+            former_val = freg[rd];
             freg[rd] = mem->read((int)reg[rs1] + offset);
             numstall = (mem->checkCacheHit()) ? DATAHAZARD : CACHESTALL;
             rd += 16;
@@ -901,11 +980,15 @@ inline void CPU::simulate_acc(unsigned int instr)
             }
             reg[0] = 0; break;
         case 6:
-            mem->write((int)reg[rs1]+imm, (int)reg[rs2]);
+            memAddr = reg[rs1]+imm;
+            former_val = mem->read_without_cache(memAddr);
+            mem->write((int)memAddr, (int)reg[rs2]);
             numstall = (mem->checkCacheHit()) ? DATAHAZARD : CACHESTALL;
             pc++; reg[0] = 0; break;
         case 7:
-            mem->write((int)reg[rs1]+imm, (int)freg[rs2]);
+            memAddr = reg[rs1]+imm;
+            former_val = mem->read_without_cache(memAddr);
+            mem->write((int)memAddr, (int)freg[rs2]);
             numstall = (mem->checkCacheHit()) ? DATAHAZARD : CACHESTALL;
             rs2 += 16;
             pc++; reg[0] = 0; break;
@@ -920,6 +1003,7 @@ inline void CPU::simulate_acc(unsigned int instr)
         int addr = getSextBits(instr, 30, 6);
         rs1 = getBits(instr, 31, 27);
         rd = getBits(instr, 26, 22);
+        former_val = reg[rd];
         int imm = getSextBits(instr, 21, 6);
 
         #ifdef DEBUG
@@ -951,6 +1035,12 @@ inline void CPU::simulate_acc(unsigned int instr)
     default:
         throw_err(instr); return;
         break;
+    }
+
+    if(memAddr > -1){
+        log.push(former_pc, false, memAddr, former_val);
+    }else{
+        log.push(former_pc, true, rd, former_val);
     }
 
     int numStall = p.checkstall(numstall, rs1, rs2);

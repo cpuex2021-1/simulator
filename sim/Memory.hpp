@@ -39,6 +39,7 @@ public:
     void print_memory(string filename);
     void print_cache_summary();
     int read_without_cache(unsigned int index);
+    void write_without_cache(unsigned int index, int data);
     void reset();
     double getValidRate();
     double getHitRate();
