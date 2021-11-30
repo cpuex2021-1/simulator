@@ -29,8 +29,8 @@ private:
     queue<int> inbuf;
 public:
     void setup(string input_fname, string output_fname){
-        in.open(input_fname);
-        out.open(output_fname);
+        in.open(input_fname, ios::in);
+        out.open(output_fname, ios::out);
 
         while(!inbuf.empty()){
             inbuf.pop();
@@ -52,7 +52,7 @@ public:
     }
 
     inline void push(int n){
-        out.write(reinterpret_cast<char *>(&n), sizeof(n));
+        out << n << endl;
     }
 };
 

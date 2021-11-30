@@ -55,6 +55,12 @@ private slots:
 
     void on_revertButton_released();
 
+    void on_uartInputButton_released();
+
+    void on_uartOutputButton_released();
+
+    void on_uartSetupButton_released();
+
 private:
     Ui::MainWindow *ui;
     QThread simThread;

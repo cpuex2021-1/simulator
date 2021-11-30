@@ -410,3 +410,22 @@ void MainWindow::on_revertButton_released()
     if(sobj.needReset) sobj.needReset = false;
     refreshAll();
 }
+
+void MainWindow::on_uartInputButton_released()
+{
+    auto filename = QFileDialog::getOpenFileName(this, tr("Open Binary"), "", tr("Binary Files (*)"));
+    sobj.uartinfilename = filename.toStdString();
+}
+
+
+void MainWindow::on_uartOutputButton_released()
+{
+    auto filename = QFileDialog::getOpenFileName(this, tr("Open Binary"), "", tr("Assembly Files (*)"));
+    sobj.uartoutfilename = filename.toStdString();
+}
+
+void MainWindow::on_uartSetupButton_released()
+{
+    sobj.sim.cpu->mem->setup_uart(sobj.uartinfilename, sobj.uartoutfilename);
+}
+
