@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QThread>
+#include <QTableWidgetItem>
 #include "../sim/Simulator.hpp"
 #include "simobj.h"
 
@@ -60,6 +61,8 @@ private slots:
     void on_uartOutputButton_released();
 
     void on_uartSetupButton_released();
+
+    void on_RegTable_itemChanged(QTableWidgetItem *item);
 
 private:
     Ui::MainWindow *ui;

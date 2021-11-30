@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->RegTable->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->MemTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->Instructions->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->RegTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->RegTable->setEditTriggers(QAbstractItemView::DoubleClicked);
     ui->MemTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->Instructions->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->Instructions->setSelectionMode(QAbstractItemView::NoSelection);
@@ -427,5 +427,21 @@ void MainWindow::on_uartOutputButton_released()
 void MainWindow::on_uartSetupButton_released()
 {
     sobj.sim.cpu->mem->setup_uart(sobj.uartinfilename, sobj.uartoutfilename);
+}
+
+
+void MainWindow::on_RegTable_itemChanged(QTableWidgetItem *item)
+{
+    if(item->column() % 2 == 1){
+        if(item->row() < 8){
+            sobj.sim.cpu->reg[item->column() / 2 + item->row() * 4] = item->data(QMetaType::Int).toInt();
+        }else{
+            float f;
+            f = item->text().toFloat();
+            int* i;
+            i = (int*)&f;
+            sobj.sim.cpu->freg[item->column() / 2 + (item->row() - 8) * 4] = (*i);
+        }
+    }
 }
 
