@@ -6,12 +6,14 @@
 #include <iostream>
 #include <iomanip>
 #include <map>
+
 #define REGNUM 32
 #define FREGNUM 32
 
-#define CACHESTALL 20
-#define DATAHAZARD 1
+#define CACHEMISSSTALL 30
+#define CACHEHITSTALL 1
 #define BRANCH 2
+
 #define PIPELINE_STAGES 4
 #define LOG_SIZE 1000
 
@@ -83,7 +85,7 @@ public:
             if(stallNum){
                 bool checkstall = false;
                 int i = 1;
-                for(; i < PIPELINE_STAGES && (!checkstall) && i <= stallNum; i++){
+                for(; i < LOG_SIZE && (!checkstall) && i <= stallNum; i++){
                     checkstall |= pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].rd != 0 \
                             && pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].valid \
                             && (pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].rd == rs1 || \
@@ -186,7 +188,6 @@ public:
     :logHead(0), logSize(0)
     {}
 };
-
 
 class CPU
 {
@@ -903,12 +904,12 @@ inline void CPU::simulate_acc(unsigned int instr)
         {
         case 0:
             reg[rd] = mem->read((int)reg[rs1] + offset);
-            numstall = (mem->checkCacheHit()) ? DATAHAZARD : CACHESTALL;
+            numstall = (mem->checkCacheHit()) ? CACHEHITSTALL : CACHEMISSSTALL;
             pc++; reg[0] = 0; break;
         case 1:
             former_val = freg[rd];
             freg[rd] = mem->read((int)reg[rs1] + offset);
-            numstall = (mem->checkCacheHit()) ? DATAHAZARD : CACHESTALL;
+            numstall = (mem->checkCacheHit()) ? CACHEHITSTALL : CACHEMISSSTALL;
             rd += 16;
             pc++; reg[0] = 0; break;
         case 2:
@@ -983,13 +984,13 @@ inline void CPU::simulate_acc(unsigned int instr)
             memAddr = reg[rs1]+imm;
             former_val = mem->read_without_cache(memAddr);
             mem->write((int)memAddr, (int)reg[rs2]);
-            numstall = (mem->checkCacheHit()) ? DATAHAZARD : CACHESTALL;
+            numstall = (mem->checkCacheHit()) ? CACHEHITSTALL : CACHEMISSSTALL;
             pc++; reg[0] = 0; break;
         case 7:
             memAddr = reg[rs1]+imm;
             former_val = mem->read_without_cache(memAddr);
             mem->write((int)memAddr, (int)freg[rs2]);
-            numstall = (mem->checkCacheHit()) ? DATAHAZARD : CACHESTALL;
+            numstall = (mem->checkCacheHit()) ? CACHEHITSTALL : CACHEMISSSTALL;
             rs2 += 16;
             pc++; reg[0] = 0; break;
         default:

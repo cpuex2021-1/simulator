@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <iostream>
 #include <fstream>
+#include <queue>
 
 #define MEMADDR_BITS 25
 #define CACHEINDEX_BITS 12
@@ -20,6 +21,40 @@ typedef struct cache_elem
     unsigned int tag;
 }Cache_elem;
 
+class UART
+{
+private:
+    fstream in;
+    fstream out;
+    queue<int> inbuf;
+public:
+    void setup(string input_fname, string output_fname){
+        in.open(input_fname);
+        out.open(output_fname);
+
+        while(!inbuf.empty()){
+            inbuf.pop();
+        }
+
+        int code;
+        while(in.read((char *) &code, sizeof(unsigned int))){
+            inbuf.push(code);
+        }
+    }
+
+    inline int pop(){
+        if(inbuf.empty()){
+            throw invalid_argument("No more uart input");
+        }
+        int res = inbuf.front();
+        inbuf.pop();
+        return res;
+    }
+
+    inline void push(int n){
+        out.write(reinterpret_cast<char *>(&n), sizeof(n));
+    }
+};
 
 class Memory
 {
@@ -31,11 +66,14 @@ private:
     int validnum;
     int replacenum;
     bool cachehit;
+    UART uart;
 public:
     Memory();
     ~Memory();
     inline void write(int index, int data);
     inline int read(int index);
+
+    void setup_uart(string, string);
     void print_memory(string filename);
     void print_cache_summary();
     int read_without_cache(unsigned int index);
@@ -76,6 +114,9 @@ inline void Memory::write(int index, int data){
         ss << "Memory index out of range (write): " << index;
         throw std::out_of_range(ss.str());
     }
+    if(index == 0){
+        uart.push(data);
+    }
     cachehit = false;
     update_cache(index);
     memory[index] = data;
@@ -86,6 +127,9 @@ inline int Memory::read(int index){
         stringstream ss;
         ss << "Memory index out of range (read): " << index;
         throw std::out_of_range(ss.str());
+    }
+    if(index == 0){
+        return uart.pop();
     }
     cachehit = false;
     update_cache(index);

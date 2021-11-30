@@ -18,6 +18,10 @@ Memory::~Memory(){
     delete memory;
 }
 
+void Memory::setup_uart(string in, string out){
+    uart.setup(in, out);
+}
+
 void Memory::print_memory(string filename){
     fstream memres;
     memres.open(filename, ios::out);
