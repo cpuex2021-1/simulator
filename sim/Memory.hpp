@@ -129,7 +129,12 @@ inline int Memory::read(int index){
         throw std::out_of_range(ss.str());
     }
     if(index == 0){
-        return uart.pop();
+        try{
+            return uart.pop();
+        }catch(std::exception &e){
+            cerr << e.what() << endl;
+            return 0;
+        }        
     }
     cachehit = false;
     update_cache(index);
