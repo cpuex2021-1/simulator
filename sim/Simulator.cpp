@@ -7,7 +7,7 @@ using std::string;
 using std::map;
 
 Simulator::Simulator()
-    : mode(accurate), ready(false)
+    : sectionid(0), funcid(0), mode(accurate), ready(false)
 {
     cpu = new CPU(0);
     isasm = false;
@@ -23,7 +23,7 @@ void Simulator::reset(){
 
 void Simulator::full_reset(){
     cpu->reset();
-    instructions = vector<int>();
+    cpu->instructions = vector<int>();
     l_to_p = vector<int>();
     p_to_l = vector<int>();
     break_pc = map<int,bool>();
@@ -41,7 +41,7 @@ int Simulator::read_asm(string filename){
     cout << "Reading " << filename << "...";
     setup(filename, true);
     isasm = true;
-    if(instructions.size() <= 0){
+    if(cpu->instructions.size() <= 0){
         ready = false;
         return -1;
     }
@@ -58,7 +58,7 @@ int Simulator::eat_bin(string filename){
     }
     cout << "Eating " << filename << "...";
     setup(filename, false);
-    if(instructions.size() <= 0){
+    if(cpu->instructions.size() <= 0){
         ready = false;
         return -1;
     }
@@ -126,7 +126,7 @@ int Simulator::rerun(){
 }
 int Simulator::cont(){
     if(step()){
-        while(cpu->pc < instructions.size()){
+        while(cpu->pc < cpu->instructions.size()){
             #ifdef DEBUG
             cout << "PC:" << cpu->pc << endl << "Instruction:";
             cpu->print_register();
@@ -138,8 +138,8 @@ int Simulator::cont(){
                 clk_del_brk(break_clk[0]);
                 return 2;
             }
-            if(mode == accurate) cpu->simulate_acc(instructions[cpu->pc]);
-            else if(mode == fast) cpu->simulate_fast(instructions[cpu->pc]);
+            if(mode == accurate) cpu->simulate_acc();
+            else if(mode == fast) cpu->simulate_fast();
             
             #ifdef DEBUG
             cout << endl;
@@ -149,9 +149,9 @@ int Simulator::cont(){
     return 0;
 }
 int Simulator::step(){
-    if(mode == accurate) cpu->simulate_acc(instructions[cpu->pc]);
-    else if(mode == fast) cpu->simulate_fast(instructions[cpu->pc]);
-    if(cpu->pc >= instructions.size()){
+    if(mode == accurate) cpu->simulate_acc();
+    else if(mode == fast) cpu->simulate_fast();
+    if(cpu->pc >= cpu->instructions.size()){
         return 0;
     }else{
         return 1;
@@ -176,9 +176,9 @@ void Simulator::show_clock(){
 void Simulator::show_instruction(){
     if(isasm){
         cout << "Instruction (Assembly): " << str_instr[cpu->pc] << endl;        
-        cout << "Instruction (Binary): "; print_instr(instructions[p_to_l[cpu->pc]]);
+        cout << "Instruction (Binary): "; print_instr(cpu->instructions[p_to_l[cpu->pc]]);
     }else{
-        cout << "Instruction (Binary): "; print_instr(instructions[p_to_l[cpu->pc]]);
+        cout << "Instruction (Binary): "; print_instr(cpu->instructions[p_to_l[cpu->pc]]);
     }
 }
 void Simulator::show_cache(){
@@ -302,7 +302,7 @@ void Simulator::setup(string filename, bool isasm){
                 #ifdef DEBUG
                 pres.print_instr();
                 #endif
-                instructions.push_back(pres.code);
+                cpu->instructions.push_back(pres.code);
                 p_to_l.push_back(line_num - 1);
                 line_num++;
                 now_addr += 1;
@@ -317,7 +317,7 @@ void Simulator::setup(string filename, bool isasm){
         int code;
         input.read((char *) &code, sizeof(unsigned int));
         while(input.read((char *) &code, sizeof(unsigned int))){
-            instructions.push_back(code);
+            cpu->instructions.push_back(code);
         }
     }
     input.close();
@@ -326,3 +326,13 @@ void Simulator::setup(string filename, bool isasm){
 void Simulator::revert(){
     cpu->revert();
 }
+
+int Simulator::getNewSectionId(){
+    sectionid++;
+    return sectionid;
+}
+int Simulator::getNewFuncId(){
+    funcid++;
+    return funcid;
+}
+

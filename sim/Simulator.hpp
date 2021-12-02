@@ -15,9 +15,17 @@ class Simulator
 private:
     map<int,bool> break_pc;
     vector<unsigned long long> break_clk;
-    vector<int> instructions;
-    vector<int> l_to_p;
-    vector<int> p_to_l;
+    vector<int> l_to_p; //line_to_pc
+    vector<int> p_to_l; //pc_to_line
+
+    //vars and functions for profiling
+    int sectionid;
+    int funcid;
+    int getNewSectionId();
+    int getNewFuncId();
+    vector<int> pc_to_sectionid;
+
+    
     int mode;
     void setup(string filename, bool isasm);
 public:

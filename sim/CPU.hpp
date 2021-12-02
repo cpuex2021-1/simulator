@@ -198,6 +198,7 @@ private:
 public:
     int* reg;
     int* freg;
+    vector<int> instructions;
 
     unsigned long long pc;
     unsigned long long clk;
@@ -205,8 +206,8 @@ public:
     FPU fpu;
     CPU(int pc);
     ~CPU();
-    inline void simulate_fast(unsigned int instr);
-    inline void simulate_acc(unsigned int instr);
+    inline void simulate_fast();
+    inline void simulate_acc();
     void print_register();
     void reset();
     void revert();
@@ -216,8 +217,9 @@ public:
 };
 
 
-inline void CPU::simulate_fast(unsigned int instr)
+inline void CPU::simulate_fast()
 {
+    unsigned int instr = instructions[pc];
     unsigned int op = getBits(instr, 2, 0);
     unsigned int funct3 = getBits(instr, 5, 3);
 
@@ -593,8 +595,9 @@ inline void CPU::simulate_fast(unsigned int instr)
     return;
 }
 
-inline void CPU::simulate_acc(unsigned int instr)
+inline void CPU::simulate_acc()
 {
+    unsigned int instr = instructions[pc];
     unsigned int op = getBits(instr, 2, 0);
     unsigned int funct3 = getBits(instr, 5, 3);
 
