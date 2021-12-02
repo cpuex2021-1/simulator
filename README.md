@@ -14,8 +14,6 @@
 
 ## 説明
 
-FPUはC++標準で対応
-
 はじめてつかうときはhelpとタイプすると使い方が表示されます
 
 トップのディレクトリで
@@ -35,4 +33,11 @@ make
 ```
 すると`OreOre-V/build/`下に実行ファイル`OreOre-V`が生成される。
 
+## fsinとfcosの検証
+`$make fver`をすると、`fverify`という実行ファイルができる。
 
+fsinの検証
+`fsin.s`があるディレクトリで、`$./fverify sin`とする。
+
+fcosの検証
+`fcos.s`があるディレクトリで、`$./fverify cos`とする。
