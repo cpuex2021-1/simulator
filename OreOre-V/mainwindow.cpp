@@ -99,10 +99,10 @@ void MainWindow::refreshRegView(){
                     stringstream ss;
                     if(isReghex){
                         ss.fill('0');
-                        ss << hex << "0x" << setw(8) << sobj.sim.cpu->reg[(i * regt->columnCount() + j) / 2] << dec;
+                        ss << hex << "0x" << setw(8) << sobj.sim.reg[(i * regt->columnCount() + j) / 2] << dec;
                         ss.fill(' ');
                     }else{
-                        ss << dec << sobj.sim.cpu->reg[(i * regt->columnCount() + j) / 2];
+                        ss << dec << sobj.sim.reg[(i * regt->columnCount() + j) / 2];
                     }
                     if(regt->item(i,j) == NULL){
                         regt->setItem(i, j, new QTableWidgetItem(ss.str().data()));
@@ -113,10 +113,10 @@ void MainWindow::refreshRegView(){
                     stringstream ss;
                     if(isReghex){
                         ss.fill('0');
-                        ss << hex << "0x" << setw(8) << sobj.sim.cpu->freg[(i * regt->columnCount() + j) / 2 - 32] << dec;
+                        ss << hex << "0x" << setw(8) << sobj.sim.freg[(i * regt->columnCount() + j) / 2 - 32] << dec;
                         ss.fill(' ');
                     }else{
-                        float* f = (float*)&(sobj.sim.cpu->freg[(i * regt->columnCount() + j) / 2 - 32]);
+                        float* f = (float*)&(sobj.sim.freg[(i * regt->columnCount() + j) / 2 - 32]);
                         ss << (*f);
                     }
                     if(regt->item(i,j) == NULL){
@@ -149,10 +149,10 @@ void MainWindow::refreshMemView(){
             if (index < MEMSIZE){
                 if(isReghex){
                     ss.fill('0');
-                    ss << "0x" << hex << sobj.sim.cpu->mem->read_without_cache(index) << dec;
+                    ss << "0x" << hex << sobj.sim.mem->read_without_cache(index) << dec;
                     ss.fill(' ');
                 }else{
-                    ss << sobj.sim.cpu->mem->read_without_cache(index);
+                    ss << sobj.sim.mem->read_without_cache(index);
                 }
             }
             if(memt->item(i, j) == NULL){
@@ -169,7 +169,7 @@ void MainWindow::refreshMemView(){
         }
     }
     stringstream ss;
-    auto& memtmp = sobj.sim.cpu->mem;
+    auto& memtmp = sobj.sim.mem;
     ss << "Valid rate: " << setw(12) << memtmp->getValidRate() << "\tHit rate: " << setw(12) << memtmp->getHitRate() << "\tReplace rate: " << setw(12) << memtmp->getReplaceRate();
     ui->CacheSummary->setText(ss.str().data());
 }
@@ -426,7 +426,7 @@ void MainWindow::on_uartOutputButton_released()
 
 void MainWindow::on_uartSetupButton_released()
 {
-    sobj.sim.cpu->mem->setup_uart(sobj.uartinfilename, sobj.uartoutfilename);
+    sobj.sim.mem->setup_uart(sobj.uartinfilename, sobj.uartoutfilename);
 }
 
 
@@ -435,13 +435,13 @@ void MainWindow::on_RegTable_itemChanged(QTableWidgetItem *item)
     if(isReghex) return;
     if(item->column() % 2 == 1){
         if(item->row() < 8){
-            sobj.sim.cpu->reg[item->column() / 2 + item->row() * 4] = item->data(QMetaType::Int).toInt();
+            sobj.sim.reg[item->column() / 2 + item->row() * 4] = item->data(QMetaType::Int).toInt();
         }else{
             float f;
             f = item->text().toFloat();
             int* i;
             i = (int*)&f;
-            sobj.sim.cpu->freg[item->column() / 2 + (item->row() - 8) * 4] = (*i);
+            sobj.sim.freg[item->column() / 2 + (item->row() - 8) * 4] = (*i);
         }
     }
 }

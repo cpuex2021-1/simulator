@@ -10,7 +10,7 @@
 
 typedef enum {accurate, fast} Mode;
 
-class Simulator
+class Simulator: public CPU
 {
 private:
     map<int,bool> break_pc;
@@ -32,10 +32,7 @@ public:
     vector<string> str_instr;
 
     bool ready;
-
-    CPU* cpu;
     bool isasm;
-    void reset();
     void full_reset();
     int read_asm(string filename);
     int eat_bin(string filename);
@@ -61,10 +58,8 @@ public:
     int pc_to_line(int);
     int line_to_pc(int);
     bool isbrk(int);
-    void getPipelineInfo(vector<pinfo>& P);
     bool getPipelineInfoByLineNum(int, string&, bool&);
     void setMode(int);
-    void revert();
     Simulator();
     ~Simulator();
 };

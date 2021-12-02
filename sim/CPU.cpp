@@ -2,9 +2,9 @@
 
 using namespace std;
 
-CPU::CPU(int pc_)
+CPU::CPU()
 {
-    pc = pc_;
+    pc = 0;
     clk = 0;
     mem = new Memory();
     reg = new int[REGNUM + FREGNUM];

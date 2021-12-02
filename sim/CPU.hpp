@@ -204,7 +204,7 @@ public:
     unsigned long long clk;
     Memory* mem;
     FPU fpu;
-    CPU(int pc);
+    CPU();
     ~CPU();
     inline void simulate_fast();
     inline void simulate_acc();
