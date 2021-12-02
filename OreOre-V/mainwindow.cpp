@@ -432,6 +432,7 @@ void MainWindow::on_uartSetupButton_released()
 
 void MainWindow::on_RegTable_itemChanged(QTableWidgetItem *item)
 {
+    if(isReghex) return;
     if(item->column() % 2 == 1){
         if(item->row() < 8){
             sobj.sim.cpu->reg[item->column() / 2 + item->row() * 4] = item->data(QMetaType::Int).toInt();

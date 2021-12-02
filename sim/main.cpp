@@ -5,7 +5,6 @@
 #include <vector>
 #include "Simulator.hpp"
 #include "util.hpp"
-#include "../asm/Instructions.hpp"
 
 using std::cout;
 using std::endl;

@@ -119,7 +119,7 @@ public:
     }
 
     inline void getPipelineInfo(vector<pinfo>& P){
-        for(int i=0; i<P.size(); i++){
+        for(unsigned int i=0; i<P.size(); i++){
             P[i].pc = pipe[(ifidx - 1 - i + 2 * LOG_SIZE) % LOG_SIZE].instr_idx;
             P[i].flushed = pipe[(ifidx -1 - i + 2 * LOG_SIZE) % LOG_SIZE].flushed;
         }
@@ -465,7 +465,8 @@ inline void CPU::simulate_fast(unsigned int instr)
     {
         rs1 = getBits(instr, 31, 27);
         rd = getBits(instr, 26, 22);
-        unsigned int offset = getSextBits(instr, 21, 6);
+        int offset = getSextBits(instr, 21, 6);
+        unsigned int luioffset = getBits(instr, 21, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, offset);
@@ -480,7 +481,7 @@ inline void CPU::simulate_fast(unsigned int instr)
             freg[rd] = mem->read((int)reg[rs1] + offset);
             pc++; reg[0] = 0; break;
         case 2:
-            reg[rd] = (((rs1 << 16) + offset) & ((1 << 20) - 1)) << 12;
+            reg[rd] = ((rs1 << 16) + luioffset) << 12;
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
