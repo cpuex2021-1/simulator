@@ -14,7 +14,6 @@ gdb:*.cpp *.hpp ../asm/Instructions.cpp ../asm/Parse.cpp
 debug:*.cpp *.hpp ../asm/Instructions.cpp ../asm/Parse.cpp
 	$(CC) $(CFLAGS) -DDEBUG ../asm/Instructions.cpp ../asm/Parse.cpp CPU.cpp Memory.cpp Simulator.cpp fpu.cpp main.cpp util.cpp
 
-.PHONY:fverify
 fverify:*.cpp *.hpp ../asm/Instructions.cpp ../asm/Parse.cpp
 	$(CC) -O3 -Wall -std=c++17 -o fverify ../asm/Instructions.cpp ../asm/Parse.cpp CPU.cpp Memory.cpp Simulator.cpp fpu.cpp fputest.cpp util.cpp
 clean:

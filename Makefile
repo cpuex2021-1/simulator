@@ -19,5 +19,9 @@ gui:
 	make -C OreOre-V/build
 	cp OreOre-V/build/OreOre-V ./gui-simulator
 
+fver:
+	make -C sim fverify
+	cp sim/fverify ./
+
 exec-gui:gui
 	./gui-simulator

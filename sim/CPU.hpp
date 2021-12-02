@@ -895,7 +895,8 @@ inline void CPU::simulate_acc(unsigned int instr)
         rs1 = getBits(instr, 31, 27);
         rd = getBits(instr, 26, 22);
         former_val = reg[rd];
-        unsigned int offset = getSextBits(instr, 21, 6);
+        int offset = getSextBits(instr, 21, 6);
+        unsigned int luioffset = getBits(instr, 21, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, offset);
@@ -914,7 +915,7 @@ inline void CPU::simulate_acc(unsigned int instr)
             rd += 16;
             pc++; reg[0] = 0; break;
         case 2:
-            reg[rd] = (((rs1 << 16) + offset) & ((1 << 20) - 1)) << 12;
+            reg[rd] = (((rs1 << 16) + luioffset) & ((1 << 20) - 1)) << 12;
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
