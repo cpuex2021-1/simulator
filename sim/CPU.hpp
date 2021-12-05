@@ -409,6 +409,16 @@ inline void CPU::simulate_fast()
         case 4:
             freg[rd] = (int)reg[rs1];
             pc++; reg[0] = 0; break;
+        case 5:
+            freg[rd] = freg[rs1];
+            pc++; reg[0] = 0; break;
+        case 6:
+            freg[rd] = fpu.itof(reg[rs1]);
+            pc++; reg[0] = 0; break;
+        case 7:
+            reg[rd] = fpu.ftoi(freg[rs1]);
+            pc++; reg[0] = 0; break;
+        
         default:
             throw_err(instr); return;
             break;
@@ -836,8 +846,23 @@ inline void CPU::simulate_acc()
             former_val = freg[rd];
             freg[rd] = (int)reg[rs1];
             rd += 16;
+            pc++; reg[0] = 0; break;
+        case 5:
+            former_val = freg[rd];
+            freg[rd] = freg[rs1];
+            rd += 16;
             rs1 += 16;
             pc++; reg[0] = 0; break;
+        case 6:
+            former_val = freg[rd];
+            freg[rd] = fpu.itof(reg[rs1]);
+            rd += 16;
+            pc++; reg[0] = 0; break;
+        case 7:
+            reg[rd] = fpu.ftoi(freg[rs1]);
+            rs1 += 16;
+            pc++; reg[0] = 0; break;
+        
         default:
             throw_err(instr); return;
             break;
