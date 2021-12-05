@@ -25,6 +25,8 @@ public:
     inline int feq(int f1, int f2);
     inline int flt(int f1, int f2);
     inline int fle(int f1, int f2);
+    inline int itof(int f1);
+    inline int ftoi(int f2);
 };
 
 inline int FPU::fadd(int f1, int f2){
@@ -277,4 +279,16 @@ inline int FPU::fmul(int a,int b){
     }else{
         return (s<<31) + (e<<23) + m;
     }
+}
+
+inline int FPU::ftoi(int f1){
+    float* f = (float*) &f1;
+    int res = (int)(*f);
+    return res;
+}
+
+inline int FPU::itof(int f1){
+    float f = (float) f1;
+    int* res = (int *) &f;
+    return (*res);
 }
