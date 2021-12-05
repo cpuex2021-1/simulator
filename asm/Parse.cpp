@@ -365,6 +365,33 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 0,
                 0);
             code = ret.assemble();
+        }else if(match[1].str() ==  "fmv"){
+            Rtype ret(
+                3,
+                5,
+                regname_to_addr(match[2].str()),
+                regname_to_addr(match[3].str()),
+                0,
+                0);
+            code = ret.assemble();
+        }else if(match[1].str() ==  "itof"){
+            Rtype ret(
+                3,
+                6,
+                regname_to_addr(match[2].str()),
+                regname_to_addr(match[3].str()),
+                0,
+                0);
+            code = ret.assemble();
+        }else if(match[1].str() ==  "ftoi"){
+            Rtype ret(
+                3,
+                6,
+                regname_to_addr(match[2].str()),
+                regname_to_addr(match[3].str()),
+                0,
+                0);
+            code = ret.assemble();
         }
 
         else if(match[1].str() ==  "addi"){
