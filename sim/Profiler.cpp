@@ -7,7 +7,10 @@ Profiler::Profiler()
 Profiler::~Profiler()
 {}
 
-int Profiler::genSectid(){
+int Profiler::genSectid(int p){
+    if(sectid_list[p] > 0){
+        return sectid;
+    }   
     sectid++;
     return sectid;
 }
@@ -80,8 +83,8 @@ void Profiler::initSectId(int p, int sect){
     {
         int imm = getSextBits(instr, 26, 11);
         if(funct3 >= 0 && funct3 <= 5){
-            initSectId(p + 1, genSectid());
-            initSectId(p + imm, genSectid());
+            initSectId(p + 1, genSectid(p + 1));
+            initSectId(p + imm, genSectid(p + imm));
         }else{
             initSectId(p + 1, sect);
         }
@@ -94,14 +97,14 @@ void Profiler::initSectId(int p, int sect){
         case 0:
         {
             int addr = getSextBits(instr, 30, 6);
-            initSectId(p + addr, genSectid());
+            initSectId(p + addr, genSectid(p + addr));
             break;
         }
         case 1:
         {
             int imm = getSextBits(instr, 21, 6);
-            initSectId(p + 1, genSectid());
-            initSectId(p + imm, genSectid());
+            initSectId(p + 1, genSectid(p + 1));
+            initSectId(p + imm, genSectid(p + imm));
             break;
         }
         case 2:
@@ -130,7 +133,7 @@ void Profiler::initProfiler(){
     sectid_list = vector<int>(instructions.size(), 0);
     label_list = vector<int>(instructions.size(), 0);
     initLabellist(0);
-    initSectId(0, genSectid());
+    initSectId(0, genSectid(0));
 }
 
 void Profiler::print_sectionid_summary(){

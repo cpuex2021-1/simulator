@@ -5,7 +5,7 @@ class Profiler : public Simulator
 {
 private:
     int sectid;
-    int genSectid();
+    int genSectid(int p);
 
     vector<int> funcid_list;
     vector<int> sectid_list;
