@@ -16,5 +16,9 @@ debug:*.cpp *.hpp ../asm/Instructions.cpp ../asm/Parse.cpp
 
 fverify:*.cpp *.hpp ../asm/Instructions.cpp ../asm/Parse.cpp
 	$(CC) -O3 -Wall -std=c++17 -o fverify ../asm/Instructions.cpp ../asm/Parse.cpp CPU.cpp Memory.cpp Simulator.cpp fpu.cpp fputest.cpp util.cpp
+
+proftest:*.cpp *.hpp ../asm/Instructions.cpp ../asm/Parse.cpp
+	$(CC) -g -Wall -std=c++17 -o proftest ../asm/Instructions.cpp ../asm/Parse.cpp CPU.cpp Memory.cpp Simulator.cpp fpu.cpp proftest.cpp util.cpp Profiler.cpp
+
 clean:
 	rm -f simulator
