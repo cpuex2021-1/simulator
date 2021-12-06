@@ -9,7 +9,7 @@ private:
 
     vector<int> funcid_list;
     vector<int> sectid_list;
-    vector<bool> label_list;
+    vector<int> label_list;
 
     int getFuncid(int pc){
         return funcid_list[pc];
@@ -19,10 +19,11 @@ private:
     }
 
     void initLabellist(int p);
-    void initSectId(int p);
-    void initProfiler();
+    void initSectId(int p, int sect);
 
 public:
     Profiler(/* args */);
     ~Profiler();
+    void initProfiler();
+    void print_sectionid_summary();
 };
