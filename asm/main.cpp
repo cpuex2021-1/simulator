@@ -66,9 +66,11 @@ int main(int argc, char* argv[]){
             #ifdef DEBUG
             pres.print_instr();
             #endif
-            output.write(reinterpret_cast<char *>(&pres.code), sizeof(pres.code));
+            for(unsigned int i = 0; i < pres.codes.size(); i++){
+                output.write(reinterpret_cast<char *>(&pres.codes[i]), sizeof(pres.codes[i]));
+                now_addr += 1;
+            }
             line_num++;
-            now_addr += 1;
         }else if(pres.type == none || pres.type == label){
             line_num++;
         }else if(pres.type == error){

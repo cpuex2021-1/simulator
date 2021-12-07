@@ -6,10 +6,10 @@
 
 #define PSUEDO "\\.([\\w|\\.|\\-|\\d]+)\\s*([\\w|\\.|\\-|\\d]+)"
 #define LABEL_EXPR "([\\w|\\.|\\-|\\d]+):\\s*"
-#define THREE_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s*([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*"
-#define TWO_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s*([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*"
-#define ONE_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s*([\\w|\\.|\\-|\\d]+)\\s*" 
-#define SW_LIKE_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s*([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\-]*\\d+)\\(([\\w|\\.|\\-|\\d]+)\\)\\s*"
+#define THREE_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s+([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*"
+#define TWO_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s+([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*"
+#define ONE_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s+([\\w|\\.|\\-|\\d]+)\\s*" 
+#define SW_LIKE_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s+([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\-]*\\d+)\\(([\\w|\\.|\\-|\\d]+)\\)\\s*"
 
 using namespace std;
 
@@ -79,6 +79,8 @@ Parse :: Parse(string str, bool label_only, int now_addr){
         type = error;
     }
 
+    codes = vector<uint32_t>();
+
     if(type == instruction && !label_only){
         if(match[1].str() ==  "add"){
             Rtype ret(
@@ -88,7 +90,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "sub"){
             Rtype ret(
                 0,
@@ -97,7 +99,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 1);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "sll"){
             Rtype ret(
                 0,
@@ -106,7 +108,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "srl"){
             Rtype ret(
                 0,
@@ -115,7 +117,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "sra"){
             Rtype ret(
                 0,
@@ -124,7 +126,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 1);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "slt"){
             Rtype ret(
                 0,
@@ -133,7 +135,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "sltu"){
             Rtype ret(
                 0,
@@ -142,7 +144,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "xor"){
             Rtype ret(
                 0,
@@ -151,7 +153,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "or"){
             Rtype ret(
                 0,
@@ -160,7 +162,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "and"){
             Rtype ret(
                 0,
@@ -169,7 +171,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }
         
         else if(match[1].str() ==  "mul"){
@@ -180,7 +182,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "mulh"){
             Rtype ret(
                 1,
@@ -189,7 +191,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "mulhsu"){
             Rtype ret(
                 1,
@@ -198,7 +200,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "mulhu"){
             Rtype ret(
                 1,
@@ -207,7 +209,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "div"){
             Rtype ret(
                 1,
@@ -216,7 +218,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "divu"){
             Rtype ret(
                 1,
@@ -225,7 +227,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "rem"){
             Rtype ret(
                 1,
@@ -234,7 +236,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "remu"){
             Rtype ret(
                 1,
@@ -243,7 +245,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }
         
         else if(match[1].str() ==  "fadd"){
@@ -254,7 +256,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "fsub"){
             Rtype ret(
                 2,
@@ -263,7 +265,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "fmul"){
             Rtype ret(
                 2,
@@ -272,7 +274,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "fdiv"){
             Rtype ret(
                 2,
@@ -281,7 +283,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "fsqrt"){
             Rtype ret(
                 2,
@@ -290,7 +292,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 0,
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "fneg"){
             Rtype ret(
                 2,
@@ -299,7 +301,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 0,
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "fmin"){
             Rtype ret(
                 2,
@@ -308,7 +310,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "fmax"){
             Rtype ret(
                 2,
@@ -317,7 +319,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }
         
         else if(match[1].str() ==  "feq"){
@@ -328,7 +330,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "flt"){
             Rtype ret(
                 3,
@@ -337,7 +339,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "fle"){
             Rtype ret(
                 3,
@@ -346,7 +348,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 regname_to_addr(match[4].str()),
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "fmv.x.w"){
             Rtype ret(
                 3,
@@ -355,7 +357,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 0,
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "fmv.w.x"){
             Rtype ret(
                 3,
@@ -364,7 +366,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 0,
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "fmv"){
             Rtype ret(
                 3,
@@ -373,7 +375,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 0,
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "itof"){
             Rtype ret(
                 3,
@@ -382,7 +384,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 0,
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "ftoi"){
             Rtype ret(
                 3,
@@ -391,7 +393,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 0,
                 0);
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }
 
         else if(match[1].str() ==  "addi"){
@@ -402,7 +404,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 stoi(match[4].str())
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "slli"){
             I_Ltype ret(
                 4,
@@ -411,7 +413,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 stoi(match[4].str()) & 0b11111
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "srli"){
             I_Ltype ret(
                 4,
@@ -420,7 +422,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 stoi(match[4].str()) & 0b11111
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "srai"){
             I_Ltype ret(
                 4,
@@ -429,7 +431,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 stoi(match[4].str()) & 0b11111
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "slti"){
             I_Ltype ret(
                 4,
@@ -438,7 +440,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 stoi(match[4].str())
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "sltui"){
             I_Ltype ret(
                 4,
@@ -447,7 +449,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 stoi(match[4].str())
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "xori"){
             I_Ltype ret(
                 4,
@@ -456,7 +458,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 stoi(match[4].str())
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "ori"){
             I_Ltype ret(
                 4,
@@ -465,7 +467,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 stoi(match[4].str())
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "andi"){
             I_Ltype ret(
                 4,
@@ -474,7 +476,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 stoi(match[4].str())
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }
         
         else if(match[1].str() ==  "lw"){
@@ -485,7 +487,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[4].str()),
                 stoi(match[3].str())
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "flw"){
             I_Ltype ret(
                 5,
@@ -494,7 +496,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[4].str()),
                 stoi(match[3].str())
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "lui"){
             int imm = stoi(match[3].str());
             I_Ltype ret(
@@ -504,7 +506,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 ((unsigned int)imm >> 16),
                 imm & ((1 << 16) -1)
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }
 
         else if(match[1].str() ==  "beq"){
@@ -515,7 +517,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 label_to_addr(match[4].str(), now_addr)
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "bne"){
             S_Btype ret(
                 6,
@@ -524,7 +526,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 label_to_addr(match[4].str(), now_addr)
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "blt"){
             S_Btype ret(
                 6,
@@ -533,7 +535,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 label_to_addr(match[4].str(), now_addr)
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "bge"){
             S_Btype ret(
                 6,
@@ -542,7 +544,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 label_to_addr(match[4].str(), now_addr)
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "bltu"){
             S_Btype ret(
                 6,
@@ -551,7 +553,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 label_to_addr(match[4].str(), now_addr)
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "bgeu"){
             S_Btype ret(
                 6,
@@ -560,7 +562,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[3].str()),
                 label_to_addr(match[4].str(), now_addr)
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "sw"){
             S_Btype ret(
                 6,
@@ -569,7 +571,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[2].str()),
                 stoi(match[3].str())
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "fsw"){
             S_Btype ret(
                 6,
@@ -578,7 +580,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 regname_to_addr(match[2].str()),
                 stoi(match[3].str())
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }
 
         else if(match[1].str() ==  "jump"){
@@ -588,7 +590,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 0,
                 addr & ((1 << 25) - 1)
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "jal"){
             int lab = label_to_addr(match[3].str(), now_addr);
             int rd = regs[match[2].str()];
@@ -597,7 +599,7 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 1,
                 ((lab & (0b11111 << 16)) << 21) | ((rd & 0b11111) << 16) | (lab & ((1 << 16) -1))
             );
-            code = ret.assemble();
+            codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "jalr"){
             int rd = regs[match[2].str()] & 0b11111;
             int rs1 = regs[match[3].str()] & 0b11111;
@@ -606,17 +608,87 @@ Parse :: Parse(string str, bool label_only, int now_addr){
                 2,
                 (rs1 << 21) | (rd << 16) | (label_to_addr(match[4].str(), now_addr) & ((1 << 16) -1))
             );
-            code = ret.assemble();
-        }else{
+            codes.push_back(ret.assemble());
+        }
+        
+        else if(match[1].str() == "fli"){
+            float imm = stof(match[3].str());
+            int* immint = (int *)&imm;
+            int luiimm = (*immint) >> 12;
+            int addiimm = (*immint) & ((1 << 12) - 1);
+            I_Ltype ret1(
+                5,
+                2,
+                regname_to_addr("a21"),
+                ((unsigned int)luiimm >> 16),
+                luiimm & ((1 << 16) -1)
+            );
+            codes.push_back(ret1.assemble());
+            I_Ltype ret2(
+                4,
+                0,
+                regname_to_addr("a21"),
+                regname_to_addr("a21"),
+                addiimm
+            );
+            codes.push_back(ret2.assemble());
+            Rtype ret3(
+                3,
+                4,
+                regname_to_addr(match[2].str()),
+                regname_to_addr("a21"),
+                0,
+                0);
+            codes.push_back(ret3.assemble());
+        }else if(match[1].str() == "li"){
+            int imm = stoi(match[3].str());
+
+            if(imm >= (1 << 16)){
+                int luiimm = imm >> 12;
+                int addiimm = imm & ((1 << 12) - 1);
+                
+                I_Ltype ret1(
+                    5,
+                    2,
+                    regname_to_addr(match[2].str()),
+                    ((unsigned int)luiimm >> 16),
+                    luiimm & ((1 << 16) -1)
+                );
+                codes.push_back(ret1.assemble());        
+                
+                I_Ltype ret2(
+                    4,
+                    0,
+                    regname_to_addr(match[2].str()),
+                    regname_to_addr(match[2].str()),
+                    addiimm
+                );
+                codes.push_back(ret2.assemble());
+            }else{
+                 I_Ltype ret2(
+                    4,
+                    0,
+                    regname_to_addr(match[2].str()),
+                    regname_to_addr(match[2].str()),
+                    imm
+                );
+                codes.push_back(ret2.assemble());
+            }
+            
+        }
+        
+        else{
             cerr << "Unknown Opecode: " << match[1].str() << endl;
-            code = 0;
+            codes.push_back(0);
         }
     }
 }
 
 void Parse :: print_instr(){
-    for(int i=31; i>=0; i--){
-        cout << (code >> i & 1);
+    for(unsigned int j=0; j<codes.size(); j++){
+        for(int i=31; i>=0; i--){
+            cout << (codes[j] >> i & 1);
+        }
+        cout << endl;
     }
-    cout << endl;
 }

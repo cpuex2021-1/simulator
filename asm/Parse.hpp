@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <regex>
+#include <vector>
 using namespace std;
 
 typedef enum {label, instruction, none, error} LineTypes;
@@ -15,7 +16,7 @@ class Parse
 public:
     Parse(string, bool label_only, int now_addr);
     int type;
-    uint32_t code;
+    vector<uint32_t> codes;
     string labl;
 
     void print_instr();

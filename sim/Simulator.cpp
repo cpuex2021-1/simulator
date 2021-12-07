@@ -271,7 +271,6 @@ void Simulator::setup(string filename, bool isasm){
         string str;
         while(getline(input, str)){
             Parse pres(str, true, now_addr);
-            str_instr.push_back(str);
 
             if(pres.type == label){
                 labels[pres.labl] = now_addr;
@@ -292,6 +291,7 @@ void Simulator::setup(string filename, bool isasm){
         now_addr = 0;
 
         while(getline(input, str)){
+            str_instr.push_back(str);
             #ifdef DEBUG
             cout << "line:" << line_num << " ";
             Debug_parse(str);
@@ -302,10 +302,12 @@ void Simulator::setup(string filename, bool isasm){
                 #ifdef DEBUG
                 pres.print_instr();
                 #endif
-                instructions.push_back(pres.code);
-                p_to_l.push_back(line_num - 1);
+                for(unsigned int i=0; i<pres.codes.size(); i++){
+                    instructions.push_back(pres.codes[i]);
+                    p_to_l.push_back(line_num - 1);
+                    now_addr += 1;
+                }
                 line_num++;
-                now_addr += 1;
             }else if(pres.type == none || pres.type == label){
                 line_num++;
             }else if(pres.type == error){
