@@ -116,13 +116,13 @@
              <bool>false</bool>
             </attribute>
             <attribute name="horizontalHeaderMinimumSectionSize">
-             <number>42</number>
+             <number>0</number>
             </attribute>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderMinimumSectionSize">
-             <number>24</number>
+             <number>0</number>
             </attribute>
             <attribute name="verticalHeaderDefaultSectionSize">
              <number>24</number>
@@ -245,6 +245,9 @@
           <attribute name="horizontalHeaderVisible">
            <bool>false</bool>
           </attribute>
+          <attribute name="horizontalHeaderMinimumSectionSize">
+           <number>0</number>
+          </attribute>
           <attribute name="horizontalHeaderHighlightSections">
            <bool>false</bool>
           </attribute>
@@ -252,7 +255,7 @@
            <bool>false</bool>
           </attribute>
           <attribute name="verticalHeaderMinimumSectionSize">
-           <number>1</number>
+           <number>0</number>
           </attribute>
           <attribute name="verticalHeaderHighlightSections">
            <bool>false</bool>
@@ -426,6 +429,9 @@
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>true</bool>
             </attribute>
+            <attribute name="horizontalHeaderMinimumSectionSize">
+             <number>0</number>
+            </attribute>
             <attribute name="horizontalHeaderHighlightSections">
              <bool>true</bool>
             </attribute>
@@ -434,6 +440,9 @@
             </attribute>
             <attribute name="verticalHeaderCascadingSectionResizes">
              <bool>true</bool>
+            </attribute>
+            <attribute name="verticalHeaderMinimumSectionSize">
+             <number>0</number>
             </attribute>
             <attribute name="verticalHeaderHighlightSections">
              <bool>true</bool>
