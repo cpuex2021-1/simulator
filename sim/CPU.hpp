@@ -3,6 +3,7 @@
 #include "fpu.hpp"
 #include "util.hpp"
 #include <string>
+#include <sstream>
 #include <iostream>
 #include <iomanip>
 #include <map>
