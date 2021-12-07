@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <sstream>
 #include "util.hpp"
 #include <iomanip>
 #include <iostream>
