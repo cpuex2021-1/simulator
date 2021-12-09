@@ -1,5 +1,5 @@
 
-all:gui
+all:
 	make -C asm
 	make -C sim
 	cp asm/assembler ./
