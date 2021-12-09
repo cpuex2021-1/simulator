@@ -256,6 +256,7 @@ void MainWindow::on_address_valueChanged(int value)
 
 void MainWindow::on_Instructions_cellClicked(int row, int column)
 {
+    if(column != 1) return;
     if(sobj.sim.str_instr.size() <= 0) return;
     sobj.sim.brk_unified(sobj.sim.line_to_pc(inst_line + row));
     refreshAll();
@@ -335,7 +336,7 @@ void MainWindow::on_InstLinespinBox_valueChanged(int arg1)
         ui->InstLinespinBox->setValue(inst_line);
     }
     else inst_line = arg1;
-    if(inst_line != sobj.sim.str_instr.size() * ui->verticalScrollBar->value() / 99){
+    if(inst_line != (int)sobj.sim.str_instr.size() * ui->verticalScrollBar->value() / 99){
         ui->verticalScrollBar->setValue(inst_line * 99 / sobj.sim.str_instr.size());
     }
     refreshAll();

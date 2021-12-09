@@ -85,16 +85,16 @@ inline long long FPU::fdiv(long long x, long long y){
     long long xe = (x>>23) & 0xff;
     long long zero = xe == 0;
     long long ye = (y>>23) & 0xff;
-    long xm = (1 << 23) | (x & 0x7fffff);
+    long long xm = (1 << 23) | (x & 0x7fffff);
     //long key = (y>>13) & 0x3ff;
     //long diff = y & 0x1fff;
     //long init = (div_grad[key] & 0xfffffe000);
     //long grad = div_grad[key] & 0x1fff;
     //long ym_ = init - 2 * diff * grad;
     //long ym =  (1<<23) | (ym>>13);
-    long ym = (1l << 23) + (finv(y) & 0x7fffff);
-    long m_ = xm * ym;
-    long m;
+    long long ym = (1l << 23) + (finv(y) & 0x7fffff);
+    long long m_ = xm * ym;
+    long long m;
     long long e_ = xe - ye + 126;
     if (m_ >>47) {
         m = (m_ >> 24) & 0x7fffff;
@@ -115,16 +115,16 @@ inline long long FPU::fsqrt(long long a){
     long long s = a>>31;
     long long e = (a>>23 ) & 0xff;
     long key = (a>>14) & 0x3ff;
-    long diff = a & 0x3fff;
-    long init = (sqrt_grad[key] >> 13) << 13;
-    long grad = sqrt_grad[key] & 0x1fff;
+    long long diff = a & 0x3fff;
+    long long init = (sqrt_grad[key] >> 13) << 13;
+    long long grad = sqrt_grad[key] & 0x1fff;
     /*if(diff==1023){
         prlong longf("key:%ld", key);
         prlong longf("diff:%ld\n", diff);
         prlong longf("init:%ld\n", init);
         prlong longf("grad:%ld\n", grad);
     }*/
-    long m_ = init  + grad * diff;
+    long long m_ = init  + grad * diff;
     long long m = m_>>13;
     //prlong longf("%d\n", m);
     a = (s<<31) + ((((e+127)/2) << 23)) + m;
@@ -250,10 +250,10 @@ inline long long FPU::fmul(long long a,long long b){
     en = eadd - 127;
     ep = eadd - 126;
 
-    long m1,m2;
+    long long m1,m2;
     m1 = (a & 0x7fffff) + 0x800000;
     m2 = (b & 0x7fffff) + 0x800000;
-    long mul = m1 * m2;
+    long long mul = m1 * m2;
     long long m;
     if(mul>>47) {
         if (((ep>>8) & 3) == 3) {
