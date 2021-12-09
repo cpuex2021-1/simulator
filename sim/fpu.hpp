@@ -10,63 +10,63 @@ class FPU
 private:
     long long *div_grad;
     long long *sqrt_grad;
-    inline int finv(int x);
+    inline long long finv(long long x);
 public:
     FPU();
     ~FPU();
-    inline int fadd(int f1, int f2);
-    inline int fsub(int f1, int f2);
-    inline int fmul(int f1, int f2);
-    inline int fdiv(int f1, int f2);
-    inline int fsqrt(int f1);
-    inline int fneg(int f1);
-    inline int fmin(int f1, int f2);
-    inline int fmax(int f1, int f2);
-    inline int feq(int f1, int f2);
-    inline int flt(int f1, int f2);
-    inline int fle(int f1, int f2);
-    inline int itof(int f1);
-    inline int ftoi(int f2);
+    inline long long fadd(long long f1, long long f2);
+    inline long long fsub(long long f1, long long f2);
+    inline long long fmul(long long f1, long long f2);
+    inline long long fdiv(long long f1, long long f2);
+    inline long long fsqrt(long long f1);
+    inline long long fneg(long long f1);
+    inline long long fmin(long long f1, long long f2);
+    inline long long fmax(long long f1, long long f2);
+    inline long long feq(long long f1, long long f2);
+    inline long long flt(long long f1, long long f2);
+    inline long long fle(long long f1, long long f2);
+    inline long long itof(long long f1);
+    inline long long ftoi(long long f2);
 };
 
-inline int FPU::fadd(int f1, int f2){
+inline long long FPU::fadd(long long f1, long long f2){
     float* f = (float*) &f1;
     float* g = (float*) &f2;
 
     *f += *g;
 
-    int* res = (int*) f;
+    long long* res = (long long*) f;
     return *res;
 }
 
-inline int FPU::fsub(int f1, int f2){
+inline long long FPU::fsub(long long f1, long long f2){
     float* f = (float*) &f1;
     float* g = (float*) &f2;
 
     *f -= *g;
 
-    int* res = (int*) f;
+    long long* res = (long long*) f;
     return *res;
 }
 
-inline int FPU::fneg(int f1){
+inline long long FPU::fneg(long long f1){
     float* f = (float*) &f1;
     float fres = -(*f);
-    int *res = (int *)&fres;
+    long long *res = (long long *)&fres;
 
     return *res;
 }
 
-inline int FPU::feq(int x, int y){
+inline long long FPU::feq(long long x, long long y){
     return x==y;
 }
 
-inline int FPU::finv(int x){
+inline long long FPU::finv(long long x){
     long key = (x >> 13) & ((1ll<<10) - 1);
     long diff= x & ((1<<13) -1);
-    int ae = (x >>23) & ((1<<8)-1);
-    int as = x >> 31;
-    int e;
+    long long ae = (x >>23) & ((1<<8)-1);
+    long long as = x >> 31;
+    long long e;
     // e >= 253のときは結果が非正規化数になるので考えなくていっちゃいい
     if(ae >253 ) e = 0; else  e = 253- ae;
 
@@ -74,17 +74,17 @@ inline int FPU::finv(int x){
     a = div_grad[key] &  ((1ll<<13)-1);
     b = (div_grad[key]>>13) << 13 ; 
     long m_ =  b -  2 * a * diff;
-    int m = m_ >> 13;
+    long long m = m_ >> 13;
     x = (as<<31) | (e<<23) | m;
     return x;
 }
 
-inline int FPU::fdiv(int x, int y){
-    int xs = x>>31;
-    int ys = y>>31;
-    int xe = (x>>23) & 0xff;
-    int zero = xe == 0;
-    int ye = (y>>23) & 0xff;
+inline long long FPU::fdiv(long long x, long long y){
+    long long xs = x>>31;
+    long long ys = y>>31;
+    long long xe = (x>>23) & 0xff;
+    long long zero = xe == 0;
+    long long ye = (y>>23) & 0xff;
     long xm = (1 << 23) | (x & 0x7fffff);
     //long key = (y>>13) & 0x3ff;
     //long diff = y & 0x1fff;
@@ -95,15 +95,15 @@ inline int FPU::fdiv(int x, int y){
     long ym = (1l << 23) + (finv(y) & 0x7fffff);
     long m_ = xm * ym;
     long m;
-    int e_ = xe - ye + 126;
+    long long e_ = xe - ye + 126;
     if (m_ >>47) {
         m = (m_ >> 24) & 0x7fffff;
         e_++;
     }else{
         m = (m_ >> 23) & 0x7fffff;
     }
-    int e = e_ & 0xff;
-    int s = xs ^ ys;
+    long long e = e_ & 0xff;
+    long long s = xs ^ ys;
     if(zero){
         return 0;
     }else{
@@ -111,49 +111,49 @@ inline int FPU::fdiv(int x, int y){
     }
 }
 
-inline int FPU::fsqrt(int a){
-    int s = a>>31;
-    int e = (a>>23 ) & 0xff;
+inline long long FPU::fsqrt(long long a){
+    long long s = a>>31;
+    long long e = (a>>23 ) & 0xff;
     long key = (a>>14) & 0x3ff;
     long diff = a & 0x3fff;
     long init = (sqrt_grad[key] >> 13) << 13;
     long grad = sqrt_grad[key] & 0x1fff;
     /*if(diff==1023){
-        printf("key:%ld", key);
-        printf("diff:%ld\n", diff);
-        printf("init:%ld\n", init);
-        printf("grad:%ld\n", grad);
+        prlong longf("key:%ld", key);
+        prlong longf("diff:%ld\n", diff);
+        prlong longf("init:%ld\n", init);
+        prlong longf("grad:%ld\n", grad);
     }*/
     long m_ = init  + grad * diff;
-    int m = m_>>13;
-    //printf("%d\n", m);
+    long long m = m_>>13;
+    //prlong longf("%d\n", m);
     a = (s<<31) + ((((e+127)/2) << 23)) + m;
-    //printf("%d\n", a);
-    //print_bit(a);
+    //prlong longf("%d\n", a);
+    //prlong long_bit(a);
     return a;
 }
 
-inline int FPU::fmin(int x, int y){
-    int xs = (x>>31) & 1;
-    int ys = (y>>31) & 1;
-    int xe = (x>>23) & 0xff;
-    int ye = (y>>23) & 0xff;
-    int xm = x & 0x7fffff;
-    int ym = y & 0x7fffff;
-    int el = xe < ye;
-    int eeq = xe == ye;
-    int ml = xm < ym;
-    int absl = el | (eeq & ml);
+inline long long FPU::fmin(long long x, long long y){
+    long long xs = (x>>31) & 1;
+    long long ys = (y>>31) & 1;
+    long long xe = (x>>23) & 0xff;
+    long long ye = (y>>23) & 0xff;
+    long long xm = x & 0x7fffff;
+    long long ym = y & 0x7fffff;
+    long long el = xe < ye;
+    long long eeq = xe == ye;
+    long long ml = xm < ym;
+    long long absl = el | (eeq & ml);
 
-    int pp = 1- (xs & ys);
-    int np = xs && ~ys;
-    int nn = xs & ys;
+    long long pp = 1- (xs & ys);
+    long long np = xs && ~ys;
+    long long nn = xs & ys;
 
-    int emeq = (x & 0x3fffffff) == (y& 0x3fffffff);
-    //printf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
-    //printf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
-    //printf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
-    int lt = (pp&&absl) || np || (nn && ~absl && ~emeq);
+    long long emeq = (x & 0x3fffffff) == (y& 0x3fffffff);
+    //prlong longf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
+    //prlong longf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
+    //prlong longf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
+    long long lt = (pp&&absl) || np || (nn && ~absl && ~emeq);
     if(lt){
         return x;
     }else {
@@ -161,27 +161,27 @@ inline int FPU::fmin(int x, int y){
     }
 }
 
-inline int FPU::fmax(int x, int y){
-    int xs = (x>>31) & 1;
-    int ys = (y>>31) & 1;
-    int xe = (x>>23) & 0xff;
-    int ye = (y>>23) & 0xff;
-    int xm = x & 0x7fffff;
-    int ym = y & 0x7fffff;
-    int el = xe < ye;
-    int eeq = xe == ye;
-    int ml = xm < ym;
-    int absl = el | (eeq & ml);
+inline long long FPU::fmax(long long x, long long y){
+    long long xs = (x>>31) & 1;
+    long long ys = (y>>31) & 1;
+    long long xe = (x>>23) & 0xff;
+    long long ye = (y>>23) & 0xff;
+    long long xm = x & 0x7fffff;
+    long long ym = y & 0x7fffff;
+    long long el = xe < ye;
+    long long eeq = xe == ye;
+    long long ml = xm < ym;
+    long long absl = el | (eeq & ml);
 
-    int pp = 1- (xs & ys);
-    int np = xs && ~ys;
-    int nn = xs & ys;
+    long long pp = 1- (xs & ys);
+    long long np = xs && ~ys;
+    long long nn = xs & ys;
 
-    int emeq = (x & 0x3fffffff) == (y& 0x3fffffff);
-    //printf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
-    //printf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
-    //printf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
-    int lt = (pp&&absl) || np || (nn && ~absl && ~emeq);
+    long long emeq = (x & 0x3fffffff) == (y& 0x3fffffff);
+    //prlong longf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
+    //prlong longf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
+    //prlong longf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
+    long long lt = (pp&&absl) || np || (nn && ~absl && ~emeq);
     if(lt){
         return y;
     }else {
@@ -189,60 +189,60 @@ inline int FPU::fmax(int x, int y){
     }
 }
 
-inline int FPU::flt(int x, int y){
-    int xs = (x>>31) & 1;
-    int ys = (y>>31) & 1;
-    int xe = (x>>23) & 0xff;
-    int ye = (y>>23) & 0xff;
-    int xm = x & 0x7fffff;
-    int ym = y & 0x7fffff;
-    int el = xe < ye;
-    int eeq = xe == ye;
-    int ml = xm < ym;
-    int absl = el | (eeq & ml);
+inline long long FPU::flt(long long x, long long y){
+    long long xs = (x>>31) & 1;
+    long long ys = (y>>31) & 1;
+    long long xe = (x>>23) & 0xff;
+    long long ye = (y>>23) & 0xff;
+    long long xm = x & 0x7fffff;
+    long long ym = y & 0x7fffff;
+    long long el = xe < ye;
+    long long eeq = xe == ye;
+    long long ml = xm < ym;
+    long long absl = el | (eeq & ml);
 
-    int pp = 1- (xs & ys);
-    int np = xs && ~ys;
-    int nn = xs & ys;
+    long long pp = 1- (xs & ys);
+    long long np = xs && ~ys;
+    long long nn = xs & ys;
 
-    int emeq = (x & 0x3fffffff) == (y& 0x3fffffff);
-    //printf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
-    //printf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
-    //printf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
+    long long emeq = (x & 0x3fffffff) == (y& 0x3fffffff);
+    //prlong longf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
+    //prlong longf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
+    //prlong longf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
     return (pp&&absl) || np || (nn && ~absl && ~emeq);
 }
 
-inline int FPU::fle(int x, int y){
-    int xs = (x>>31) & 1;
-    int ys = (y>>31) & 1;
-    int xe = (x>>23) & 0xff;
-    int ye = (y>>23) & 0xff;
-    int xm = x & 0x7fffff;
-    int ym = y & 0x7fffff;
-    int el = xe < ye;
-    int eeq = xe == ye;
-    int ml = xm < ym;
-    int absl = el | (eeq & ml);
+inline long long FPU::fle(long long x, long long y){
+    long long xs = (x>>31) & 1;
+    long long ys = (y>>31) & 1;
+    long long xe = (x>>23) & 0xff;
+    long long ye = (y>>23) & 0xff;
+    long long xm = x & 0x7fffff;
+    long long ym = y & 0x7fffff;
+    long long el = xe < ye;
+    long long eeq = xe == ye;
+    long long ml = xm < ym;
+    long long absl = el | (eeq & ml);
 
-    int pp = 1- (xs & ys);
-    int np = xs && ~ys;
-    int nn = xs & ys;
+    long long pp = 1- (xs & ys);
+    long long np = xs && ~ys;
+    long long nn = xs & ys;
 
-    int emeq = (x & 0x3fffffff) == (y& 0x3fffffff);
-    //printf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
-    //printf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
-    //printf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
+    long long emeq = (x & 0x3fffffff) == (y& 0x3fffffff);
+    //prlong longf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
+    //prlong longf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
+    //prlong longf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
     return (pp&&absl) || np || (nn && ~absl && ~emeq) || x==y;
 }
 
-inline int FPU::fmul(int a,int b){
-    int s1,s2, s;
+inline long long FPU::fmul(long long a,long long b){
+    long long s1,s2, s;
     s1 = a>>31;
     s2 = b>>31;
     s  = s1 ^ s2;
 
 
-    int e1, e2, eadd, en,ep, e,zero;
+    long long e1, e2, eadd, en,ep, e,zero;
     e1 = (a>>23) & 0xff;
     e2 = (b>>23) & 0xff;
     zero = e1 == 0 || e2==0;
@@ -254,7 +254,7 @@ inline int FPU::fmul(int a,int b){
     m1 = (a & 0x7fffff) + 0x800000;
     m2 = (b & 0x7fffff) + 0x800000;
     long mul = m1 * m2;
-    int m;
+    long long m;
     if(mul>>47) {
         if (((ep>>8) & 3) == 3) {
             e = 0;
@@ -281,14 +281,14 @@ inline int FPU::fmul(int a,int b){
     }
 }
 
-inline int FPU::ftoi(int f1){
+inline long long FPU::ftoi(long long f1){
     float* f = (float*) &f1;
-    int res = (int)(*f);
+    long long res = (long long)(*f);
     return res;
 }
 
-inline int FPU::itof(int f1){
+inline long long FPU::itof(long long f1){
     float f = (float) f1;
-    int* res = (int *) &f;
+    long long* res = (long long *) &f;
     return (*res);
 }
