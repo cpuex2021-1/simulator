@@ -78,6 +78,10 @@ int main(int argc, char* argv[]){
             exit(1);
         }
     }
+
+    output.seekp(-sizeof(uint32_t), ios_base::cur);
+    output.write(reinterpret_cast<char *>(0), sizeof(uint32_t));
+
     input.close();
     output.close();
 }

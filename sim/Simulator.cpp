@@ -315,6 +315,10 @@ void Simulator::setup(string filename, bool isasm){
                 exit(1);
             }
         }
+
+        instructions.pop_back();
+        instructions.push_back(0);
+        
     }else{
         int code;
         input.read((char *) &code, sizeof(unsigned int));
