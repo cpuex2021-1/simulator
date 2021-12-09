@@ -1,8 +1,6 @@
 # simulator
 
-***GUIはgui branchにあります***
-
-***gui branchのWindowsディレクトリ内のファイルをいじらずにOreOre-V.exeを実行すればWindowsでも動きそう***
+***Windows binaryは浮動小数点演算がバグってます（32-bitなので）***
 
 ## ビルド方法(CLI)
 
@@ -26,10 +24,7 @@
 
 ```shell
 sudo apt install qtbase5-dev qttools5-dev-tools qt5-default
-mkdir OreOre-V/build
-cd OreOre-V/build
-qmake ../OreOre-V.pro
-make
+make gui
 ```
 すると`OreOre-V/build/`下に実行ファイル`OreOre-V`が生成される。
 
