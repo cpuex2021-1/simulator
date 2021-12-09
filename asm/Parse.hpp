@@ -18,6 +18,7 @@ public:
     int type;
     vector<uint32_t> codes;
     string labl;
+    int size;
 
     void print_instr();
 };

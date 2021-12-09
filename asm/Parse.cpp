@@ -63,7 +63,9 @@ void Debug_parse(string str){
 }
 
 
-Parse :: Parse(string str, bool label_only, int now_addr){
+Parse :: Parse(string str, bool label_only, int now_addr)
+:size(1)
+{
     remove_comment(str);
     smatch match;
     if(regex_match(str, match, regex(PSUEDO))){
@@ -73,6 +75,18 @@ Parse :: Parse(string str, bool label_only, int now_addr){
         labl = match[1].str();
     } else if(regex_match(str, match, regex(THREE_ARGS_EXPR)) || regex_match(str, match, regex(TWO_ARGS_EXPR)) || regex_match(str, match, regex(SW_LIKE_EXPR)) || regex_match(str, match, regex(ONE_ARGS_EXPR))){
         type = instruction;
+        if(match[1].str() == "fli"){
+            size = 3;
+        }else if(match[1].str() == "li"){
+            int imm = stoi(match[3].str());
+
+            if(imm >= (1 << 16)){
+                size = 2;
+            }else{
+                size = 1;
+            }
+            
+        }
     } else if(regex_match(str, match, regex("\\s*"))){
         type = none;
     } else {

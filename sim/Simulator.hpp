@@ -20,6 +20,8 @@ private:
     vector<int> p_to_l;
     int mode;
     void setup(string filename, bool isasm);
+    int cont_fast();
+    int cont_acc();
 public:
     vector<string> str_instr;
 

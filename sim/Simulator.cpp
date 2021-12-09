@@ -124,7 +124,7 @@ int Simulator::rerun(){
     reset();
     return cont();
 }
-int Simulator::cont(){
+int Simulator::cont_fast(){
     if(step()){
         while(cpu->pc < instructions.size()){
             #ifdef DEBUG
@@ -138,8 +138,8 @@ int Simulator::cont(){
                 clk_del_brk(break_clk[0]);
                 return 2;
             }
-            if(mode == accurate) cpu->simulate_acc(instructions[cpu->pc]);
-            else if(mode == fast) cpu->simulate_fast(instructions[cpu->pc]);
+            
+            cpu->simulate_fast(instructions[cpu->pc]);
             
             #ifdef DEBUG
             cout << endl;
@@ -148,6 +148,38 @@ int Simulator::cont(){
     }
     return 0;
 }
+
+int Simulator::cont_acc(){
+    if(step()){
+        while(cpu->pc < instructions.size()){
+            #ifdef DEBUG
+            cout << "PC:" << cpu->pc << endl << "Instruction:";
+            cpu->print_register();
+            #endif
+
+            if(break_pc.size() != 0 && break_pc[cpu->pc]){
+                return 1;
+            }else if(break_clk.size() != 0 && break_clk[0] <= cpu->clk){
+                clk_del_brk(break_clk[0]);
+                return 2;
+            }
+
+            cpu->simulate_acc(instructions[cpu->pc]);
+            
+            #ifdef DEBUG
+            cout << endl;
+            #endif
+        }
+    }
+    return 0;
+}
+
+int Simulator::cont(){
+    if(mode == accurate) return cont_acc();
+    else if(mode == fast) return cont_fast();
+    else return -1;
+}
+
 int Simulator::step(){
     if(mode == accurate) cpu->simulate_acc(instructions[cpu->pc]);
     else if(mode == fast) cpu->simulate_fast(instructions[cpu->pc]);
@@ -266,7 +298,7 @@ void Simulator::setup(string filename, bool isasm){
     fstream input;
     input.open(filename, ios::in);
     if(isasm){
-        int now_addr = 0;
+        int now_addr = 2;
         int line_num = 1;
         string str;
         while(getline(input, str)){
@@ -280,15 +312,40 @@ void Simulator::setup(string filename, bool isasm){
                 exit(1);
             }else if(pres.type == none){
                 line_num++;
-            }else{
+            }else if(pres.type == instruction){
                 line_num++;
-                now_addr += 1;
+                now_addr += pres.size;
             }
         }
         input.close();
         input.open(filename, ios::in);
+
+        stringstream init_ra_str1;
+        init_ra_str1 << "\tlui ra, " << ((now_addr) >> 12);
+
+        stringstream init_ra_str2;
+        init_ra_str2 << "\taddi ra, ra, " << ((now_addr) & ((1 << 12) - 1));
+
+        str_instr.push_back(init_ra_str1.str());
+        str_instr.push_back(init_ra_str2.str());
+        
+        Parse init_ra1(init_ra_str1.str(), false, 0);
+        Parse init_ra2(init_ra_str2.str(), false, 0);
+
         line_num = 1;
         now_addr = 0;
+
+        l_to_p.push_back(now_addr);
+        p_to_l.push_back(line_num - 1);
+        instructions.push_back(init_ra1.codes[0]);
+        line_num++;
+        now_addr++;
+
+        l_to_p.push_back(now_addr);
+        p_to_l.push_back(line_num - 1);
+        instructions.push_back(init_ra2.codes[0]);
+        line_num++;
+        now_addr++;
 
         while(getline(input, str)){
             str_instr.push_back(str);
@@ -316,8 +373,8 @@ void Simulator::setup(string filename, bool isasm){
             }
         }
 
-        instructions.pop_back();
-        instructions.push_back(0);
+        //instructions.pop_back();
+        //instructions.push_back(0);
         
     }else{
         int code;
