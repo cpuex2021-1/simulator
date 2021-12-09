@@ -409,6 +409,7 @@ void MainWindow::on_revertButton_released()
 {
     sobj.sim.revert();
     if(sobj.needReset) sobj.needReset = false;
+    running = true;
     refreshAll();
 }
 
