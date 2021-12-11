@@ -222,8 +222,8 @@ void Simulator::show_result(){
     /* << "Time: " << (end_time - start_time) << endl << */
     cout << "Register:" << endl;
     show_reg();
-    cout << "Writing memory state into memResult.txt... " << endl;
-    dump("memResult.txt");
+    //cout << "Writing memory state into memResult.txt... " << endl;
+    //dump("memResult.txt");
     show_cache();
 }
 

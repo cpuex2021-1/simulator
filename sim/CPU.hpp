@@ -600,7 +600,7 @@ inline void CPU::simulate_fast(unsigned int instr)
         break;
     }
 
-    
+    clk++;
     return;
 }
 
