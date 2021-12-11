@@ -18,7 +18,8 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
+    simObj sobj;
+    
 private slots:
     void on_pushButton_7_released();
 
@@ -63,7 +64,6 @@ private slots:
     void on_uartSetupButton_released();
 
     void on_RegTable_itemChanged(QTableWidgetItem *item);
-
 private:
     Ui::MainWindow *ui;
     QThread simThread;
@@ -76,7 +76,6 @@ private:
     int inst_line;
     bool isReghex;
     bool running;
-    simObj sobj;
 
 signals:
     void tellSimRun();

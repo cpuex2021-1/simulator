@@ -602,7 +602,7 @@ inline void CPU::simulate_fast()
         break;
     }
 
-    
+    clk++;
     return;
 }
 

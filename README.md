@@ -1,18 +1,16 @@
 # simulator
 
-***GUIはgui branchにあります***
-
-***gui branchのWindowsディレクトリ内のファイルをいじらずにOreOre-V.exeを実行すればWindowsでも動きそう***
+***Windows binaryは浮動小数点演算がバグってます（32-bitなので）***
 
 ## ビルド方法(CLI)
 
 ```$ make```
 
-## 実行方法
+## 実行方法(CLI)
 
 ```$ ./simulator```
 
-## 説明
+## 説明(CLI)
 
 はじめてつかうときはhelpとタイプすると使い方が表示されます
 
@@ -26,12 +24,28 @@
 
 ```shell
 sudo apt install qtbase5-dev qttools5-dev-tools qt5-default
-mkdir OreOre-V/build
-cd OreOre-V/build
-qmake ../OreOre-V.pro
-make
+make gui
 ```
-すると`OreOre-V/build/`下に実行ファイル`OreOre-V`が生成される。
+すると、`gui-simulator`ができる。
+
+## ビルド方法(GUI on Windows)
+
+一番楽なのは以下の手順
+
+1. QtCreatorをインストール
+2. OreOre-V/OreOre-V.proを開く
+3. ビルドボタンを押す
+
+
+## 実行方法
+
+`$ ./gui-simulator [assembly file name(optional)]`
+
+## 説明(GUI)
+
+GUIのシミュレータです
+
+フィーリングで操作してください（雑）
 
 ## fsinとfcosの検証
 `$make fver`をすると、`fverify`という実行ファイルができる。

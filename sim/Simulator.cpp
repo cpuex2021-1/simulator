@@ -119,7 +119,7 @@ int Simulator::rerun(){
     reset();
     return cont();
 }
-int Simulator::cont(){
+int Simulator::cont_fast(){
     if(step()){
         while(pc < instructions.size()){
             #ifdef DEBUG
@@ -133,8 +133,8 @@ int Simulator::cont(){
                 clk_del_brk(break_clk[0]);
                 return 2;
             }
-            if(mode == accurate) simulate_acc();
-            else if(mode == fast) simulate_fast();
+            
+            simulate_fast();
             
             #ifdef DEBUG
             cout << endl;
@@ -143,6 +143,38 @@ int Simulator::cont(){
     }
     return 0;
 }
+
+int Simulator::cont_acc(){
+    if(step()){
+        while(pc < instructions.size()){
+            #ifdef DEBUG
+            cout << "PC:" << pc << endl << "Instruction:";
+            print_register();
+            #endif
+
+            if(break_pc.size() != 0 && break_pc[pc]){
+                return 1;
+            }else if(break_clk.size() != 0 && break_clk[0] <= clk){
+                clk_del_brk(break_clk[0]);
+                return 2;
+            }
+
+            simulate_acc();
+            
+            #ifdef DEBUG
+            cout << endl;
+            #endif
+        }
+    }
+    return 0;
+}
+
+int Simulator::cont(){
+    if(mode == accurate) return cont_acc();
+    else if(mode == fast) return cont_fast();
+    else return -1;
+}
+
 int Simulator::step(){
     if(mode == accurate) simulate_acc();
     else if(mode == fast) simulate_fast();
@@ -185,8 +217,8 @@ void Simulator::show_result(){
     /* << "Time: " << (end_time - start_time) << endl << */
     cout << "Register:" << endl;
     show_reg();
-    cout << "Writing memory state into memResult.txt... " << endl;
-    dump("memResult.txt");
+    //cout << "Writing memory state into memResult.txt... " << endl;
+    //dump("memResult.txt");
     show_cache();
 }
 
@@ -257,12 +289,11 @@ void Simulator::setup(string filename, bool isasm){
     fstream input;
     input.open(filename, ios::in);
     if(isasm){
-        int now_addr = 0;
+        int now_addr = 2;
         int line_num = 1;
         string str;
         while(getline(input, str)){
             Parse pres(str, true, now_addr);
-            str_instr.push_back(str);
 
             if(pres.type == label){
                 labels[pres.labl] = now_addr;
@@ -272,17 +303,43 @@ void Simulator::setup(string filename, bool isasm){
                 exit(1);
             }else if(pres.type == none){
                 line_num++;
-            }else{
+            }else if(pres.type == instruction){
                 line_num++;
-                now_addr += 1;
+                now_addr += pres.size;
             }
         }
         input.close();
         input.open(filename, ios::in);
+
+        stringstream init_ra_str1;
+        init_ra_str1 << "\tlui ra, " << ((now_addr) >> 12);
+
+        stringstream init_ra_str2;
+        init_ra_str2 << "\taddi ra, ra, " << ((now_addr) & ((1 << 12) - 1));
+
+        str_instr.push_back(init_ra_str1.str());
+        str_instr.push_back(init_ra_str2.str());
+        
+        Parse init_ra1(init_ra_str1.str(), false, 0);
+        Parse init_ra2(init_ra_str2.str(), false, 0);
+
         line_num = 1;
         now_addr = 0;
 
+        l_to_p.push_back(now_addr);
+        p_to_l.push_back(line_num - 1);
+        instructions.push_back(init_ra1.codes[0]);
+        line_num++;
+        now_addr++;
+
+        l_to_p.push_back(now_addr);
+        p_to_l.push_back(line_num - 1);
+        instructions.push_back(init_ra2.codes[0]);
+        line_num++;
+        now_addr++;
+
         while(getline(input, str)){
+            str_instr.push_back(str);
             #ifdef DEBUG
             cout << "line:" << line_num << " ";
             Debug_parse(str);
@@ -293,10 +350,12 @@ void Simulator::setup(string filename, bool isasm){
                 #ifdef DEBUG
                 pres.print_instr();
                 #endif
-                instructions.push_back(pres.code);
-                p_to_l.push_back(line_num - 1);
+                for(unsigned int i=0; i<pres.codes.size(); i++){
+                    instructions.push_back(pres.codes[i]);
+                    p_to_l.push_back(line_num - 1);
+                    now_addr += 1;
+                }
                 line_num++;
-                now_addr += 1;
             }else if(pres.type == none || pres.type == label){
                 line_num++;
             }else if(pres.type == error){
@@ -304,6 +363,10 @@ void Simulator::setup(string filename, bool isasm){
                 exit(1);
             }
         }
+
+        //instructions.pop_back();
+        //instructions.push_back(0);
+        
     }else{
         int code;
         input.read((char *) &code, sizeof(unsigned int));

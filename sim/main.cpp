@@ -196,9 +196,10 @@ void CLI(bool joke){
 }
 
 int main(int argc, char* argv[]){
+    joke = true;
     if(argc > 1){
-        if(string(argv[1]) == "-j" || string(argv[1]) == "--joke"){
-            joke = true;
+        if(string(argv[1]) == "-f" || string(argv[1]) == "--fast"){
+            sim.setMode(fast);
         }
     }
 
