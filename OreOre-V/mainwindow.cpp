@@ -256,7 +256,7 @@ void MainWindow::on_address_valueChanged(int value)
 
 void MainWindow::on_Instructions_cellClicked(int row, int column)
 {
-    if(column != 1) return;
+    if(column != 0) return;
     if(sobj.sim.str_instr.size() <= 0) return;
     sobj.sim.brk_unified(sobj.sim.line_to_pc(inst_line + row));
     refreshAll();
