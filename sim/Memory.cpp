@@ -18,8 +18,8 @@ Memory::~Memory(){
     delete memory;
 }
 
-void Memory::setup_uart(string in, string out){
-    uart.setup(in, out);
+void Memory::setup_uart(string in){
+    uart.setup(in);
 }
 
 void Memory::print_memory(string filename){

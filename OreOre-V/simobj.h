@@ -12,7 +12,6 @@ public:
     Simulator sim;
     string filename;
     string uartinfilename;
-    string uartoutfilename;
     bool needReset;
 
 public slots:

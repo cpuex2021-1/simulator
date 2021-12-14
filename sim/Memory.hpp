@@ -27,33 +27,82 @@ class UART
 private:
     fstream in;
     fstream out;
-    queue<int> inbuf;
+    vector<uint32_t> inbuf;
+    unsigned long long inbufIdx;
+    vector<uint32_t> outbuf;
+    unsigned long long outbufIdx;
 public:
-    void setup(string input_fname, string output_fname){
+    UART():inbufIdx(0), outbufIdx(0){
+    }
+    void setup(string input_fname){
         in.open(input_fname, ios::in);
-        out.open(output_fname, ios::out);
+        inbuf = vector<uint32_t> ();
+        outbuf = vector<uint32_t> ();
 
-        while(!inbuf.empty()){
-            inbuf.pop();
-        }
+        inbuf.reserve(16384);
+        outbuf.reserve(16384);
 
-        int code;
-        while(in.read((char *) &code, sizeof(unsigned int))){
-            inbuf.push(code);
+        uint32_t code;
+        while(in.read((char *) &code, sizeof(uint32_t))){
+            inbuf.push_back(code);
         }
     }
 
     inline int pop(){
-        if(inbuf.empty()){
+        if(inbufIdx >= inbuf.size()){
             throw invalid_argument("No more uart input");
         }
-        int res = inbuf.front();
-        inbuf.pop();
+        int res = inbuf[inbufIdx];
+        inbufIdx++;
         return res;
     }
 
     inline void push(int n){
-        out << n << endl;
+        outbuf.push_back(n);
+        outbufIdx++;
+    }
+
+    inline int getInbufIdx(){
+        return inbufIdx;
+    }
+
+    inline int getOutbufIdx(){
+        return outbufIdx;
+    }
+
+    inline int getInbuf(long long index){
+        if(index < 0 || index >= (long long) inbuf.size()){
+            throw out_of_range("");
+        }
+        else{
+            return inbuf[index];
+        }
+    }
+
+    inline void setInbuf(long long index, uint32_t data){
+        if(index < 0){
+            throw out_of_range("");
+        }else if(index == (long long)inbuf.size()){
+            inbuf.push_back(data);
+        }else if(index > (long long)inbuf.size()){
+            throw out_of_range("");
+        }else{
+            inbuf[index] = data;
+        }
+    }
+
+    inline int getOutbuf(long long index){
+        if(index < 0 || index >= (long long)outbufIdx){
+            throw out_of_range("");
+        }
+        else{
+            return outbuf[index];
+        }
+    }
+
+    void revert(){
+        if(inbufIdx > 0)inbufIdx--;
+        if(outbufIdx > 0) outbufIdx--;
     }
 };
 
@@ -67,14 +116,14 @@ private:
     int validnum;
     int replacenum;
     bool cachehit;
-    UART uart;
 public:
     Memory();
     ~Memory();
+    UART uart;
     inline void write(int index, int data);
     inline int read(int index);
 
-    void setup_uart(string, string);
+    void setup_uart(string);
     void print_memory(string filename);
     void print_cache_summary();
     int read_without_cache(unsigned int index);
@@ -117,6 +166,7 @@ inline void Memory::write(int index, int data){
     }
     if(index == 0){
         uart.push(data);
+        return;
     }
     cachehit = false;
     update_cache(index);

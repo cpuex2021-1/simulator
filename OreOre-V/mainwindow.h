@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QThread>
 #include <QTableWidgetItem>
+#include <sstream>
 #include "../sim/Simulator.hpp"
 #include "simobj.h"
 
@@ -59,9 +60,9 @@ private slots:
 
     void on_uartInputButton_released();
 
-    void on_uartSetupButton_released();
-
     void on_RegTable_itemChanged(QTableWidgetItem *item);
+    void on_uartInputTable_itemChanged(QTableWidgetItem *item);
+
 private:
     Ui::MainWindow *ui;
     QThread simThread;
@@ -70,10 +71,14 @@ private:
     void refreshRegView();
     void refreshMemView();
     void refreshInstView();
+    void refreshUartView();
     int mem_addr;
     int inst_line;
+    int uart_in_line;
+    int former_uart_out_line;
     bool isReghex;
     bool running;
+    stringstream uout;
 
 signals:
     void tellSimRun();

@@ -35,6 +35,7 @@ public:
 
     bool ready;
     bool isasm;
+    bool uart_ready;
     void full_reset();
     int read_asm(string filename);
     int eat_bin(string filename);

@@ -145,4 +145,5 @@ void CPU::revert(){
     pc = logd.pc;
 
     p.revert(pc, clk);
+    mem->uart.revert();
 }

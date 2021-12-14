@@ -543,14 +543,25 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="uartSetupButton">
-          <property name="text">
-           <string>Setup UART</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QTableWidget" name="uartInputTable">
+          <attribute name="horizontalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="horizontalHeaderMinimumSectionSize">
+           <number>0</number>
+          </attribute>
+          <attribute name="horizontalHeaderHighlightSections">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderMinimumSectionSize">
+           <number>0</number>
+          </attribute>
+          <attribute name="verticalHeaderHighlightSections">
+           <bool>false</bool>
+          </attribute>
           <column>
            <property name="text">
             <string>data</string>
@@ -570,7 +581,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QTextBrowser" name="uartOutputText"/>
+         <widget class="QTextBrowser" name="uartOutputTextBrowser"/>
         </item>
        </layout>
       </item>

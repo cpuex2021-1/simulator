@@ -7,7 +7,7 @@ using std::string;
 using std::map;
 
 Simulator::Simulator() 
-: CPU(), sectionid(0), funcid(0), mode(accurate), ready(false)
+: CPU(), sectionid(0), funcid(0), mode(accurate), ready(false), uart_ready(false)
 {
     isasm = false;
 }

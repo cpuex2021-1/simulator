@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     , mem_addr(0)
     , inst_line(0)
+    , uart_in_line(0)
+    , former_uart_out_line(0)
     , isReghex(false)
     , running(false)
 {
@@ -17,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->RegTable->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->MemTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->Instructions->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->uartInputTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->RegTable->setEditTriggers(QAbstractItemView::DoubleClicked);
     ui->MemTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->Instructions->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -24,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->Instructions->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->MemTable->horizontalHeader()->setVisible(true);
     ui->MemTable->verticalHeader()->setVisible(true);
+    ui->uartInputTable->horizontalHeader()->setVisible(false);
+    ui->uartInputTable->verticalHeader()->setVisible(false);
 
     simObj* simt = new simObj;
     simt->moveToThread(&simThread);
@@ -44,6 +49,7 @@ void MainWindow::SetTableWidth(){
     auto& RegT = ui->RegTable;
     auto& MemT = ui->MemTable;
     auto& InstT = ui->Instructions;
+    auto& UartT = ui->uartInputTable;
     for(int i=0; i<RegT->columnCount(); i++){
         if(i % 2 == 0){
             RegT->setColumnWidth(i, (RegT->width() / RegT->columnCount()) * 0.5);
@@ -63,6 +69,13 @@ void MainWindow::SetTableWidth(){
     }
     while(InstT->rowCount()*InstT->rowHeight(0) > InstT->height()){
         InstT->setRowCount(InstT->rowCount() - 1);
+    }
+
+    while(UartT->rowCount()*UartT->rowHeight(0) < UartT->height()){
+        UartT->setRowCount(UartT->rowCount() + 1);
+    }
+    while(UartT->rowCount()*UartT->rowHeight(0) > UartT->height()){
+        UartT->setRowCount(UartT->rowCount() - 1);
     }
 }
 
@@ -216,6 +229,43 @@ void MainWindow::refreshInstView(){
     
 }
 
+void MainWindow::refreshUartView(){
+    auto& uart = sobj.sim.mem->uart;
+
+    uart_in_line = max(uart.getInbufIdx() - 5, 0);
+
+    auto& uartt = ui->uartInputTable;
+    for(int i=0; i<uartt->rowCount(); i++){
+        uartt->verticalHeader()->setVisible(false);
+        if(sobj.sim.uart_ready){
+            string si = "";
+            try{
+                si = to_string(uart.getInbuf(uart_in_line + i));
+            }catch(exception &e){}
+            if(uartt->item(i,0) == NULL){
+                uartt->setItem(i,0, new QTableWidgetItem(si.data()));
+            }else{
+                uartt->item(i,0)->setText(si.data());
+            }
+            if(uart_in_line + i == uart.getInbufIdx()){
+                uartt->item(i,0)->setBackground(QBrush(Qt::yellow));
+            }else{
+                uartt->item(i,0)->setBackground(QBrush(Qt::white));
+            }
+        }
+    }
+
+    for(int i = former_uart_out_line; i<uart.getOutbufIdx(); i++){
+        string so = "";
+        try{
+            so = to_string(uart.getOutbuf(uart.getOutbufIdx()-1));
+        }catch(exception &e){}
+        uout << so << endl;
+    }
+    former_uart_out_line = uart.getOutbufIdx();
+    ui->uartOutputTextBrowser->setText(uout.str().data());
+}
+
 void MainWindow::on_pushButton_7_released()
 {
     isReghex = false;
@@ -298,6 +348,7 @@ void MainWindow::refreshAll(){
     refreshInstView();
     refreshMemView();
     refreshRegView();
+    refreshUartView();
 }
 
 void MainWindow::on_pushButton_released()
@@ -411,6 +462,7 @@ void MainWindow::on_revertButton_released()
     sobj.sim.revert();
     if(sobj.needReset) sobj.needReset = false;
     running = true;
+    if(former_uart_out_line > 0) former_uart_out_line--;
     refreshAll();
 }
 
@@ -418,13 +470,10 @@ void MainWindow::on_uartInputButton_released()
 {
     auto filename = QFileDialog::getOpenFileName(this, tr("Open Binary"), "", tr("Binary Files (*)"));
     sobj.uartinfilename = filename.toStdString();
+    sobj.sim.mem->setup_uart(sobj.uartinfilename);
+    sobj.sim.uart_ready = true;
+    refreshAll();
 }
-
-void MainWindow::on_uartSetupButton_released()
-{
-    sobj.sim.mem->setup_uart(sobj.uartinfilename, sobj.uartoutfilename);
-}
-
 
 void MainWindow::on_RegTable_itemChanged(QTableWidgetItem *item)
 {
@@ -439,6 +488,16 @@ void MainWindow::on_RegTable_itemChanged(QTableWidgetItem *item)
             i = (int*)&f;
             sobj.sim.freg[item->column() / 2 + (item->row() - 8) * 4] = (*i);
         }
+    }
+}
+
+
+void MainWindow::on_uartInputTable_itemChanged(QTableWidgetItem *item)
+{
+    if(isReghex) return;
+    try{
+        sobj.sim.mem->uart.setInbuf(uart_in_line + item->row(), item->data(QMetaType::Int).toInt());
+    }catch(exception &e){
     }
 }
 
