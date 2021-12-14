@@ -59,8 +59,6 @@ private slots:
 
     void on_uartInputButton_released();
 
-    void on_uartOutputButton_released();
-
     void on_uartSetupButton_released();
 
     void on_RegTable_itemChanged(QTableWidgetItem *item);

@@ -420,13 +420,6 @@ void MainWindow::on_uartInputButton_released()
     sobj.uartinfilename = filename.toStdString();
 }
 
-
-void MainWindow::on_uartOutputButton_released()
-{
-    auto filename = QFileDialog::getOpenFileName(this, tr("Open Binary"), "", tr("Assembly Files (*)"));
-    sobj.uartoutfilename = filename.toStdString();
-}
-
 void MainWindow::on_uartSetupButton_released()
 {
     sobj.sim.mem->setup_uart(sobj.uartinfilename, sobj.uartoutfilename);
