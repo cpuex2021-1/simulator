@@ -3,13 +3,13 @@
 #include <iomanip>
 #include <map>
 #include <vector>
-#include "Simulator.hpp"
+#include "Compiler.hpp"
 #include "util.hpp"
 
 using std::cout;
 using std::endl;
 
-Simulator sim;
+Compiler sim;
 
 bool joke;
 bool isasm;

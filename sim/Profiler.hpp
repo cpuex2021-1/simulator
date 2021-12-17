@@ -3,7 +3,7 @@
 
 class Profiler : public Simulator
 {
-private:
+protected:
     int sectid;
     int genSectid(int p);
 
@@ -22,8 +22,7 @@ private:
     void initSectId(int p, int sect);
 
 public:
-    Profiler(/* args */);
-    ~Profiler();
+    Profiler();
     void initProfiler();
     void print_sectionid_summary();
 };

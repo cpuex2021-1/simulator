@@ -4,9 +4,6 @@ Profiler::Profiler()
 : Simulator(), sectid(0)
 {}
 
-Profiler::~Profiler()
-{}
-
 int Profiler::genSectid(int p){
     if(sectid_list[p] > 0){
         return sectid;

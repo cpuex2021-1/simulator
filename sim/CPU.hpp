@@ -29,7 +29,7 @@ typedef struct Pinfo {int pc; bool flushed;} pinfo;
 
 class Pipeline
 {
-private:
+protected:
     int ifidx;
     class Sinfo{
     public:
@@ -144,7 +144,7 @@ public:
 
 class Log
 {
-private:
+protected:
 public:
     class LogData{
     public:
@@ -192,7 +192,7 @@ public:
 
 class CPU
 {
-private:
+protected:
     void throw_err(int instr);
     Pipeline p;
     Log log;
@@ -204,7 +204,6 @@ public:
     unsigned long long pc;
     unsigned long long clk;
     Memory* mem;
-    FPU fpu;
     CPU();
     ~CPU();
     inline void simulate_fast();
@@ -354,28 +353,28 @@ inline void CPU::simulate_fast()
         switch (funct3)
         {
         case 0:
-            freg[rd] = fpu.fadd(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::fadd(freg[rs1], freg[rs2]);
             pc++; reg[0] = 0; break;
         case 1:
-            freg[rd] = fpu.fsub(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::fsub(freg[rs1], freg[rs2]);
             pc++; reg[0] = 0; break;
         case 2:
-            freg[rd] = fpu.fmul(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::fmul(freg[rs1], freg[rs2]);
             pc++; reg[0] = 0; break;
         case 3:
-            freg[rd] = fpu.fdiv(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::fdiv(freg[rs1], freg[rs2]);
             pc++; reg[0] = 0; break;
         case 4:
-            freg[rd] = fpu.fsqrt(freg[rs1]);
+            freg[rd] = FPU::fsqrt(freg[rs1]);
             pc++; reg[0] = 0; break;
         case 5:
-            freg[rd] = fpu.fneg(freg[rs1]);
+            freg[rd] = FPU::fneg(freg[rs1]);
             pc++; reg[0] = 0; break;
         case 6:
-            freg[rd] = fpu.fmin(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::fmin(freg[rs1], freg[rs2]);
             pc++; reg[0] = 0; break;
         case 7:
-            freg[rd] = fpu.fmax(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::fmax(freg[rs1], freg[rs2]);
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
@@ -396,13 +395,13 @@ inline void CPU::simulate_fast()
         switch (funct3)
         {
         case 0:
-            reg[rd] = fpu.feq(freg[rs1], freg[rs2]);
+            reg[rd] = FPU::feq(freg[rs1], freg[rs2]);
             pc++; reg[0] = 0; break;
         case 1:
-            reg[rd] = fpu.flt(freg[rs1], freg[rs2]);
+            reg[rd] = FPU::flt(freg[rs1], freg[rs2]);
             pc++; reg[0] = 0; break;
         case 2:
-            reg[rd] = fpu.fle(freg[rs1], freg[rs2]);
+            reg[rd] = FPU::fle(freg[rs1], freg[rs2]);
             pc++; reg[0] = 0; break;
         case 3:
             reg[rd] = freg[rs1];
@@ -414,10 +413,10 @@ inline void CPU::simulate_fast()
             freg[rd] = freg[rs1];
             pc++; reg[0] = 0; break;
         case 6:
-            freg[rd] = fpu.itof(reg[rs1]);
+            freg[rd] = FPU::itof(reg[rs1]);
             pc++; reg[0] = 0; break;
         case 7:
-            reg[rd] = fpu.ftoi(freg[rs1]);
+            reg[rd] = FPU::ftoi(freg[rs1]);
             pc++; reg[0] = 0; break;
         
         default:
@@ -753,54 +752,54 @@ inline void CPU::simulate_acc()
         {
         case 0:
             former_val = freg[rd];
-            freg[rd] = fpu.fadd(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::fadd(freg[rs1], freg[rs2]);
             rd += 16;
             rs1 += 16;
             rs2 += 16;
             pc++; reg[0] = 0; break;
         case 1:
             former_val = freg[rd];
-            freg[rd] = fpu.fsub(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::fsub(freg[rs1], freg[rs2]);
             rd += 16;
             rs1 += 16;
             rs2 += 16;
             pc++; reg[0] = 0; break;
         case 2:
             former_val = freg[rd];
-            freg[rd] = fpu.fmul(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::fmul(freg[rs1], freg[rs2]);
             rd += 16;
             rs1 += 16;
             rs2 += 16;
             pc++; reg[0] = 0; break;
         case 3:
             former_val = freg[rd];
-            freg[rd] = fpu.fdiv(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::fdiv(freg[rs1], freg[rs2]);
             rd += 16;
             rs1 += 16;
             rs2 += 16;
             pc++; reg[0] = 0; break;
         case 4:
             former_val = freg[rd];
-            freg[rd] = fpu.fsqrt(freg[rs1]);
+            freg[rd] = FPU::fsqrt(freg[rs1]);
             rd += 16;
             rs1 += 16;
             pc++; reg[0] = 0; break;
         case 5:
             former_val = freg[rd];
-            freg[rd] = fpu.fneg(freg[rs1]);
+            freg[rd] = FPU::fneg(freg[rs1]);
             rd += 16;
             rs1 += 16;
             pc++; reg[0] = 0; break;
         case 6:
             former_val = freg[rd];
-            freg[rd] = fpu.fmin(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::fmin(freg[rs1], freg[rs2]);
             rd += 16;
             rs1 += 16;
             rs2 += 16;
             pc++; reg[0] = 0; break;
         case 7:
             former_val = freg[rd];
-            freg[rd] = fpu.fmax(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::fmax(freg[rs1], freg[rs2]);
             rd += 16;
             rs1 += 16;
             rs2 += 16;
@@ -825,17 +824,17 @@ inline void CPU::simulate_acc()
         switch (funct3)
         {
         case 0:
-            reg[rd] = fpu.feq(freg[rs1], freg[rs2]);
+            reg[rd] = FPU::feq(freg[rs1], freg[rs2]);
             rs1 += 16;
             rs2 += 16;
             pc++; reg[0] = 0; break;
         case 1:
-            reg[rd] = fpu.flt(freg[rs1], freg[rs2]);
+            reg[rd] = FPU::flt(freg[rs1], freg[rs2]);
             rs1 += 16;
             rs2 += 16;
             pc++; reg[0] = 0; break;
         case 2:
-            reg[rd] = fpu.fle(freg[rs1], freg[rs2]);
+            reg[rd] = FPU::fle(freg[rs1], freg[rs2]);
             rs1 += 16;
             rs2 += 16;
             pc++; reg[0] = 0; break;
@@ -856,11 +855,11 @@ inline void CPU::simulate_acc()
             pc++; reg[0] = 0; break;
         case 6:
             former_val = freg[rd];
-            freg[rd] = fpu.itof(reg[rs1]);
+            freg[rd] = FPU::itof(reg[rs1]);
             rd += 16;
             pc++; reg[0] = 0; break;
         case 7:
-            reg[rd] = fpu.ftoi(freg[rs1]);
+            reg[rd] = FPU::ftoi(freg[rs1]);
             rs1 += 16;
             pc++; reg[0] = 0; break;
         

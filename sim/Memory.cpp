@@ -3,8 +3,12 @@
 using namespace std;
 
 Memory::Memory()
-:access(0), hitnum(0), validnum(0), replacenum(0), cachehit(false)
 {
+    access = 0;
+    hitnum = 0;
+    validnum = 0;
+    replacenum = 0;
+    cachehit = false;
     cache = new cache_elem[CACHESIZE];
     for(unsigned int i=0; i<CACHESIZE; i++){
         cache[i].valid = false;

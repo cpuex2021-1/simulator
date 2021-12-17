@@ -27,12 +27,14 @@ class UART
 private:
     fstream in;
     fstream out;
-    vector<uint32_t> inbuf;
-    unsigned long long inbufIdx;
-    vector<uint32_t> outbuf;
-    unsigned long long outbufIdx;
+    inline static vector<uint32_t> inbuf;
+    inline static unsigned long long inbufIdx;
+    inline static vector<uint32_t> outbuf;
+    inline static unsigned long long outbufIdx;
 public:
-    UART():inbufIdx(0), outbufIdx(0){
+    UART(){
+        inbufIdx = 0;
+        outbufIdx = 0;
     }
     void setup(string input_fname){
         in.open(input_fname, ios::in);
@@ -48,7 +50,7 @@ public:
         }
     }
 
-    inline int pop(){
+    inline static int pop(){
         if(inbufIdx >= inbuf.size()){
             throw invalid_argument("No more uart input");
         }
@@ -57,7 +59,7 @@ public:
         return res;
     }
 
-    inline void push(int n){
+    inline static void push(int n){
         outbuf.push_back(n);
         outbufIdx++;
     }
@@ -109,13 +111,13 @@ public:
 class Memory
 {
 private:
-    Cache_elem* cache;
-    int *memory;
-    int access;
-    int hitnum;
-    int validnum;
-    int replacenum;
-    bool cachehit;
+    inline static Cache_elem* cache;
+    inline static int *memory;
+    inline static int access;
+    inline static int hitnum;
+    inline static int validnum;
+    inline static int replacenum;
+    inline static bool cachehit;
 public:
     Memory();
     ~Memory();
@@ -136,8 +138,20 @@ public:
         return cachehit;
     }
 
+    inline static void update_cache_wrap(int index){
+        update_cache(index);
+    }
+
+    inline static uint64_t getMemAddr(int index){
+        return (uint64_t)memory;
+    }
+
+    uint32_t getContentSize(){
+        return sizeof(memory[0]);
+    }
+
 private:
-    inline void update_cache(int index){
+    inline static void update_cache(int index){
         unsigned int tag = getBits(index, MEMADDR_BITS - 1, MEMADDR_BITS - CACHETAG_BITS);
         unsigned int cindex = getBits(index, MEMADDR_BITS - CACHETAG_BITS - 1, MEMADDR_BITS - CACHETAG_BITS - CACHEINDEX_BITS);
         access++;

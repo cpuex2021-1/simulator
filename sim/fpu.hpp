@@ -5,31 +5,26 @@
 #include <math.h>
 #include <iostream>
 
-class FPU
+namespace FPU
 {
-private:
-    long long *div_grad;
-    long long *sqrt_grad;
-    inline long long finv(long long x);
-public:
-    FPU();
-    ~FPU();
-    inline long long fadd(long long f1, long long f2);
-    inline long long fsub(long long f1, long long f2);
-    inline long long fmul(long long f1, long long f2);
-    inline long long fdiv(long long f1, long long f2);
-    inline long long fsqrt(long long f1);
-    inline long long fneg(long long f1);
-    inline long long fmin(long long f1, long long f2);
-    inline long long fmax(long long f1, long long f2);
-    inline long long feq(long long f1, long long f2);
-    inline long long flt(long long f1, long long f2);
-    inline long long fle(long long f1, long long f2);
-    inline long long itof(long long f1);
-    inline long long ftoi(long long f2);
-};
+static long long *div_grad;
+static long long *sqrt_grad;
+inline long long finv(long long x);
+inline long long fadd(long long f1, long long f2);
+inline long long fsub(long long f1, long long f2);
+inline long long fmul(long long f1, long long f2);
+inline long long fdiv(long long f1, long long f2);
+inline long long fsqrt(long long f1);
+inline long long fneg(long long f1);
+inline long long fmin(long long f1, long long f2);
+inline long long fmax(long long f1, long long f2);
+inline long long feq(long long f1, long long f2);
+inline long long flt(long long f1, long long f2);
+inline long long fle(long long f1, long long f2);
+inline long long itof(long long f1);
+inline long long ftoi(long long f2);
 
-inline long long FPU::fadd(long long f1, long long f2){
+inline long long fadd(long long f1, long long f2){
     float* f = (float*) &f1;
     float* g = (float*) &f2;
 
@@ -39,7 +34,7 @@ inline long long FPU::fadd(long long f1, long long f2){
     return *res;
 }
 
-inline long long FPU::fsub(long long f1, long long f2){
+inline long long fsub(long long f1, long long f2){
     float* f = (float*) &f1;
     float* g = (float*) &f2;
 
@@ -49,7 +44,7 @@ inline long long FPU::fsub(long long f1, long long f2){
     return *res;
 }
 
-inline long long FPU::fneg(long long f1){
+inline long long fneg(long long f1){
     float* f = (float*) &f1;
     float fres = -(*f);
     long long *res = (long long *)&fres;
@@ -57,11 +52,11 @@ inline long long FPU::fneg(long long f1){
     return *res;
 }
 
-inline long long FPU::feq(long long x, long long y){
+inline long long feq(long long x, long long y){
     return x==y;
 }
 
-inline long long FPU::finv(long long x){
+inline long long finv(long long x){
     long key = (x >> 13) & ((1ll<<10) - 1);
     long diff= x & ((1<<13) -1);
     long long ae = (x >>23) & ((1<<8)-1);
@@ -79,7 +74,7 @@ inline long long FPU::finv(long long x){
     return x;
 }
 
-inline long long FPU::fdiv(long long x, long long y){
+inline long long fdiv(long long x, long long y){
     long long xs = x>>31;
     long long ys = y>>31;
     long long xe = (x>>23) & 0xff;
@@ -111,7 +106,7 @@ inline long long FPU::fdiv(long long x, long long y){
     }
 }
 
-inline long long FPU::fsqrt(long long a){
+inline long long fsqrt(long long a){
     long long s = a>>31;
     long long e = (a>>23 ) & 0xff;
     long key = (a>>14) & 0x3ff;
@@ -133,7 +128,7 @@ inline long long FPU::fsqrt(long long a){
     return a;
 }
 
-inline long long FPU::fmin(long long x, long long y){
+inline long long fmin(long long x, long long y){
     long long xs = (x>>31) & 1;
     long long ys = (y>>31) & 1;
     long long xe = (x>>23) & 0xff;
@@ -161,7 +156,7 @@ inline long long FPU::fmin(long long x, long long y){
     }
 }
 
-inline long long FPU::fmax(long long x, long long y){
+inline long long fmax(long long x, long long y){
     long long xs = (x>>31) & 1;
     long long ys = (y>>31) & 1;
     long long xe = (x>>23) & 0xff;
@@ -189,7 +184,7 @@ inline long long FPU::fmax(long long x, long long y){
     }
 }
 
-inline long long FPU::flt(long long x, long long y){
+inline long long flt(long long x, long long y){
     long long xs = (x>>31) & 1;
     long long ys = (y>>31) & 1;
     long long xe = (x>>23) & 0xff;
@@ -212,7 +207,7 @@ inline long long FPU::flt(long long x, long long y){
     return (pp&&absl) || np || (nn && ~absl && ~emeq);
 }
 
-inline long long FPU::fle(long long x, long long y){
+inline long long fle(long long x, long long y){
     long long xs = (x>>31) & 1;
     long long ys = (y>>31) & 1;
     long long xe = (x>>23) & 0xff;
@@ -235,7 +230,7 @@ inline long long FPU::fle(long long x, long long y){
     return (pp&&absl) || np || (nn && ~absl && ~emeq) || x==y;
 }
 
-inline long long FPU::fmul(long long a,long long b){
+inline long long fmul(long long a,long long b){
     long long s1,s2, s;
     s1 = a>>31;
     s2 = b>>31;
@@ -281,14 +276,16 @@ inline long long FPU::fmul(long long a,long long b){
     }
 }
 
-inline long long FPU::ftoi(long long f1){
+inline long long ftoi(long long f1){
     float* f = (float*) &f1;
     long long res = (long long)(*f);
     return res;
 }
 
-inline long long FPU::itof(long long f1){
+inline long long itof(long long f1){
     float f = (float) f1;
     long long* res = (long long *) &f;
     return (*res);
+}
+
 }

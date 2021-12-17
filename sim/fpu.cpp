@@ -1,6 +1,6 @@
 #include "fpu.hpp"
 
-long long sqrt_grad_[1024] = {
+long long sqrt_grad[1024] = {
 0x6a09f1699, 0x6a6467693, 0x6abec968e, 0x6b1913688, 
 0x6b7347683, 0x6bcd6367d, 0x6c276b677, 0x6c815b672, 
 0x6cdb3566c, 0x6d34fb667, 0x6d8ea9661, 0x6de84165c, 
@@ -259,7 +259,7 @@ long long sqrt_grad_[1024] = {
 0x6954b8b53, 0x69820cb51, 0x69af5cb50, 0x69dca6b4e
 };
 
-long long div_grad_[1024] = {
+long long div_grad[1024] = {
 0xfffffbff7, 0xff801bfe8, 0xff007bfd8, 0xfe8119fc8, 
 0xfe01f9fb8, 0xfd8317fa8, 0xfd0475f98, 0xfc8611f89, 
 0xfc07ebf79, 0xfb8a05f6a, 0xfb0c5bf5a, 0xfa8ef1f4b, 
@@ -517,13 +517,3 @@ long long div_grad_[1024] = {
 0x1010080f, 0xe0c480d, 0xc08e80b, 0xa062809, 
 0x803e807, 0x6022804, 0x400e802, 0x2002800
 };
-
-FPU::FPU()
-{
-    div_grad = &div_grad_[0];
-    sqrt_grad = &sqrt_grad_[0];
-}
-
-FPU::~FPU()
-{
-}

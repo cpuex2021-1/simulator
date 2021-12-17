@@ -38,10 +38,10 @@ int main(int argc, char* argv[]){
 
     for(a.f = -4 * M_PI; a.f <= 4 * M_PI; a.f += 0.01){
 
-        sim.cpu->freg[regs["fa0"]] = a.i;
+        sim.freg[regs["fa0"]] = a.i;
         sim.run();
         fi res;
-        res.i = sim.cpu->freg[regs["fa0"]];
+        res.i = sim.freg[regs["fa0"]];
         sim.reset();
         float real = (mode == SIN)? std::sin(a.f) : std::cos(a.f);
 
