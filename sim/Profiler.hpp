@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PROFILER_H_INCLUDED
+#define PROFILER_H_INCLUDED
 #include "Simulator.hpp"
 
 class Profiler : public Simulator
@@ -26,3 +27,5 @@ public:
     void initProfiler();
     void print_sectionid_summary();
 };
+
+#endif

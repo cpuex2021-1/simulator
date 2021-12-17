@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef FPU_H_INCLUDED
+#define FPU_H_INCLUDED
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -289,3 +289,5 @@ inline long long itof(long long f1){
 }
 
 }
+
+#endif

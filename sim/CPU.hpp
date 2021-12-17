@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CPU_H_INCLUDED
+#define CPU_H_INCLUDED
 #include "Memory.hpp"
 #include "fpu.hpp"
 #include "util.hpp"
@@ -1083,3 +1084,5 @@ inline void CPU::simulate_acc()
 
 extern map<int, string> xregName;
 extern map<int, string> fregName; 
+
+#endif

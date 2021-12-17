@@ -89,6 +89,12 @@ void CLI(bool joke){
             //start_time = elapsed();
             return;
         }else if((!read_or_eat) && (comm == "run")){
+            sim.compileAll();
+            sim.runFunc();
+            sim.show_result();
+            return;
+
+
             int ret = -1;
             if(sim.get_pc()) {
                 while(1){

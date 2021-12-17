@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MEMORY_H_INCLUDED
+#define MEMORY_H_INCLUDED
 #include <string>
 #include <sstream>
 #include "util.hpp"
@@ -205,3 +206,5 @@ inline int Memory::read(int index){
     update_cache(index);
     return memory[index];
 }
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef COMPILER_H_INCLUDED
+#define COMPILER_H_INCLUDED
+
 #include "Profiler.hpp"
 #include "../include/asmjit/src/asmjit/x86.h"
 
@@ -50,3 +53,5 @@ public:
 
     void runFunc();
 };
+
+#endif

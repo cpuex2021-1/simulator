@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SIMULATOR_H_INCLUDED
+#define SIMULATOR_H_INCLUDED
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -66,3 +67,4 @@ public:
     Simulator();
     ~Simulator();
 };
+#endif

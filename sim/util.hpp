@@ -1,4 +1,5 @@
-#pragma once
+#ifndef UTIL_H_INCLUDED
+#define UTIL_H_INCLUDED
 #include <vector>
 #include <fstream>
 #include <string>
@@ -18,3 +19,5 @@ void get_filesize(std::fstream& f, unsigned long long& fsize);
 string joking_face();
 void print_instr(unsigned int instr);
 double elapsed();
+
+#endif
