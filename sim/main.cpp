@@ -90,7 +90,6 @@ void CLI(bool joke){
             return;
         }else if((!read_or_eat) && (comm == "run")){
             sim.compileAll();
-            sim.runFunc();
             sim.show_result();
             return;
 

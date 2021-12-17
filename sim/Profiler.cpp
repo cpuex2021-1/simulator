@@ -13,7 +13,9 @@ int Profiler::genSectid(int p){
 }
 
 void Profiler::initLabellist(int p){
-    if(p >= instructions.size()) return;
+    if(p >= instructions.size()) {
+        return;
+    }
     unsigned int instr = instructions[p];
     unsigned int op = getBits(instr, 2, 0);
     unsigned int funct3 = getBits(instr, 5, 3);
@@ -46,7 +48,7 @@ void Profiler::initLabellist(int p){
         }
         case 2:
         {
-            if(p + 1 < instructions.size()) label_list[p + 1] = 1;
+            //if(p + 1 < instructions.size()) label_list[p + 1] = 1;
         }       
         default:
             break;

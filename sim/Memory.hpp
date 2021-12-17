@@ -113,18 +113,20 @@ class Memory
 {
 private:
     inline static Cache_elem* cache;
-    inline static int *memory;
     inline static int access;
     inline static int hitnum;
     inline static int validnum;
     inline static int replacenum;
     inline static bool cachehit;
 public:
+    inline static int *memory;
     Memory();
     ~Memory();
     UART uart;
     inline void write(int index, int data);
     inline int read(int index);
+    static inline void writeJit(int index, int data);
+    static inline int readJit(int index);
 
     void setup_uart(string);
     void print_memory(string filename);
@@ -144,7 +146,7 @@ public:
     }
 
     inline static uint64_t getMemAddr(int index){
-        return (uint64_t)memory;
+        return (uint64_t)&memory[index];
     }
 
     uint32_t getContentSize(){
@@ -203,6 +205,16 @@ inline int Memory::read(int index){
         }        
     }
     cachehit = false;
+    update_cache(index);
+    return memory[index];
+}
+
+inline void Memory::writeJit(int index, int data){
+    update_cache(index);
+    memory[index] = data;    
+}
+
+inline int Memory::readJit(int index){
     update_cache(index);
     return memory[index];
 }

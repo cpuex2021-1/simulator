@@ -198,12 +198,12 @@ protected:
     Pipeline p;
     Log log;
 public:
-    int* reg;
-    int* freg;
+    inline static int* reg;
+    inline static int* freg;
     vector<int> instructions;
 
     unsigned long long pc;
-    unsigned long long clk;
+    inline static unsigned long long clk;
     Memory* mem;
     CPU();
     ~CPU();
