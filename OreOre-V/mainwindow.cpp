@@ -258,7 +258,7 @@ void MainWindow::refreshUartView(){
     for(int i = former_uart_out_line; i<uart.getOutbufIdx(); i++){
         string so = "";
         try{
-            so = to_string(uart.getOutbuf(uart.getOutbufIdx()-1));
+            so = to_string(uart.getOutbuf(i));
         }catch(exception &e){}
         uout << so << endl;
     }
