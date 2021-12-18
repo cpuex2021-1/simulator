@@ -5,7 +5,6 @@ simObj::simObj(QObject *parent) : QObject(parent)
     needReset = false;
 }
 
-/*
 void simObj::run(){
     if(needReset) sim.reset();
     int ret = sim.run();
@@ -17,7 +16,8 @@ void simObj::read(){
     sim.read_asm(filename);
     emit finished();
 }
-*/
+
+/*
 void simObj::run(){
     if(needReset) sim.reset();
     sim.runFunc();
@@ -29,4 +29,4 @@ void simObj::read(){
     sim.read_asm(filename);
     sim.compileAll();
     emit finished();
-}
+}*/

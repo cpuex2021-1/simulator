@@ -94,12 +94,12 @@ void CPU::print_register(){
     cout << " ";
     for(int i=0; i<REGNUM; i++){
     if(i % 8 == 0 && i > 0) cout << endl << " ";
-        cout << left << setw(6) << xregName[i] + ":" << hex << right << setw(8) << reg[i] << " " << dec;
+        cout << left << setw(6) << xregName[i] + ":" << right << setw(8) << reg[i] << " " << dec;
     }
     cout << endl << " ";
     for(int i=0; i<FREGNUM; i++){
         if(i % 8 == 0 && i>0) cout << endl << " ";
-        cout << left << setw(6) << fregName[i] + ":" << hex << right << setw(8) << freg[i] << " " << dec;
+        cout << left << setw(6) << fregName[i] + ":" << right << setw(8) << freg[i] << " " << dec;
     }
     cout << endl;
 }

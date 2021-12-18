@@ -1,5 +1,7 @@
 #include "Compiler.hpp"
 
+#define SLIDE 10
+
 Compiler::Compiler()
 : regAllocList(REGNUM+FREGNUM)
 {
@@ -30,15 +32,7 @@ x86::Gp Compiler::getRdFregGp(int i, x86::Compiler& cc){
 x86::Gp Compiler::getGp(int i, bool isrd, x86::Compiler& cc){
     if(i != 0 && i != 32)
     {
-        if(regAllocList[i].valid){
-            return regAllocList[i].gp;
-        }else{
-            auto& item = regAllocList[i];
-            item.valid = true;
-            item.gp = cc.newGpd();
-            cc.mov(item.gp, x86::dword_ptr((uint64_t)&reg[i]));
-            return item.gp;
-        }
+        return regAllocList[i].gp;
     }else{
         if(isrd) return tmpReg;
         else return zero;
@@ -47,22 +41,29 @@ x86::Gp Compiler::getGp(int i, bool isrd, x86::Compiler& cc){
 
 void Compiler::bindLabel(int pc, x86::Compiler& cc){
     cc.bind(pctolabel(pc));
-}
+} 
 
 void Compiler::setUpLabel(x86::Compiler& cc){
-    for(int i=0; i<label_list.size(); i++){
-        if(label_list[i] == 1){
-            Label* l = new Label;
-            (*l) = cc.newLabel();
-            pctolabelptr[i] = l;
-        }
+    *endLabel = cc.newLabel();
+    for(int i=0; i<instructions.size(); i++){
+        Label* l = new Label;
+        (*l) = cc.newLabel();
+        pctolabelptr[i] = l;
+        cc.lea(qtmpReg, x86::ptr(*l));
+        cc.mov(x86::qword_ptr((uint64_t)&(pctoaddr[i])), qtmpReg);
+    }
+
+    pctolabelptr[instructions.size()] = endLabel;
+
+    cc.lea(qtmpReg, x86::ptr(*endLabel));
+    for(int i=0; i<SLIDE; i++){
+        cc.mov(x86::qword_ptr((uint64_t)&(pctoaddr[i+instructions.size()])), qtmpReg);
     }
 }
 
 void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
-    if(label_list[pc] == 1){
-        bindLabel(pc, cc);
-    }
+    bindLabel(pc, cc);
+    cc.inc(clkptr);
 
     unsigned int instr = instructions[pc];
     unsigned int op = getBits(instr, 2, 0);
@@ -158,11 +159,11 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 3:
-            cc.cmp(getRegGp(rs2,cc), getRegGp(rs1,cc));
+            cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.sets(getRdRegGp(rd,cc));
             break;
         case 4:
-            cc.cmp(getRegGp(rs2,cc), getRegGp(rs1,cc));
+            cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.setb(getRdRegGp(rd,cc));
             break;
         case 5:
@@ -468,11 +469,11 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
         case 3:
             cc.cmp(getRegGp(rs1,cc), imm);
-            cc.setg(getRdRegGp(rd,cc));
+            cc.sets(getRdRegGp(rd,cc));
             break;
         case 4:
             cc.cmp(getRegGp(rs1,cc), imm);
-            cc.seta(getRdRegGp(rd,cc));
+            cc.setb(getRdRegGp(rd,cc));
             break;
         case 5:
             if(rd == rs1){
@@ -525,8 +526,10 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                 cc.invoke(&uartInvokeNode, UART::pop, FuncSignatureT<int, void>());
                 uartInvokeNode->setRet(0, getRdRegGp(rd,cc));
             }else{
+                cc.mov(tmpReg, getRegGp(rs1, cc));
+                cc.add(tmpReg, offset);
                 cc.invoke(&cacheInvokeNode, Memory::readJit, FuncSignatureT<int, int>());
-                cacheInvokeNode->setArg(0, getRegGp(rs1, cc));
+                cacheInvokeNode->setArg(0, tmpReg);
                 cacheInvokeNode->setRet(0, getRdRegGp(rd, cc));
             }                        
             break;
@@ -535,8 +538,10 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                 cc.invoke(&uartInvokeNode, UART::pop, FuncSignatureT<int, void>());
                 uartInvokeNode->setRet(0, getRdFregGp(rd,cc));
             }else{
+                cc.mov(tmpReg, getRegGp(rs1, cc));
+                cc.add(tmpReg, offset);
                 cc.invoke(&cacheInvokeNode, Memory::readJit, FuncSignatureT<int, int>());
-                cacheInvokeNode->setArg(0, getRegGp(rs1, cc));
+                cacheInvokeNode->setArg(0, tmpReg);
                 cacheInvokeNode->setRet(0, getRdFregGp(rd, cc));
             }                        
             break;
@@ -564,27 +569,27 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            cc.cmp(getRegGp(rs2,cc), getRegGp(rs1,cc));
+            cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.je(pctolabel(pc+imm));
             break;
         case 1:
-            cc.cmp(getRegGp(rs2,cc), getRegGp(rs1,cc));
+            cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.jne(pctolabel(pc+imm));
             break;
         case 2:
-            cc.cmp(getRegGp(rs2,cc), getRegGp(rs1,cc));
+            cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.jl(pctolabel(pc+imm));
             break;
         case 3:
-            cc.cmp(getRegGp(rs2,cc), getRegGp(rs1,cc));
+            cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.jge(pctolabel(pc+imm));
             break;
         case 4:
-            cc.cmp(getRegGp(rs2,cc), getRegGp(rs1,cc));
+            cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.jb(pctolabel(pc+imm));
             break;
         case 5:
-            cc.cmp(getRegGp(rs2,cc), getRegGp(rs1,cc));
+            cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.jae(pctolabel(pc+imm));
             break;
         case 6:
@@ -592,8 +597,10 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                 cc.invoke(&uartInvokeNode, UART::push, FuncSignatureT<void, int>());
                 uartInvokeNode->setArg(0, getRegGp(rs2,cc));
             }else{
-                cc.invoke(&cacheInvokeNode, Memory::readJit, FuncSignatureT<void, int, int>());
-                cacheInvokeNode->setArg(0, getRegGp(rs1, cc));
+                cc.mov(tmpReg, getRegGp(rs1, cc));
+                cc.add(tmpReg, imm);
+                cc.invoke(&cacheInvokeNode, Memory::writeJit, FuncSignatureT<void, int, int>());
+                cacheInvokeNode->setArg(0, tmpReg);
                 cacheInvokeNode->setArg(1, getRegGp(rs2, cc));
             }
             break;
@@ -603,8 +610,10 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                 cc.invoke(&uartInvokeNode, UART::push, FuncSignatureT<void, int>());
                 uartInvokeNode->setArg(0, getFregGp(rs2,cc));
             }else{
-                cc.invoke(&cacheInvokeNode, Memory::readJit, FuncSignatureT<void, int, int>());
-                cacheInvokeNode->setArg(0, getRegGp(rs1, cc));
+                cc.mov(tmpReg, getRegGp(rs1, cc));
+                cc.add(tmpReg, imm);
+                cc.invoke(&cacheInvokeNode, Memory::writeJit, FuncSignatureT<void, int, int>());
+                cacheInvokeNode->setArg(0, tmpReg);
                 cacheInvokeNode->setArg(1, getFregGp(rs2, cc));
             }                        
             break;
@@ -632,10 +641,12 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             break;
         case 1:
             cc.mov(getRdRegGp(rd,cc), pc+1);
-            cc.call(pctolabel(pc+imm));
+            cc.jmp(pctolabel(pc+imm));
             break;
         case 2:
-            cc.ret();
+            cc.mov(getRdRegGp(rd,cc), pc+1);
+            cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1, cc), 3, imm * 8));
+            cc.jmp(qtmpReg);
             break;
         default:
             throw_err(instr); return;
@@ -647,33 +658,52 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         throw_err(instr); return;
         break;
     }
-    cc.inc(clkptr);
     return;
 }
 
 void Compiler::compileAll(){
+    pctolabelptr = new Label*[instructions.size()+1];
+    pctoaddr = new uint64_t[instructions.size()+SLIDE];
+    endLabel = new Label;
+
     JitRuntime rt;
+    
     CodeHolder code;
     code.init(rt.environment());
+    
     FileLogger logger(stdout);
     code.setLogger(&logger);
+    
     x86::Compiler cc(&code);
+    
     cc.addFunc(FuncSignatureT<int>());
+    
     clkptr = cc.newGpq();
     cc.mov(clkptr, clk);
+
+    qtmpReg = cc.newGpq();
     tmpReg = cc.newGpd();
     zero = cc.newGpd();
+
+    jumpBase = cc.newGpq();
+    cc.mov(jumpBase, (uint64_t)pctoaddr);
+
     cc.mov(zero, 0);
-    initProfiler();
     setUpLabel(cc);
+
+    for(unsigned int i=0; i<regAllocList.size(); i++){
+        regAllocList[i].gp = cc.newGpd();
+        regAllocList[i].valid = true;
+        cc.mov(regAllocList[i].gp, x86::dword_ptr((uint64_t)&reg[i]));
+    }
+
     for(unsigned int i=0; i<instructions.size(); i++){
         compileSingleInstruction(i, cc);
     }
+    cc.bind(*endLabel);
 
     for(unsigned int i=0; i<regAllocList.size(); i++){
-        if(regAllocList[i].valid){
-            cc.mov(x86::dword_ptr((uint64_t)&reg[i]), regAllocList[i].gp);
-        }
+        cc.mov(x86::dword_ptr((uint64_t)&reg[i]), regAllocList[i].gp);
     }
     cc.ret(clkptr);
     cc.endFunc();
@@ -686,11 +716,6 @@ void Compiler::compileAll(){
     }
     clk = fn();
     rt.release(fn);
-}
-
-void Compiler::runFunc(){
-    compileAll();
-    fn();
 }
 
 void Compiler::getNewInvokeNode(InvokeNode*& ptr){

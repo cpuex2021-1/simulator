@@ -2,7 +2,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++11
+CONFIG += c++17
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -12,14 +12,9 @@ SOURCES += \
     ../asm/Instructions.cpp \
     ../asm/Parse.cpp \
     ../sim/CPU.cpp \
-    ../sim/Compiler.cpp \
     ../sim/Memory.cpp \
-    ../sim/Profiler.cpp \
     ../sim/Simulator.cpp \
     ../sim/fpu.cpp \
-    ../sim/fputest.cpp \
-    ../sim/main.cpp \
-    ../sim/proftest.cpp \
     ../sim/util.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -29,9 +24,7 @@ HEADERS += \
     ../asm/Instructions.hpp \
     ../asm/Parse.hpp \
     ../sim/CPU.hpp \
-    ../sim/Compiler.hpp \
     ../sim/Memory.hpp \
-    ../sim/Profiler.hpp \
     ../sim/Simulator.hpp \
     ../sim/fpu.hpp \
     ../sim/util.hpp \
@@ -59,15 +52,3 @@ DISTFILES += \
 
 RESOURCES += \
     resources.qrc
-
-unix|win32: LIBS += -L$$PWD/../include/asmjit/ -lasmjit
-
-INCLUDEPATH += $$PWD/../include/asmjit
-DEPENDPATH += $$PWD/../include/asmjit
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../include/asmjit/release/ -lasmjit
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../include/asmjit/debug/ -lasmjit
-else:unix: LIBS += -L$$PWD/../include/asmjit/ -lasmjit
-
-INCLUDEPATH += $$PWD/../include/asmjit/src
-DEPENDPATH += $$PWD/../include/asmjit/src

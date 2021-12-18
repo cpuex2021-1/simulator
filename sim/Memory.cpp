@@ -14,7 +14,7 @@ Memory::Memory()
         cache[i].valid = false;
         cache[i].tag = 0;
     }
-    memory = new int[MEMSIZE];
+    memory = new int32_t[MEMSIZE];
 }
 
 Memory::~Memory(){
@@ -82,7 +82,7 @@ void Memory::reset(){
         cache[i].valid = false;
         cache[i].tag = 0;
     }
-    memory = new int[MEMSIZE];    
+    memory = new int32_t[MEMSIZE];    
     access = 0;
     hitnum = 0;
     validnum = 0;

@@ -119,14 +119,14 @@ private:
     inline static int replacenum;
     inline static bool cachehit;
 public:
-    inline static int *memory;
+    inline static int32_t *memory;
     Memory();
     ~Memory();
     UART uart;
     inline void write(int index, int data);
     inline int read(int index);
-    static inline void writeJit(int index, int data);
-    static inline int readJit(int index);
+    static inline void writeJit(uint32_t index, int32_t data);
+    static inline int32_t readJit(uint32_t index);
 
     void setup_uart(string);
     void print_memory(string filename);
@@ -154,7 +154,7 @@ public:
     }
 
 private:
-    inline static void update_cache(int index){
+    inline static void update_cache(uint32_t index){
         unsigned int tag = getBits(index, MEMADDR_BITS - 1, MEMADDR_BITS - CACHETAG_BITS);
         unsigned int cindex = getBits(index, MEMADDR_BITS - CACHETAG_BITS - 1, MEMADDR_BITS - CACHETAG_BITS - CACHEINDEX_BITS);
         access++;
@@ -209,12 +209,12 @@ inline int Memory::read(int index){
     return memory[index];
 }
 
-inline void Memory::writeJit(int index, int data){
+inline void Memory::writeJit(uint32_t index, int32_t data){
     update_cache(index);
     memory[index] = data;    
 }
 
-inline int Memory::readJit(int index){
+inline int32_t Memory::readJit(uint32_t index){
     update_cache(index);
     return memory[index];
 }

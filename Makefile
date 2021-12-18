@@ -1,13 +1,13 @@
 
 all:
 	make -C asm
-	make -C sim
+	make -C sim -f sim/OldMakefile
 	cp asm/assembler ./
 	cp sim/simulator ./
 
 clean:
 	make clean -C asm
-	make clean -C sim
+	make clean -C sim -f sim/OldMakefile
 	make clean -C OreOre-V/build
 	rm -f assembler simulator gui-simulator memResult.txt
 
