@@ -104,7 +104,7 @@ public:
     }
 
     void revert(){
-        if(inbufIdx > 0)inbufIdx--;
+        if(inbufIdx > 0) inbufIdx--;
         if(outbufIdx > 0) outbufIdx--;
     }
 };
@@ -113,18 +113,18 @@ class Memory
 {
 private:
     inline static Cache_elem* cache;
-    inline static int access;
-    inline static int hitnum;
-    inline static int validnum;
-    inline static int replacenum;
+    inline static uint64_t access;
+    inline static uint64_t hitnum;
+    inline static uint64_t validnum;
+    inline static uint64_t replacenum;
     inline static bool cachehit;
 public:
     inline static int32_t *memory;
     Memory();
     ~Memory();
     UART uart;
-    inline void write(int index, int data);
-    inline int read(int index);
+    inline void write(uint32_t index, int32_t data);
+    inline int32_t read(uint32_t index);
     static inline void writeJit(uint32_t index, int32_t data);
     static inline int32_t readJit(uint32_t index);
 
@@ -141,11 +141,7 @@ public:
         return cachehit;
     }
 
-    inline static void update_cache_wrap(int index){
-        update_cache(index);
-    }
-
-    inline static uint64_t getMemAddr(int index){
+    inline static uint64_t getMemAddr(uint32_t index){
         return (uint64_t)&memory[index];
     }
 
@@ -175,8 +171,8 @@ private:
 };
 
 
-inline void Memory::write(int index, int data){
-    if(index < 0 || index >= MEMSIZE){
+inline void Memory::write(uint32_t index, int32_t data){
+    if(index >= MEMSIZE){
         stringstream ss;
         ss << "Memory index out of range (write): " << index;
         throw std::out_of_range(ss.str());
@@ -190,8 +186,8 @@ inline void Memory::write(int index, int data){
     memory[index] = data;
 }
 
-inline int Memory::read(int index){
-    if(index < 0 || index >= MEMSIZE){
+inline int32_t Memory::read(uint32_t index){
+    if(index >= MEMSIZE){
         stringstream ss;
         ss << "Memory index out of range (read): " << index;
         throw std::out_of_range(ss.str());

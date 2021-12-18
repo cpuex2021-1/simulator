@@ -26,18 +26,18 @@ using std::endl;
 using std::stringstream;
 
 
-typedef struct Pinfo {int pc; bool flushed;} pinfo;
+typedef struct Pinfo {int32_t pc; bool flushed;} pinfo;
 
 class Pipeline
 {
 protected:
-    int ifidx;
+    int32_t ifidx;
     class Sinfo{
     public:
-        int instr_idx;
-        int rd;
-        int rs1;
-        int rs2;
+        int32_t instr_idx;
+        int32_t rd;
+        int32_t rs1;
+        int32_t rs2;
         bool flushed;
         bool valid;
         Sinfo(){
@@ -56,12 +56,12 @@ protected:
             flushed = false;
             valid = false;
         }
-        inline void flush(int index){
+        inline void flush(int32_t index){
             instr_idx = index;
             flushed = true;
             valid = false;
         }
-        inline void set(int instr_idx_, int rd_, int rs1_, int rs2_){
+        inline void set(int32_t instr_idx_, int32_t rd_, int32_t rs1_, int32_t rs2_){
             instr_idx = instr_idx_;
             rd = rd_;
             rs1 = rs1_;
@@ -71,22 +71,22 @@ protected:
         }
     };
     Sinfo pipe[LOG_SIZE];
-    int stallNum;
+    int32_t stallNum;
     
 public:
     Pipeline()
     : ifidx(0), stallNum(0)
     {}
 
-    inline int checkstall(int stallnum, int rs1, int rs2){
+    inline int32_t checkstall(int32_t stallnum, int32_t rs1, int32_t rs2){
         if(stallnum){
             stallNum = stallnum;
             return 0;
         }else{
-            int ans = 0;
+            int32_t ans = 0;
             if(stallNum){
                 bool checkstall = false;
-                int i = 1;
+                int32_t i = 1;
                 for(; i < LOG_SIZE && (!checkstall) && i <= stallNum; i++){
                     checkstall |= pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].rd != 0 \
                             && pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].valid \
@@ -100,17 +100,17 @@ public:
         }
     }
 
-    inline void update_pipeline(int instr_idx, int rd, int rs1, int rs2, int numstall, bool flush, unsigned long long &clk){
+    inline void update_pipeline(int32_t instr_idx, int32_t rd, int32_t rs1, int32_t rs2, int32_t numstall, bool flush, uint64_t &clk){
         if(flush){
             pipe[ifidx].set(instr_idx, rd, rs1, rs2);
             ifidx++; ifidx %= LOG_SIZE;
-            for(int i=0; i<BRANCH; i++){
+            for(int32_t i=0; i<BRANCH; i++){
                 pipe[ifidx].flush(instr_idx + i + 1);
                 ifidx++; ifidx %= LOG_SIZE;
             }
             clk += BRANCH;
         }else{
-            for(int i=0; i<numstall; i++){
+            for(int32_t i=0; i<numstall; i++){
                 pipe[ifidx].set_nop();
                 ifidx++; ifidx %= LOG_SIZE;
             }
@@ -121,21 +121,21 @@ public:
     }
 
     inline void getPipelineInfo(vector<pinfo>& P){
-        for(unsigned int i=0; i<P.size(); i++){
+        for(uint32_t i=0; i<P.size(); i++){
             P[i].pc = pipe[(ifidx - 1 - i + 2 * LOG_SIZE) % LOG_SIZE].instr_idx;
             P[i].flushed = pipe[(ifidx -1 - i + 2 * LOG_SIZE) % LOG_SIZE].flushed;
         }
     }
 
     void reset(){
-        for(int i=0; i<LOG_SIZE; i++){
+        for(int32_t i=0; i<LOG_SIZE; i++){
             pipe[i].set_nop();
         }
     }
 
-    void revert(int pc, unsigned long long &clk){
+    void revert(int32_t pc, uint64_t &clk){
         ifidx += LOG_SIZE - 1; ifidx %= LOG_SIZE; clk--;
-        int cnt = 0;
+        int32_t cnt = 0;
         while((pipe[ifidx].instr_idx != pc && (!pipe[ifidx].flushed)) || cnt > LOG_SIZE){
             pipe[ifidx].set_nop();
             ifidx += LOG_SIZE - 1; ifidx %= LOG_SIZE; clk--; cnt++;
@@ -149,18 +149,18 @@ protected:
 public:
     class LogData{
     public:
-        int pc;
+        int32_t pc;
         bool isreg;
-        int index;
-        int former_val;
+        int32_t index;
+        int32_t former_val;
         LogData()
         :pc(0), isreg(false), index(0), former_val(0) 
         {};
     };
     LogData log[LOG_SIZE];
-    unsigned int logHead;
-    unsigned long long logSize;
-    inline void push(int pc, bool isreg, int index, int former_val){
+    uint32_t logHead;
+    uint64_t logSize;
+    inline void push(int32_t pc, bool isreg, int32_t index, int32_t former_val){
         log[logHead].pc = pc;
         log[logHead].isreg = isreg;
         log[logHead].index = index;
@@ -178,7 +178,7 @@ public:
     }
 
     void reset(){
-        for(int i = 0; i < LOG_SIZE; i++){
+        for(int32_t i = 0; i < LOG_SIZE; i++){
             log[i].pc = 0;
             log[i].isreg = false;
             log[i].index = 0;
@@ -194,16 +194,16 @@ public:
 class CPU
 {
 protected:
-    void throw_err(int instr);
+    void throw_err(int32_t instr);
     Pipeline p;
     Log log;
 public:
-    inline static int* reg;
-    inline static int* freg;
+    inline static int32_t* reg;
+    inline static int32_t* freg;
     vector<int> instructions;
 
-    unsigned long long pc;
-    inline static unsigned long long clk;
+    uint64_t pc;
+    inline static uint64_t clk;
     Memory* mem;
     CPU();
     ~CPU();
@@ -220,17 +220,17 @@ public:
 
 inline void CPU::simulate_fast()
 {
-    unsigned int instr = instructions[pc];
-    unsigned int op = getBits(instr, 2, 0);
-    unsigned int funct3 = getBits(instr, 5, 3);
+    uint32_t instr = instructions[pc];
+    uint32_t op = getBits(instr, 2, 0);
+    uint32_t funct3 = getBits(instr, 5, 3);
 
     #ifdef DEBUG
     print_instruction(instr);
     #endif
 
-    int rd;
-    int rs1;
-    int rs2;
+    int32_t rd;
+    int32_t rs1;
+    int32_t rs2;
 
     switch (op)
     {
@@ -239,7 +239,7 @@ inline void CPU::simulate_fast()
         rd = getBits(instr, 26, 22);
         rs1 = getBits(instr, 31, 27);
         rs2 = getBits(instr, 10, 6);
-        unsigned int funct11 = getBits(instr, 21, 11);
+        uint32_t funct11 = getBits(instr, 21, 11);
         
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d funct11:%d\n", op, funct3, rd, rs1, rs2, funct11);
@@ -251,10 +251,10 @@ inline void CPU::simulate_fast()
             switch (funct11)
             {
             case 0:
-                reg[rd] = (int)reg[rs1] + (int)reg[rs2];
+                reg[rd] = (int32_t)reg[rs1] + (int32_t)reg[rs2];
                 pc++; reg[0] = 0; break;
             case 1:
-                reg[rd] = (int)reg[rs1] - (int)reg[rs2];
+                reg[rd] = (int32_t)reg[rs1] - (int32_t)reg[rs2];
                 pc++; reg[0] = 0; break;
             default:
                 throw_err(instr); return;
@@ -262,16 +262,16 @@ inline void CPU::simulate_fast()
             }
             break;
         case 1:
-            reg[rd] = (int)reg[rs1] << (int)reg[rs2];
+            reg[rd] = (int32_t)reg[rs1] << (int32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         case 2:
             switch (funct11)
             {
             case 0:
-                reg[rd] = ((unsigned int)reg[rs1]) >> ((unsigned int)reg[rs2]);
+                reg[rd] = ((uint32_t)reg[rs1]) >> ((uint32_t)reg[rs2]);
                 pc++; reg[0] = 0; break;
             case 1:
-                reg[rd] = ((int)reg[rs1]) >> ((int)reg[rs2]);
+                reg[rd] = ((int32_t)reg[rs1]) >> ((int32_t)reg[rs2]);
                 pc++; reg[0] = 0; break;
             default:
                 throw_err(instr); return;
@@ -279,19 +279,19 @@ inline void CPU::simulate_fast()
             }
             break;
         case 3:
-            reg[rd] = ((int)reg[rs1] < (int)reg[rs2])? 1 : 0;
+            reg[rd] = ((int32_t)reg[rs1] < (int32_t)reg[rs2])? 1 : 0;
             pc++; reg[0] = 0; break;
         case 4:
-            reg[rd] = ((unsigned int)reg[rs1] < (unsigned int)reg[rs2])? 1 : 0;
+            reg[rd] = ((uint32_t)reg[rs1] < (uint32_t)reg[rs2])? 1 : 0;
             pc++; reg[0] = 0; break;
         case 5:
-            reg[rd] = (int)reg[rs1] ^ (int)reg[rs2];
+            reg[rd] = (int32_t)reg[rs1] ^ (int32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         case 6:
-            reg[rd] = (int)reg[rs1] | (int)reg[rs2];
+            reg[rd] = (int32_t)reg[rs1] | (int32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         case 7:
-            reg[rd] = (int)reg[rs1] & (int)reg[rs2];
+            reg[rd] = (int32_t)reg[rs1] & (int32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
@@ -312,28 +312,28 @@ inline void CPU::simulate_fast()
         switch (funct3)
         {
         case 0:
-            reg[rd] = (int)reg[rs1] * (int)reg[rs2];
+            reg[rd] = (int32_t)reg[rs1] * (int32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         case 1:
-            reg[rd] = (long long)((long long)reg[rs1] * (long long)reg[rs2]) >> 32;
+            reg[rd] = (int64_t)((int64_t)reg[rs1] * (int64_t)reg[rs2]) >> 32;
             pc++; reg[0] = 0; break;
         case 2:
-            reg[rd] = (long long)((long long)reg[rs1] * (unsigned long long)reg[rs2]) >> 32;
+            reg[rd] = (int64_t)((int64_t)reg[rs1] * (uint64_t)reg[rs2]) >> 32;
             pc++; reg[0] = 0; break;
         case 3:
-            reg[rd] = (unsigned long long)((unsigned long long)reg[rs1] * (unsigned long long)reg[rs2]) >> 32;
+            reg[rd] = (uint64_t)((uint64_t)reg[rs1] * (uint64_t)reg[rs2]) >> 32;
             pc++; reg[0] = 0; break;
         case 4:
-            reg[rd] = (int)reg[rs1] / (int)reg[rs2];
+            reg[rd] = (int32_t)reg[rs1] / (int32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         case 5:
-            reg[rd] = (unsigned int)reg[rs1] / (unsigned int)reg[rs2];
+            reg[rd] = (uint32_t)reg[rs1] / (uint32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         case 6:
-            reg[rd] = (int)reg[rs1] % (int)reg[rs2];
+            reg[rd] = (int32_t)reg[rs1] % (int32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         case 7:
-            reg[rd] = (unsigned int)reg[rs1] % (unsigned int)reg[rs2];
+            reg[rd] = (uint32_t)reg[rs1] % (uint32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
@@ -408,7 +408,7 @@ inline void CPU::simulate_fast()
             reg[rd] = freg[rs1];
             pc++; reg[0] = 0; break;
         case 4:
-            freg[rd] = (int)reg[rs1];
+            freg[rd] = (int32_t)reg[rs1];
             pc++; reg[0] = 0; break;
         case 5:
             freg[rd] = freg[rs1];
@@ -430,9 +430,9 @@ inline void CPU::simulate_fast()
     {
         rs1 = getBits(instr, 31, 27);
         rd = getBits(instr, 26, 22);
-        int imm = getSextBits(instr, 21, 6);
-        int shamt = getSextBits(instr, 10, 6);
-        unsigned int judge = getBits(instr, 11, 11);
+        int32_t imm = getSextBits(instr, 21, 6);
+        int32_t shamt = getSextBits(instr, 10, 6);
+        uint32_t judge = getBits(instr, 11, 11);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, imm);
@@ -441,32 +441,32 @@ inline void CPU::simulate_fast()
         switch (funct3)
         {
         case 0:
-            reg[rd] = (int)reg[rs1] + imm;
+            reg[rd] = (int32_t)reg[rs1] + imm;
             pc++; reg[0] = 0; break;
         case 1:
-            reg[rd] = (int)reg[rs1] << shamt;
+            reg[rd] = (int32_t)reg[rs1] << shamt;
             pc++; reg[0] = 0; break;
         case 2:
             if(judge){
-                reg[rd] = (int)reg[rs1] >> shamt;
+                reg[rd] = (int32_t)reg[rs1] >> shamt;
             }else{
-                reg[rd] = (unsigned int)reg[rs1] >> shamt;
+                reg[rd] = (uint32_t)reg[rs1] >> shamt;
             }
             pc++; reg[0] = 0; break;
         case 3:
-            reg[rd] = ((int)reg[rs1] < imm)? 1 : 0;
+            reg[rd] = ((int32_t)reg[rs1] < imm)? 1 : 0;
             pc++; reg[0] = 0; break;
         case 4:
-            reg[rd] = ((unsigned int)reg[rs1] < (unsigned int)imm)? 1 : 0;
+            reg[rd] = ((uint32_t)reg[rs1] < (uint32_t)imm)? 1 : 0;
             pc++; reg[0] = 0; break;
         case 5:
-            reg[rd] = (int)reg[rs1] ^ imm;
+            reg[rd] = (int32_t)reg[rs1] ^ imm;
             pc++; reg[0] = 0; break;
         case 6:
-            reg[rd] = (int)reg[rs1] | imm;
+            reg[rd] = (int32_t)reg[rs1] | imm;
             pc++; reg[0] = 0; break;
         case 7:
-            reg[rd] = (int)reg[rs1] & imm;
+            reg[rd] = (int32_t)reg[rs1] & imm;
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
@@ -478,8 +478,8 @@ inline void CPU::simulate_fast()
     {
         rs1 = getBits(instr, 31, 27);
         rd = getBits(instr, 26, 22);
-        int offset = getSextBits(instr, 21, 6);
-        unsigned int luioffset = getBits(instr, 21, 6);
+        int32_t offset = getSextBits(instr, 21, 6);
+        uint32_t luioffset = getBits(instr, 21, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, offset);
@@ -488,10 +488,10 @@ inline void CPU::simulate_fast()
         switch (funct3)
         {
         case 0:
-            reg[rd] = mem->read((int)reg[rs1] + offset);
+            reg[rd] = mem->read((int32_t)reg[rs1] + offset);
             pc++; reg[0] = 0; break;
         case 1:
-            freg[rd] = mem->read((int)reg[rs1] + offset);
+            freg[rd] = mem->read((int32_t)reg[rs1] + offset);
             pc++; reg[0] = 0; break;
         case 2:
             reg[rd] = ((rs1 << 16) + luioffset) << 12;
@@ -506,7 +506,7 @@ inline void CPU::simulate_fast()
     {
         rs1 = getBits(instr, 31, 27);
         rs2 = getBits(instr, 10, 6);
-        int imm = getSextBits(instr, 26, 11);
+        int32_t imm = getSextBits(instr, 26, 11);
         #ifdef DEBUG
         printf("op:%d funct3:%d rs1:%d rs2:%d imm:%d\n", op, funct3, rs1, rs2, imm);
         #endif
@@ -514,52 +514,52 @@ inline void CPU::simulate_fast()
         switch (funct3)
         {
         case 0:
-            if((int)reg[rs1] == (int)reg[rs2]){
+            if((int32_t)reg[rs1] == (int32_t)reg[rs2]){
                 pc += imm;
             }else{
                 pc++;
             }
             reg[0] = 0; break;
         case 1:
-            if((int)reg[rs1] != (int)reg[rs2]){
+            if((int32_t)reg[rs1] != (int32_t)reg[rs2]){
                 pc += imm;
             }else{
                 pc++;
             }
             reg[0] = 0; break;
         case 2:
-            if((int)reg[rs1] < (int)reg[rs2]){
+            if((int32_t)reg[rs1] < (int32_t)reg[rs2]){
                 pc += imm;
             }else{
                 pc++;
             }
             reg[0] = 0; break;
         case 3:
-            if((int)reg[rs1] >= (int)reg[rs2]){
+            if((int32_t)reg[rs1] >= (int32_t)reg[rs2]){
                 pc += imm;
             }else{
                 pc++;
             }
             reg[0] = 0; break;
         case 4:
-            if((unsigned int)reg[rs1] < (unsigned int)reg[rs2]){
+            if((uint32_t)reg[rs1] < (uint32_t)reg[rs2]){
                 pc += imm;
             }else{
                 pc++;
             }
             reg[0] = 0; break;
         case 5:
-            if((unsigned int)reg[rs1] >= (unsigned int)reg[rs2]){
+            if((uint32_t)reg[rs1] >= (uint32_t)reg[rs2]){
                 pc += imm;
             }else{
                 pc++;
             }
             reg[0] = 0; break;
         case 6:
-            mem->write((int)reg[rs1]+imm, (int)reg[rs2]);
+            mem->write((int32_t)reg[rs1]+imm, (int32_t)reg[rs2]);
             pc++; reg[0] = 0; break;
         case 7:
-            mem->write((int)reg[rs1]+imm, (int)freg[rs2]);
+            mem->write((int32_t)reg[rs1]+imm, (int32_t)freg[rs2]);
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
@@ -569,10 +569,10 @@ inline void CPU::simulate_fast()
     }
     case 7:
     {
-        int addr = getSextBits(instr, 30, 6);
+        int32_t addr = getSextBits(instr, 30, 6);
         rs1 = getBits(instr, 31, 27);
         rd = getBits(instr, 26, 22);
-        int imm = getSextBits(instr, 21, 6);
+        int32_t imm = getSextBits(instr, 21, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, imm);
@@ -608,25 +608,25 @@ inline void CPU::simulate_fast()
 
 inline void CPU::simulate_acc()
 {
-    unsigned int instr = instructions[pc];
-    unsigned int op = getBits(instr, 2, 0);
-    unsigned int funct3 = getBits(instr, 5, 3);
+    uint32_t instr = instructions[pc];
+    uint32_t op = getBits(instr, 2, 0);
+    uint32_t funct3 = getBits(instr, 5, 3);
 
-    int former_pc = pc;
+    int32_t former_pc = pc;
 
     #ifdef DEBUG
     print_instruction(instr);
     #endif
 
-    int rd = 0;
-    int rs1 = 0;
-    int rs2 = 0;
+    int32_t rd = 0;
+    int32_t rs1 = 0;
+    int32_t rs2 = 0;
 
-    int numstall = 0;
+    int32_t numstall = 0;
     bool isFlush = false;
 
-    long long memAddr = -1;
-    int former_val = 0;
+    int64_t memAddr = -1;
+    int32_t former_val = 0;
 
     switch (op)
     {
@@ -635,7 +635,7 @@ inline void CPU::simulate_acc()
         rd = getBits(instr, 26, 22);
         rs1 = getBits(instr, 31, 27);
         rs2 = getBits(instr, 10, 6);
-        unsigned int funct11 = getBits(instr, 21, 11);
+        uint32_t funct11 = getBits(instr, 21, 11);
         
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d funct11:%d\n", op, funct3, rd, rs1, rs2, funct11);
@@ -647,10 +647,10 @@ inline void CPU::simulate_acc()
             switch (funct11)
             {
             case 0:
-                reg[rd] = (int)reg[rs1] + (int)reg[rs2];
+                reg[rd] = (int32_t)reg[rs1] + (int32_t)reg[rs2];
                 pc++; reg[0] = 0; break;
             case 1:
-                reg[rd] = (int)reg[rs1] - (int)reg[rs2];
+                reg[rd] = (int32_t)reg[rs1] - (int32_t)reg[rs2];
                 pc++; reg[0] = 0; break;
             default:
                 throw_err(instr); return;
@@ -658,16 +658,16 @@ inline void CPU::simulate_acc()
             }
             break;
         case 1:
-            reg[rd] = (int)reg[rs1] << (int)reg[rs2];
+            reg[rd] = (int32_t)reg[rs1] << (int32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         case 2:
             switch (funct11)
             {
             case 0:
-                reg[rd] = ((unsigned int)reg[rs1]) >> ((unsigned int)reg[rs2]);
+                reg[rd] = ((uint32_t)reg[rs1]) >> ((uint32_t)reg[rs2]);
                 pc++; reg[0] = 0; break;
             case 1:
-                reg[rd] = ((int)reg[rs1]) >> ((int)reg[rs2]);
+                reg[rd] = ((int32_t)reg[rs1]) >> ((int32_t)reg[rs2]);
                 pc++; reg[0] = 0; break;
             default:
                 throw_err(instr); return;
@@ -675,19 +675,19 @@ inline void CPU::simulate_acc()
             }
             break;
         case 3:
-            reg[rd] = ((int)reg[rs1] < (int)reg[rs2])? 1 : 0;
+            reg[rd] = ((int32_t)reg[rs1] < (int32_t)reg[rs2])? 1 : 0;
             pc++; reg[0] = 0; break;
         case 4:
-            reg[rd] = ((unsigned int)reg[rs1] < (unsigned int)reg[rs2])? 1 : 0;
+            reg[rd] = ((uint32_t)reg[rs1] < (uint32_t)reg[rs2])? 1 : 0;
             pc++; reg[0] = 0; break;
         case 5:
-            reg[rd] = (int)reg[rs1] ^ (int)reg[rs2];
+            reg[rd] = (int32_t)reg[rs1] ^ (int32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         case 6:
-            reg[rd] = (int)reg[rs1] | (int)reg[rs2];
+            reg[rd] = (int32_t)reg[rs1] | (int32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         case 7:
-            reg[rd] = (int)reg[rs1] & (int)reg[rs2];
+            reg[rd] = (int32_t)reg[rs1] & (int32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
@@ -709,28 +709,28 @@ inline void CPU::simulate_acc()
         switch (funct3)
         {
         case 0:
-            reg[rd] = (int)reg[rs1] * (int)reg[rs2];
+            reg[rd] = (int32_t)reg[rs1] * (int32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         case 1:
-            reg[rd] = (long long)((long long)reg[rs1] * (long long)reg[rs2]) >> 32;
+            reg[rd] = (int64_t)((int64_t)reg[rs1] * (int64_t)reg[rs2]) >> 32;
             pc++; reg[0] = 0; break;
         case 2:
-            reg[rd] = (long long)((long long)reg[rs1] * (unsigned long long)reg[rs2]) >> 32;
+            reg[rd] = (int64_t)((int64_t)reg[rs1] * (uint64_t)reg[rs2]) >> 32;
             pc++; reg[0] = 0; break;
         case 3:
-            reg[rd] = (unsigned long long)((unsigned long long)reg[rs1] * (unsigned long long)reg[rs2]) >> 32;
+            reg[rd] = (uint64_t)((uint64_t)reg[rs1] * (uint64_t)reg[rs2]) >> 32;
             pc++; reg[0] = 0; break;
         case 4:
-            reg[rd] = (int)reg[rs1] / (int)reg[rs2];
+            reg[rd] = (int32_t)reg[rs1] / (int32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         case 5:
-            reg[rd] = (unsigned int)reg[rs1] / (unsigned int)reg[rs2];
+            reg[rd] = (uint32_t)reg[rs1] / (uint32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         case 6:
-            reg[rd] = (int)reg[rs1] % (int)reg[rs2];
+            reg[rd] = (int32_t)reg[rs1] % (int32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         case 7:
-            reg[rd] = (unsigned int)reg[rs1] % (unsigned int)reg[rs2];
+            reg[rd] = (uint32_t)reg[rs1] % (uint32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
@@ -845,7 +845,7 @@ inline void CPU::simulate_acc()
             pc++; reg[0] = 0; break;
         case 4:
             former_val = freg[rd];
-            freg[rd] = (int)reg[rs1];
+            freg[rd] = (int32_t)reg[rs1];
             rd += 16;
             pc++; reg[0] = 0; break;
         case 5:
@@ -875,9 +875,9 @@ inline void CPU::simulate_acc()
         rs1 = getBits(instr, 31, 27);
         rd = getBits(instr, 26, 22);
         former_val = reg[rd];
-        int imm = getSextBits(instr, 21, 6);
-        int shamt = getSextBits(instr, 10, 6);
-        unsigned int judge = getBits(instr, 11, 11);
+        int32_t imm = getSextBits(instr, 21, 6);
+        int32_t shamt = getSextBits(instr, 10, 6);
+        uint32_t judge = getBits(instr, 11, 11);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, imm);
@@ -886,32 +886,32 @@ inline void CPU::simulate_acc()
         switch (funct3)
         {
         case 0:
-            reg[rd] = (int)reg[rs1] + imm;
+            reg[rd] = (int32_t)reg[rs1] + imm;
             pc++; reg[0] = 0; break;
         case 1:
-            reg[rd] = (int)reg[rs1] << shamt;
+            reg[rd] = (int32_t)reg[rs1] << shamt;
             pc++; reg[0] = 0; break;
         case 2:
             if(judge){
-                reg[rd] = (int)reg[rs1] >> shamt;
+                reg[rd] = (int32_t)reg[rs1] >> shamt;
             }else{
-                reg[rd] = (unsigned int)reg[rs1] >> shamt;
+                reg[rd] = (uint32_t)reg[rs1] >> shamt;
             }
             pc++; reg[0] = 0; break;
         case 3:
-            reg[rd] = ((int)reg[rs1] < imm)? 1 : 0;
+            reg[rd] = ((int32_t)reg[rs1] < imm)? 1 : 0;
             pc++; reg[0] = 0; break;
         case 4:
-            reg[rd] = ((unsigned int)reg[rs1] < (unsigned int)imm)? 1 : 0;
+            reg[rd] = ((uint32_t)reg[rs1] < (uint32_t)imm)? 1 : 0;
             pc++; reg[0] = 0; break;
         case 5:
-            reg[rd] = (int)reg[rs1] ^ imm;
+            reg[rd] = (int32_t)reg[rs1] ^ imm;
             pc++; reg[0] = 0; break;
         case 6:
-            reg[rd] = (int)reg[rs1] | imm;
+            reg[rd] = (int32_t)reg[rs1] | imm;
             pc++; reg[0] = 0; break;
         case 7:
-            reg[rd] = (int)reg[rs1] & imm;
+            reg[rd] = (int32_t)reg[rs1] & imm;
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
@@ -924,8 +924,8 @@ inline void CPU::simulate_acc()
         rs1 = getBits(instr, 31, 27);
         rd = getBits(instr, 26, 22);
         former_val = reg[rd];
-        int offset = getSextBits(instr, 21, 6);
-        unsigned int luioffset = getBits(instr, 21, 6);
+        int32_t offset = getSextBits(instr, 21, 6);
+        uint32_t luioffset = getBits(instr, 21, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, offset);
@@ -934,12 +934,12 @@ inline void CPU::simulate_acc()
         switch (funct3)
         {
         case 0:
-            reg[rd] = mem->read((int)reg[rs1] + offset);
+            reg[rd] = mem->read((int32_t)reg[rs1] + offset);
             numstall = (mem->checkCacheHit()) ? CACHEHITSTALL : CACHEMISSSTALL;
             pc++; reg[0] = 0; break;
         case 1:
             former_val = freg[rd];
-            freg[rd] = mem->read((int)reg[rs1] + offset);
+            freg[rd] = mem->read((int32_t)reg[rs1] + offset);
             numstall = (mem->checkCacheHit()) ? CACHEHITSTALL : CACHEMISSSTALL;
             rd += 16;
             pc++; reg[0] = 0; break;
@@ -956,7 +956,7 @@ inline void CPU::simulate_acc()
     {
         rs1 = getBits(instr, 31, 27);
         rs2 = getBits(instr, 10, 6);
-        int imm = getSextBits(instr, 26, 11);
+        int32_t imm = getSextBits(instr, 26, 11);
         #ifdef DEBUG
         printf("op:%d funct3:%d rs1:%d rs2:%d imm:%d\n", op, funct3, rs1, rs2, imm);
         #endif
@@ -964,7 +964,7 @@ inline void CPU::simulate_acc()
         switch (funct3)
         {
         case 0:
-            if((int)reg[rs1] == (int)reg[rs2]){
+            if((int32_t)reg[rs1] == (int32_t)reg[rs2]){
                 pc += imm;
                 isFlush = true;
             }else{
@@ -972,7 +972,7 @@ inline void CPU::simulate_acc()
             }
             reg[0] = 0; break;
         case 1:
-            if((int)reg[rs1] != (int)reg[rs2]){
+            if((int32_t)reg[rs1] != (int32_t)reg[rs2]){
                 pc += imm;
                 isFlush = true;
             }else{
@@ -980,7 +980,7 @@ inline void CPU::simulate_acc()
             }
             reg[0] = 0; break;
         case 2:
-            if((int)reg[rs1] < (int)reg[rs2]){
+            if((int32_t)reg[rs1] < (int32_t)reg[rs2]){
                 pc += imm;
                 isFlush = true;
             }else{
@@ -988,7 +988,7 @@ inline void CPU::simulate_acc()
             }
             reg[0] = 0; break;
         case 3:
-            if((int)reg[rs1] >= (int)reg[rs2]){
+            if((int32_t)reg[rs1] >= (int32_t)reg[rs2]){
                 pc += imm;
                 isFlush = true;
             }else{
@@ -996,7 +996,7 @@ inline void CPU::simulate_acc()
             }
             reg[0] = 0; break;
         case 4:
-            if((unsigned int)reg[rs1] < (unsigned int)reg[rs2]){
+            if((uint32_t)reg[rs1] < (uint32_t)reg[rs2]){
                 pc += imm;
                 isFlush = true;
             }else{
@@ -1004,7 +1004,7 @@ inline void CPU::simulate_acc()
             }
             reg[0] = 0; break;
         case 5:
-            if((unsigned int)reg[rs1] >= (unsigned int)reg[rs2]){
+            if((uint32_t)reg[rs1] >= (uint32_t)reg[rs2]){
                 pc += imm;
                 isFlush = true;
             }else{
@@ -1014,13 +1014,13 @@ inline void CPU::simulate_acc()
         case 6:
             memAddr = reg[rs1]+imm;
             former_val = mem->read_without_cache(memAddr);
-            mem->write((int)memAddr, (int)reg[rs2]);
+            mem->write((int32_t)memAddr, (int32_t)reg[rs2]);
             numstall = (mem->checkCacheHit()) ? CACHEHITSTALL : CACHEMISSSTALL;
             pc++; reg[0] = 0; break;
         case 7:
             memAddr = reg[rs1]+imm;
             former_val = mem->read_without_cache(memAddr);
-            mem->write((int)memAddr, (int)freg[rs2]);
+            mem->write((int32_t)memAddr, (int32_t)freg[rs2]);
             numstall = (mem->checkCacheHit()) ? CACHEHITSTALL : CACHEMISSSTALL;
             rs2 += 16;
             pc++; reg[0] = 0; break;
@@ -1032,11 +1032,11 @@ inline void CPU::simulate_acc()
     }
     case 7:
     {
-        int addr = getSextBits(instr, 30, 6);
+        int32_t addr = getSextBits(instr, 30, 6);
         rs1 = getBits(instr, 31, 27);
         rd = getBits(instr, 26, 22);
         former_val = reg[rd];
-        int imm = getSextBits(instr, 21, 6);
+        int32_t imm = getSextBits(instr, 21, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, imm);
@@ -1075,7 +1075,7 @@ inline void CPU::simulate_acc()
         log.push(former_pc, true, rd, former_val);
     }
 
-    int numStall = p.checkstall(numstall, rs1, rs2);
+    int32_t numStall = p.checkstall(numstall, rs1, rs2);
     p.update_pipeline(former_pc, rd, rs1, rs2, numStall, isFlush, clk);
     clk++;
     return;

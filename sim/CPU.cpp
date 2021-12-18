@@ -7,7 +7,7 @@ CPU::CPU()
     pc = 0;
     clk = 0;
     mem = new Memory();
-    reg = new int[REGNUM + FREGNUM];
+    reg = new int32_t[REGNUM + FREGNUM];
     freg = &reg[REGNUM];
     for(int i=0; i<REGNUM; i++){
         reg[i] = 0; freg[i] = 0;
