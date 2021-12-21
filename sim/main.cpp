@@ -89,11 +89,6 @@ void CLI(bool joke){
             //start_time = elapsed();
             return;
         }else if((!read_or_eat) && (comm == "run")){
-            sim.compileAll();
-            sim.show_result();
-            return;
-
-
             int ret = -1;
             if(sim.get_pc()) {
                 while(1){
@@ -134,7 +129,6 @@ void CLI(bool joke){
                 cout << "Stopped at Clock: " << sim.get_clock() << endl;
             }else if(ret == 0){
                 sim.show_result();
-                exit(0);
             }else{
                 cout << "Some error occured in the simulator" << endl;
             }
@@ -145,6 +139,10 @@ void CLI(bool joke){
             }
         }else if((!read_or_eat) && (comm == "reg" || comm == "r")){
             sim.show_reg();
+        }else if((!read_or_eat) && (comm == "frun")){            
+            sim.reset();
+            sim.compileAll();
+            sim.show_result();
         }else if((!read_or_eat) && comm == "dump"){
             string filename;
             cin >> filename;
@@ -176,6 +174,7 @@ void CLI(bool joke){
             cout << "delete [pc/label] (d)     : Delete breakpoint at [pc/label]" << endl;
             cout << "clkdel [clock cycle] (cd) : Delete breakpoint at [clock cycle]" << endl;
             cout << "run             : Run the program from beginning" << endl;
+            cout << "frun            : Run the program with JIT compiler (Breakpoint not supported)" << endl;
             cout << "continue (c)    : Continue the program" << endl;
             cout << "next (n)        : Execute only one instruction" << endl;
             cout << "reg (r)         : Show registers" << endl;
