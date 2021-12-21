@@ -598,7 +598,7 @@ Parse :: Parse(string str, bool label_only, int now_addr)
         }
 
         else if(match[1].str() ==  "jump"){
-            int addr = label_to_addr(match[2].str(), now_addr);
+            int addr = label_to_addr(match[2].str(), 0);
             Jtype ret(
                 7,
                 0,
@@ -606,7 +606,7 @@ Parse :: Parse(string str, bool label_only, int now_addr)
             );
             codes.push_back(ret.assemble());
         }else if(match[1].str() ==  "jal"){
-            int lab = label_to_addr(match[3].str(), now_addr);
+            int lab = label_to_addr(match[3].str(), 0);
             int rd = regs[match[2].str()];
             Jtype ret(
                 7,
@@ -620,7 +620,7 @@ Parse :: Parse(string str, bool label_only, int now_addr)
             Jtype ret(
                 7,
                 2,
-                (rs1 << 21) | (rd << 16) | (label_to_addr(match[4].str(), now_addr) & ((1 << 16) -1))
+                (rs1 << 21) | (rd << 16) | (label_to_addr(match[4].str(), 0) & ((1 << 16) -1))
             );
             codes.push_back(ret.assemble());
         }
@@ -690,7 +690,7 @@ Parse :: Parse(string str, bool label_only, int now_addr)
             }
             
         }else if(match[1].str() == "la"){
-            int imm = label_to_addr(match[3].str(), now_addr);
+            int imm = label_to_addr(match[3].str(), 0);
 
             if(imm >= (1 << 16)){
                 int luiimm = imm >> 12;

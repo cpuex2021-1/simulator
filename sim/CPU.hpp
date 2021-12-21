@@ -1045,13 +1045,13 @@ inline void CPU::simulate_acc()
         switch (funct3)
         {
         case 0:
-            pc += addr;
+            pc = addr;
             //isFlush = true;
             reg[0] = 0; break;
         case 1:
             reg[rd] = pc + 1;
             //isFlush = true;
-            pc += imm;
+            pc = imm;
             reg[0] = 0; break;
         case 2:
             reg[rd] = pc + 1;
