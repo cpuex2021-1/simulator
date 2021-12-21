@@ -209,7 +209,7 @@ public:
     ~CPU();
     inline void simulate_fast();
     inline void simulate_acc();
-    void print_register();
+    static void print_register();
     void reset();
     void revert();
     inline void getPipelineInfo(vector<pinfo>& P){

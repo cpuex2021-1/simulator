@@ -16,8 +16,8 @@ class Simulator: public CPU
 private:
     map<int,bool> break_pc;
     vector<unsigned long long> break_clk;
-    vector<int> l_to_p; //line_to_pc
-    vector<int> p_to_l; //pc_to_line
+    inline static vector<int> l_to_p; //line_to_pc
+    inline static vector<int> p_to_l; //pc_to_line
 
     //vars and functions for profiling
     int sectionid;
@@ -32,7 +32,7 @@ private:
     int cont_fast();
     int cont_acc();
 public:
-    vector<string> str_instr;
+    inline static vector<string> str_instr;
 
     bool ready;
     bool isasm;
@@ -59,8 +59,8 @@ public:
     int get_clock();
     void show_cache();
     void show_result();
-    int pc_to_line(int);
-    int line_to_pc(int);
+    static int pc_to_line(int);
+    static int line_to_pc(int);
     bool isbrk(int);
     bool getPipelineInfoByLineNum(int, string&, bool&);
     void setMode(int);

@@ -45,7 +45,7 @@ void Compiler::bindLabel(int pc, x86::Compiler& cc){
 
 void Compiler::setUpLabel(x86::Compiler& cc){
     *endLabel = cc.newLabel();
-    for(int i=0; i<instructions.size(); i++){
+    for(uint64_t i=0; i<instructions.size(); i++){
         Label* l = new Label;
         (*l) = cc.newLabel();
         pctolabelptr[i] = l;
@@ -61,9 +61,48 @@ void Compiler::setUpLabel(x86::Compiler& cc){
     }
 }
 
+void Compiler::setUpRegs(x86::Compiler& cc){    
+    for(unsigned int i=0; i<regAllocList.size(); i++){
+        regAllocList[i].gp = cc.newGpd();
+        regAllocList[i].valid = true;
+    }
+}
+
+void Compiler::LoadAllRegs(x86::Compiler& cc){
+    for(unsigned int i=0; i<regAllocList.size(); i++){
+        cc.mov(regAllocList[i].gp, x86::dword_ptr((uint64_t)&reg[i]));
+    }    
+}
+
+void Compiler::StoreAllRegs(x86::Compiler& cc){
+    for(unsigned int i=0; i<regAllocList.size(); i++){
+        cc.mov(x86::dword_ptr((uint64_t)&reg[i]), regAllocList[i].gp);
+    }
+}
+
+void Compiler::JitBreakPoint(int pc){
+    cout << "PC: " << pc << endl;
+    cout << "Instruction: " << str_instr[pc_to_line(pc)] << endl;
+
+    print_register();
+
+    cout << endl;
+}
+
+
 void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
     bindLabel(pc, cc);
     cc.inc(clkptr);
+
+    #ifdef JITDEBUG
+
+    StoreAllRegs(cc);
+
+    InvokeNode* printInvNode;
+    cc.invoke(&printInvNode, JitBreakPoint, FuncSignatureT<void, int>());
+    printInvNode->setArg(0, pc);
+
+    #endif
 
     unsigned int instr = instructions[pc];
     unsigned int op = getBits(instr, 2, 0);
@@ -110,6 +149,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                     cc.sub(getRdRegGp(rd,cc), getRegGp(rs2,cc));
                 }else if(rd == rs2){
                     cc.sub(getRdRegGp(rd,cc), getRegGp(rs1,cc));
+                    cc.neg(getRdRegGp(rd,cc));
                 }else{
                     cc.mov(getRdRegGp(rd,cc), getRegGp(rs1,cc));
                     cc.sub(getRdRegGp(rd,cc), getRegGp(rs2,cc));
@@ -124,7 +164,9 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             if(rd == rs1){
                 cc.sal(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
-                cc.sal(getRdRegGp(rd,cc), getRegGp(rs1,cc));
+                cc.mov(tmpReg, getRegGp(rs1,cc));
+                cc.sal(tmpReg, getRegGp(rs2,cc));
+                cc.mov(getRdRegGp(rd,cc), tmpReg);
             }else{
                 cc.mov(getRdRegGp(rd,cc), getRegGp(rs1,cc));
                 cc.sal(getRdRegGp(rd,cc), getRegGp(rs2,cc));
@@ -137,7 +179,9 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                 if(rd == rs1){
                     cc.shr(getRdRegGp(rd,cc), getRegGp(rs2,cc));
                 }else if(rd == rs2){
-                    cc.shr(getRdRegGp(rd,cc), getRegGp(rs1,cc));
+                    cc.mov(tmpReg, getRegGp(rs1,cc));
+                    cc.shr(tmpReg, getRegGp(rs2,cc));
+                    cc.mov(getRdRegGp(rd,cc), tmpReg);
                 }else{
                     cc.mov(getRdRegGp(rd,cc), getRegGp(rs1,cc));
                     cc.shr(getRdRegGp(rd,cc), getRegGp(rs2,cc));
@@ -147,7 +191,9 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                 if(rd == rs1){
                     cc.sar(getRdRegGp(rd,cc), getRegGp(rs2,cc));
                 }else if(rd == rs2){
-                    cc.sar(getRdRegGp(rd,cc), getRegGp(rs1,cc));
+                    cc.mov(tmpReg, getRegGp(rs1,cc));
+                    cc.sar(tmpReg, getRegGp(rs2,cc));
+                    cc.mov(getRdRegGp(rd,cc), tmpReg);
                 }else{
                     cc.mov(getRdRegGp(rd,cc), getRegGp(rs1,cc));
                     cc.sar(getRdRegGp(rd,cc), getRegGp(rs2,cc));
@@ -262,7 +308,9 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             if(rd == rs1){
                 cc.idiv(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
-                cc.idiv(getRdRegGp(rd,cc), getRegGp(rs1,cc));
+                cc.mov(tmpReg, getRegGp(rs1,cc));
+                cc.idiv(tmpReg, getRegGp(rs2,cc));
+                cc.mov(getRdRegGp(rd,cc), tmpReg);
             }else{
                 cc.mov(getRdRegGp(rd,cc), getRegGp(rs1,cc));
                 cc.idiv(getRdRegGp(rd,cc), getRegGp(rs2,cc));
@@ -272,7 +320,9 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             if(rd == rs1){
                 cc.div(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
-                cc.div(getRdRegGp(rd,cc), getRegGp(rs1,cc));
+                cc.mov(tmpReg, getRegGp(rs1,cc));
+                cc.div(tmpReg, getRegGp(rs2,cc));
+                cc.mov(getRdRegGp(rd,cc), tmpReg);
             }else{
                 cc.mov(getRdRegGp(rd,cc), getRegGp(rs1,cc));
                 cc.div(getRdRegGp(rd,cc), getRegGp(rs2,cc));
@@ -637,11 +687,11 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            cc.jmp(pctolabel(pc+addr));
+            cc.jmp(pctolabel(addr));
             break;
         case 1:
             cc.mov(getRdRegGp(rd,cc), pc+1);
-            cc.jmp(pctolabel(pc+imm));
+            cc.jmp(pctolabel(imm));
             break;
         case 2:
             cc.mov(getRdRegGp(rd,cc), pc+1);
@@ -670,9 +720,11 @@ void Compiler::compileAll(){
     
     CodeHolder code;
     code.init(rt.environment());
-    
-    FileLogger logger(stdout);
+
+    #ifdef JITDEBUG 
+    FileLogger logger(stderr);
     code.setLogger(&logger);
+    #endif
     
     x86::Compiler cc(&code);
     
@@ -689,22 +741,19 @@ void Compiler::compileAll(){
     cc.mov(jumpBase, (uint64_t)pctoaddr);
 
     cc.mov(zero, 0);
-    setUpLabel(cc);
 
-    for(unsigned int i=0; i<regAllocList.size(); i++){
-        regAllocList[i].gp = cc.newGpd();
-        regAllocList[i].valid = true;
-        cc.mov(regAllocList[i].gp, x86::dword_ptr((uint64_t)&reg[i]));
-    }
+    setUpLabel(cc);
+    setUpRegs(cc);
+
+    LoadAllRegs(cc);
 
     for(unsigned int i=0; i<instructions.size(); i++){
         compileSingleInstruction(i, cc);
     }
     cc.bind(*endLabel);
 
-    for(unsigned int i=0; i<regAllocList.size(); i++){
-        cc.mov(x86::dword_ptr((uint64_t)&reg[i]), regAllocList[i].gp);
-    }
+    StoreAllRegs(cc);
+    
     cc.ret(clkptr);
     cc.endFunc();
     cc.finalize();

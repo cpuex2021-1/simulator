@@ -1,6 +1,6 @@
 #ifndef COMPILER_H_INCLUDED
 #define COMPILER_H_INCLUDED
-#include "Profiler.hpp"
+#include "Simulator.hpp"
 #include <asmjit/asmjit.h>
 #include <string>
 
@@ -9,7 +9,7 @@ using namespace asmjit;
 
 typedef int (*Func)(void);
 
-class Compiler : public Profiler
+class Compiler : public Simulator
 {
 private:
 
@@ -50,7 +50,16 @@ private:
     
     void compileSingleInstruction(int pc, x86::Compiler&);
     void bindLabel(int pc, x86::Compiler&);
+
+    void setUpRegs(x86::Compiler&);
+
+    void LoadAllRegs(x86::Compiler&);
+
+    void StoreAllRegs(x86::Compiler&);
+
     void setUpLabel(x86::Compiler&);
+
+    static void JitBreakPoint(int pc);
 
     inline static vector<InvokeNode*> nodes;
     void getNewInvokeNode(InvokeNode*& ptr);
