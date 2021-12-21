@@ -61,7 +61,7 @@ map<string, unsigned int> regs = {
     {"sp", 2},
     {"hp", 3},
     {"cl", 4},
-    {"sw", 5},
+    {"swp", 5},
     {"a0", 6},
     {"a1", 7},
     {"a2", 8},
