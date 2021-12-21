@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(testAsmjit CXX)
 include_directories(${CMAKE_SOURCE_DIR}/../include/asmjit/src)
 
-set(CMAKE_CXX_FLAGS "-std=c++17 -g -Wall")
+set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -Wall")
 
 Set(ASMJIT_EMBED TRUE)
 Add_Definitions(-DASMJIT_STATIC)
