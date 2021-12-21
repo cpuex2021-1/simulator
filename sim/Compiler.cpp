@@ -730,17 +730,21 @@ void Compiler::compileAll(){
     
     cc.addFunc(FuncSignatureT<int>());
     
+    //clockcount setup
     clkptr = cc.newGpq();
     cc.mov(clkptr, clk);
 
+    //tmporary register setup
     qtmpReg = cc.newGpq();
     tmpReg = cc.newGpd();
-    zero = cc.newGpd();
 
+    //zero register setup
+    zero = cc.newGpd();
+    cc.mov(zero, 0);
+
+    //jump table setup
     jumpBase = cc.newGpq();
     cc.mov(jumpBase, (uint64_t)pctoaddr);
-
-    cc.mov(zero, 0);
 
     setUpLabel(cc);
     setUpRegs(cc);
