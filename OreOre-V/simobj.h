@@ -1,7 +1,7 @@
 #ifndef SIMOBJ_H
 #define SIMOBJ_H
 
-#include "../sim/Simulator.hpp"
+#include "../sim/Compiler.hpp"
 #include <QObject>
 
 class simObj : public QObject
@@ -9,15 +9,15 @@ class simObj : public QObject
     Q_OBJECT
 public:
     explicit simObj(QObject *parent = nullptr);
-    Simulator sim;
+    Compiler sim;
     string filename;
     string uartinfilename;
     bool needReset;
 
-public slots:
+public Q_SLOTS:
     void run();
     void read();
-signals:
+Q_SIGNALS:
     void finished();
 
 private:

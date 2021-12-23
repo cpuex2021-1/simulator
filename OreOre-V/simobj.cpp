@@ -9,12 +9,12 @@ void simObj::run(){
     if(needReset) sim.reset();
     int ret = sim.run();
     needReset = (ret == 0) ? true : false;
-    emit finished();
+    Q_EMIT finished();
 }
 
 void simObj::read(){
     sim.read_asm(filename);
-    emit finished();
+    Q_EMIT finished();
 }
 
 /*
@@ -22,11 +22,11 @@ void simObj::run(){
     if(needReset) sim.reset();
     sim.runFunc();
     needReset = true;
-    emit finished();
+    Q_EMIT finished();
 }
 
 void simObj::read(){
     sim.read_asm(filename);
     sim.compileAll();
-    emit finished();
+    Q_EMIT finished();
 }*/

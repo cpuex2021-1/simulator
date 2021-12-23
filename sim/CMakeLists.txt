@@ -1,17 +1,18 @@
-cmake_minimum_required(VERSION 2.8)
-project(testAsmjit CXX)
-include_directories(${CMAKE_SOURCE_DIR}/../include/asmjit/src)
+cmake_minimum_required(VERSION 3.5)
+project(Simulator CXX)
 
-set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -Wall")
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../include/asmjit/src)
+include(${CMAKE_CURRENT_LIST_DIR}/../asm/CMakeLists.txt)
 
-Set(ASMJIT_EMBED TRUE)
-Add_Definitions(-DASMJIT_STATIC)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-Set(ASMJIT_DIR "${CMAKE_SOURCE_DIR}/../include/asmjit")
-Include("${ASMJIT_DIR}/CMakeLists.txt")
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# If you add a library / executable, include asmjit sources.
-Add_Executable(simulator main.cpp CPU.cpp Compiler.cpp Memory.cpp Simulator.cpp fpu.cpp util.cpp ../asm/Instructions.cpp ../asm/Parse.cpp ${ASMJIT_SRC})
+set(CMAKE_CXX_FLAGS "-O3 -Wall")
 
-# You still have to include asmjit dependencies.
-Target_Link_Libraries(simulator ${ASMJIT_DEPS})
+add_library(simlib ${CMAKE_CURRENT_LIST_DIR}/CPU.cpp ${CMAKE_CURRENT_LIST_DIR}/Compiler.cpp 
+    ${CMAKE_CURRENT_LIST_DIR}/Memory.cpp ${CMAKE_CURRENT_LIST_DIR}/Simulator.cpp 
+    ${CMAKE_CURRENT_LIST_DIR}/fpu.cpp ${CMAKE_CURRENT_LIST_DIR}/util.cpp)
+
+target_link_libraries(simlib asmlib)

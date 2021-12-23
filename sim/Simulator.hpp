@@ -9,11 +9,12 @@
 #include "util.hpp"
 #include "../asm/Instructions.hpp"
 
-typedef enum {accurate, fast} Mode;
 
 class Simulator: public CPU
 {
-private:
+public:
+    typedef enum {accurate, fast} Mode;
+protected:
     map<int,bool> break_pc;
     vector<unsigned long long> break_clk;
     inline static vector<int> l_to_p; //line_to_pc
@@ -27,7 +28,7 @@ private:
     vector<int> pc_to_sectionid;
 
     
-    int mode;
+    Mode mode;
     void setup(string filename, bool isasm);
     int cont_fast();
     int cont_acc();
@@ -63,7 +64,7 @@ public:
     static int line_to_pc(int);
     bool isbrk(int);
     bool getPipelineInfoByLineNum(int, string&, bool&);
-    void setMode(int);
+    void setMode(Mode);
     Simulator();
     ~Simulator();
 };

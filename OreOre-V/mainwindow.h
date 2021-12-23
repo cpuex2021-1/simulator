@@ -21,7 +21,7 @@ public:
     ~MainWindow();
     simObj sobj;
     
-private slots:
+private Q_SLOTS:
     void on_pushButton_7_released();
 
     void on_pushButton_8_released();
@@ -80,7 +80,7 @@ private:
     bool running;
     stringstream uout;
 
-signals:
+Q_SIGNALS:
     void tellSimRun();
     void tellSimRead();
 };

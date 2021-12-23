@@ -203,7 +203,7 @@ int main(int argc, char* argv[]){
     joke = true;
     if(argc > 1){
         if(string(argv[1]) == "-f" || string(argv[1]) == "--fast"){
-            sim.setMode(fast);
+            sim.setMode(Simulator::fast);
         }
     }
 

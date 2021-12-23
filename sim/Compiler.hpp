@@ -11,8 +11,7 @@ typedef int (*Func)(void);
 
 class Compiler : public Simulator
 {
-private:
-
+protected:
     class regAlloc{
     public:
         bool valid;
@@ -69,8 +68,7 @@ public:
     Compiler();
     ~Compiler();
     void compileAll();
-
-    void runFunc();
+    int run();
 };
 
 #endif

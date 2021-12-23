@@ -775,3 +775,12 @@ void Compiler::getNewInvokeNode(InvokeNode*& ptr){
     ptr = (InvokeNode*)malloc(sizeof(InvokeNode));
     nodes.push_back(ptr);
 }
+
+int Compiler::run(){
+    if(mode == accurate) return Simulator::run();
+    else if(mode == fast){
+        compileAll();
+        return 0;
+    }
+    else return -1;
+}

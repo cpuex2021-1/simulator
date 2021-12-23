@@ -170,14 +170,14 @@ int Simulator::cont_acc(){
 }
 
 int Simulator::cont(){
-    if(mode == accurate) return cont_acc();
-    else if(mode == fast) return cont_fast();
+    if(mode == Simulator::accurate) return cont_acc();
+    else if(mode == Simulator::fast) return cont_fast();
     else return -1;
 }
 
 int Simulator::step(){
-    if(mode == accurate) simulate_acc();
-    else if(mode == fast) simulate_fast();
+    if(mode == Simulator::accurate) simulate_acc();
+    else if(mode == Simulator::fast) simulate_fast();
     if(pc >= instructions.size()){
         return 0;
     }else{
@@ -281,7 +281,7 @@ bool Simulator::getPipelineInfoByLineNum(int l, string& s, bool& flushed){
     return false;
 }
 
-void Simulator::setMode(int m){
+void Simulator::setMode(Mode m){
     mode = m;
 }
 

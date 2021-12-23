@@ -290,7 +290,7 @@ void MainWindow::on_pushButton_9_released()
     if(sobj.filename != string("")){
         sobj.sim.full_reset();
     }
-    emit tellSimRead();
+    Q_EMIT tellSimRead();
 }
 
 
@@ -355,7 +355,7 @@ void MainWindow::on_pushButton_released()
 {
     if(sobj.sim.str_instr.size() <= 0) return;
     running = true;
-    emit tellSimRun();
+    Q_EMIT tellSimRun();
 }
 
 
@@ -448,11 +448,11 @@ void MainWindow::on_memDownButton_released()
 void MainWindow::on_SimulatorModeButton_released()
 {
     if(ui->SimulatorModeButton->text().toStdString() == string("Accurate Mode")){
-        ui->SimulatorModeButton->setText("Fast Mode");
-        sobj.sim.setMode(fast);
+        ui->SimulatorModeButton->setText("Fast Mode (JIT)");
+        sobj.sim.setMode(Simulator::fast);
     }else{
         ui->SimulatorModeButton->setText("Accurate Mode");
-        sobj.sim.setMode(accurate);
+        sobj.sim.setMode(Simulator::accurate);
     }
 }
 
