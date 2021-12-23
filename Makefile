@@ -17,6 +17,7 @@ gui:
 	mkdir -p build
 	cmake -S ./ -B build
 	make -C build gui-simulator
+	cp build/gui-simulator gui-simulator
 
 fver:
 	make -C sim fverify
