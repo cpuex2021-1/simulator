@@ -2,7 +2,7 @@
 
 ## ビルド方法(CLI)
 
-```$ make```
+```$ make cli```
 
 ## 実行方法(CLI)
 
@@ -12,30 +12,18 @@
 
 はじめてつかうときはhelpとタイプすると使い方が表示されます
 
-CLIではJITコンパイルによる高速モード（frun）が使えます（GUIは未対応）
-
-トップのディレクトリで
-
-```$ make```
-
-すると、アセンブラとシミュレータが同時にビルドできます。
+通常モード／高速モード（run/frun）が選択できます。
 
 ## ビルド方法(GUI on Ubuntu)
 
 ```shell
-sudo apt install qtbase5-dev qttools5-dev-tools qt5-default
+sudo apt install qtbase5-dev qttools5-dev-tools qt5-default cmake
 make gui
 ```
 すると、`gui-simulator`ができる。
 
 ## ビルド方法(GUI on Windows)
-
-一番楽なのは以下の手順
-
-1. QtCreatorをインストール
-2. OreOre-V/OreOre-V.proを開く
-3. ビルドボタンを押す
-
+ビルドがバグってます（工事中）
 
 ## 実行方法
 
