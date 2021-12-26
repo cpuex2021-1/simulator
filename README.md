@@ -2,7 +2,17 @@
 
 ## ビルド方法(CLI)
 
-```$ make cli```
+```shell
+sudo apt install cmake
+make cli
+```
+
+or
+
+```shell
+sudo apt install cmake ninja-build
+make ninja
+```
 
 ## 実行方法(CLI)
 
@@ -20,10 +30,18 @@
 sudo apt install qtbase5-dev qttools5-dev-tools qt5-default cmake
 make gui
 ```
+
+or
+
+```shell
+sudo apt install qtbase5-dev qttools5-dev-tools qt5-default cmake ninja-build
+make ninja
+```
 すると、`gui-simulator`ができる。
 
 ## ビルド方法(GUI on Windows)
-ビルドがバグってます（工事中）
+
+QtCreatorでビルドするのがおすすめ
 
 ## 実行方法
 
