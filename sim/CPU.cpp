@@ -12,7 +12,7 @@ CPU::CPU()
     for(int i=0; i<REGNUM; i++){
         reg[i] = 0; freg[i] = 0;
     }
-    reg[2] = MEMSIZE-1;
+    reg[2] = MEMSIZE - 1;
     reg[3] = MEMSIZE / 2;
 }
 
@@ -112,7 +112,8 @@ void CPU::reset(){
     for(int i=0; i<FREGNUM; i++){
         freg[i] = 0;
     }
-    reg[2] = (1 << 25)-2;
+    reg[2] = MEMSIZE - 1;
+    reg[3] = MEMSIZE / 2;
     pc = 0;
     clk = 0;
     mem->reset();
