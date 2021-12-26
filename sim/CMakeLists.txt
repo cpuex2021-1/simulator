@@ -18,3 +18,6 @@ add_library(simlib ${CMAKE_CURRENT_LIST_DIR}/CPU.cpp ${CMAKE_CURRENT_LIST_DIR}/C
     ${CMAKE_CURRENT_LIST_DIR}/fpu.cpp ${CMAKE_CURRENT_LIST_DIR}/util.cpp)
 
 target_link_libraries(simlib asmlib asmjit)
+
+add_executable(cli-simulator ${CMAKE_CURRENT_LIST_DIR}/main.cpp)
+target_link_libraries(cli-simulator simlib)

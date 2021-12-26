@@ -19,12 +19,12 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 include("${CMAKE_CURRENT_LIST_DIR}/../sim/CMakeLists.txt")
 
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        simobj.cpp
-        simobj.h
+${CMAKE_CURRENT_LIST_DIR}/main.cpp
+${CMAKE_CURRENT_LIST_DIR}/mainwindow.cpp
+${CMAKE_CURRENT_LIST_DIR}/mainwindow.h
+${CMAKE_CURRENT_LIST_DIR}/mainwindow.ui
+${CMAKE_CURRENT_LIST_DIR}/simobj.cpp
+${CMAKE_CURRENT_LIST_DIR}/simobj.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
