@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(Assembler CXX)
+project(OreOre-V-Asmlib CXX)
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../include/asmjit/src)
 
