@@ -448,11 +448,11 @@ void MainWindow::on_memDownButton_released()
 void MainWindow::on_SimulatorModeButton_released()
 {
     if(ui->SimulatorModeButton->text().toStdString() == string("Accurate Mode")){
-        ui->SimulatorModeButton->setText("Fast Mode");
-        sobj.sim.setMode(fast);
+        ui->SimulatorModeButton->setText("Fast Mode (JIT)");
+        sobj.sim.setMode(Simulator::fast);
     }else{
         ui->SimulatorModeButton->setText("Accurate Mode");
-        sobj.sim.setMode(accurate);
+        sobj.sim.setMode(Simulator::accurate);
     }
 }
 

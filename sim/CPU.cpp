@@ -13,6 +13,7 @@ CPU::CPU()
         reg[i] = 0; freg[i] = 0;
     }
     reg[2] = MEMSIZE-1;
+    reg[3] = MEMSIZE / 2;
 }
 
 CPU::~CPU(){
