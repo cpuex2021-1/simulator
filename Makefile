@@ -3,11 +3,10 @@ all:cli gui
 
 clean:
 	make clean -C build
-	rm -f assembler simulator gui-simulator memResult.txt
+	rm -f assembler simulator gui-simulator memResult.txt build/CMakeCache.txt
 
 cli:
 	mkdir -p build
-	rm -f build/CMakeCache.txt
 	cmake -S ./OreOre-V-CMake-JIT -B build
 	make -C build assembler
 	make -C build cli-simulator
@@ -16,14 +15,12 @@ cli:
 
 gui:
 	mkdir -p build
-	rm -f build/CMakeCache.txt
 	cmake -S ./OreOre-V-CMake-JIT -B build
 	make -C build gui-simulator
 	cp build/gui-simulator gui-simulator
 
 ninja:
 	mkdir -p build
-	rm -f build/CMakeCache.txt
 	cmake -GNinja -S ./OreOre-V-CMake-JIT -B build
 	ninja -C build
 	cp build/assembler assembler
