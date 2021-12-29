@@ -1,4 +1,4 @@
-#ifndef FPU_H_INCLUDED
+﻿#ifndef FPU_H_INCLUDED
 #define FPU_H_INCLUDED
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,8 +7,8 @@
 
 namespace FPU
 {
-static long long *div_grad;
-static long long *sqrt_grad;
+inline static long long div_grad[1024];
+inline static long long sqrt_grad[1024];
 inline long long finv(long long x);
 inline long long fadd(long long f1, long long f2);
 inline long long fsub(long long f1, long long f2);
