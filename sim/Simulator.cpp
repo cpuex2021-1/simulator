@@ -33,7 +33,6 @@ int Simulator::read_asm(string filename){
         std::cout << "The file \"" << filename << "\" doesn't exist" << std::endl;
         return -1;
     }
-    cout << "Reading " << filename << "...";
     setup(filename, true);
     isasm = true;
     if(instructions.size() <= 0){
@@ -41,7 +40,6 @@ int Simulator::read_asm(string filename){
         return -1;
     }
     ready = true;
-    cout << " complete!" << endl;
     return 0;
 }
 int Simulator::eat_bin(string filename){
@@ -195,17 +193,17 @@ void Simulator::show_mem(int index){
     mem->read_without_cache(index);
 }
 void Simulator::show_pc(){
-    cout << "PC: " << pc << endl;
+    cout << "PC " << pc << endl;
 }
 void Simulator::show_clock(){
     cout << "Clock: " << clk << endl;
 }
 void Simulator::show_instruction(){
     if(isasm){
-        cout << "Instruction (Assembly): " << str_instr[pc] << endl;        
-        cout << "Instruction (Binary): "; print_instr(instructions[p_to_l[pc]]);
+        cout << "Instruction (Assembly): " << str_instr[pc_to_line(pc)] << endl;        
+        cout << "Instruction (Binary): "; print_instr(instructions[pc]);
     }else{
-        cout << "Instruction (Binary): "; print_instr(instructions[p_to_l[pc]]);
+        cout << "Instruction (Binary): "; print_instr(instructions[pc]);
     }
 }
 void Simulator::show_cache(){
@@ -386,3 +384,18 @@ int Simulator::getNewFuncId(){
     return funcid;
 }
 
+void Simulator::show_uart_output(){
+    for(int i=0; i<mem->uart.getOutbufIdx(); i++){
+        if (i != 0 && i % 8 == 0){
+            cout << endl;
+        }
+        cout << mem->uart.getOutbuf(i) << " ";
+    }
+    cout << endl;
+}
+
+void Simulator::show_line(){
+    if(isasm){
+        cout << "Line " << pc_to_line(pc) << endl;
+    }
+}

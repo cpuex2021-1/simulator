@@ -60,6 +60,8 @@ public:
     int get_clock();
     void show_cache();
     void show_result();
+    void show_uart_output();
+    void show_line();
     static int pc_to_line(int);
     static int line_to_pc(int);
     bool isbrk(int);

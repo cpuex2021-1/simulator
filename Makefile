@@ -10,8 +10,10 @@ cli:
 	cmake -S ./OreOre-V-CMake-JIT -B build
 	make -C build assembler
 	make -C build cli-simulator
+	make -C build simple-simulator
 	cp build/assembler assembler
 	cp build/cli-simulator cli-simulator
+	cp build/simple-simulator simple-simulator
 
 gui:
 	mkdir -p build
@@ -25,6 +27,7 @@ ninja:
 	ninja -C build
 	cp build/assembler assembler
 	cp build/cli-simulator cli-simulator
+	cp build/simple-simulator simple-simulator
 	cp build/gui-simulator gui-simulator		
 
 fver:
