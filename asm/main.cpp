@@ -35,7 +35,7 @@ int main(int argc, char* argv[]){
             labels[pres.labl] = now_addr;
             line_num++;
         }else if(pres.type == error){
-            cerr << "Parsing Error at line " << line_num << endl;
+            cerr << "Parsing Error at line " << line_num << ": " << str << endl;
             exit(1);
         }else if(pres.type == none){
             line_num++;
@@ -79,20 +79,25 @@ int main(int argc, char* argv[]){
         Debug_parse(str);
         #endif
 
-        Parse pres(str, false, now_addr);
-        if(pres.type == instruction){
-            #ifdef DEBUG
-            pres.print_instr();
-            #endif
-            for(unsigned int i = 0; i < pres.codes.size(); i++){
-                output.write(reinterpret_cast<char *>(&pres.codes[i]), sizeof(pres.codes[i]));
-                now_addr += 1;
+        try{        
+            Parse pres(str, false, now_addr);
+            if(pres.type == instruction){
+                #ifdef DEBUG
+                pres.print_instr();
+                #endif
+                for(unsigned int i = 0; i < pres.codes.size(); i++){
+                    output.write(reinterpret_cast<char *>(&pres.codes[i]), sizeof(pres.codes[i]));
+                    now_addr += 1;
+                }
+                line_num++;
+            }else if(pres.type == none || pres.type == label){
+                line_num++;
+            }else if(pres.type == error){
+                cerr << "Parsing Error at line " << (line_num - 2) << ": " << str << endl;
+                exit(1);
             }
-            line_num++;
-        }else if(pres.type == none || pres.type == label){
-            line_num++;
-        }else if(pres.type == error){
-            cerr << "Parsing Error at line " << line_num << endl;
+        }catch(exception &e){
+            cerr << "Error occured at line " << (line_num - 2) << ": " << str << "\n\t" << e.what() << endl;
             exit(1);
         }
     }

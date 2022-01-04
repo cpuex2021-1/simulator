@@ -20,10 +20,11 @@ int label_to_addr(string str, int now_addr){
         try{
             return stoi(str);
         }catch(invalid_argument &e){
-            cerr << "Unknown label: " << str << endl;
+            stringstream err;
+            err << "Unknown label: " << str;
+            throw invalid_argument(err.str());
         }
     }
-    exit(1);
     return -1;
 }
 
@@ -31,8 +32,9 @@ int regname_to_addr(string str){
     try {
         return regs.at(str);
     } catch (out_of_range &e){
-        cerr << "Unknown register: " << str << endl;
-        exit(1);
+        stringstream err;
+        err << "Unknown register: " << str;
+        throw invalid_argument(err.str());
     }
 }
 
