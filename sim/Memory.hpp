@@ -46,7 +46,7 @@ public:
         outbuf.reserve(16384);
 
         uint32_t code;
-        while(in.read((char *) &code, sizeof(uint32_t))){
+        while(in.read((char *) &code, sizeof(char))){
             inbuf.push_back(code);
         }
     }
@@ -61,7 +61,7 @@ public:
     }
 
     inline static void push(int n){
-        outbuf.push_back(n);
+        outbuf.push_back(n & ((1 << 8) - 1));
         outbufIdx++;
     }
 
