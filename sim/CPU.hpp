@@ -150,20 +150,21 @@ public:
     class LogData{
     public:
         int32_t pc;
-        bool isreg;
-        int32_t index;
+        int32_t rd;
+        int32_t memAddr;
         int32_t former_val;
+        
         LogData()
-        :pc(0), isreg(false), index(0), former_val(0) 
+        :pc(0), rd(-1), memAddr(-1), former_val(0) 
         {};
     };
     LogData log[LOG_SIZE];
     uint32_t logHead;
     uint64_t logSize;
-    inline void push(int32_t pc, bool isreg, int32_t index, int32_t former_val){
+    inline void push(int32_t pc, int32_t rd, int32_t memAddr, int32_t former_val){
         log[logHead].pc = pc;
-        log[logHead].isreg = isreg;
-        log[logHead].index = index;
+        log[logHead].rd = rd;
+        log[logHead].memAddr = memAddr;
         log[logHead].former_val = former_val;
         logHead++; logHead %= LOG_SIZE;
         logSize += (logSize > LOG_SIZE)? 0 : 1;
@@ -180,8 +181,8 @@ public:
     void reset(){
         for(int32_t i = 0; i < LOG_SIZE; i++){
             log[i].pc = 0;
-            log[i].isreg = false;
-            log[i].index = 0;
+            log[i].rd = -1;
+            log[i].memAddr = -1;
             log[i].former_val = 0;
         }
         logHead=0; logSize=0;
@@ -217,7 +218,7 @@ public:
     }    
 };
 
-
+//currently not supported
 inline void CPU::simulate_fast()
 {
     uint32_t instr = instructions[pc];
@@ -618,9 +619,9 @@ inline void CPU::simulate_acc()
     print_instruction(instr);
     #endif
 
-    int32_t rd = 0;
-    int32_t rs1 = 0;
-    int32_t rs2 = 0;
+    int32_t rd = -1;
+    int32_t rs1 = -1;
+    int32_t rs2 = -1;
 
     int32_t numstall = 0;
     bool isFlush = false;
@@ -934,12 +935,15 @@ inline void CPU::simulate_acc()
         switch (funct3)
         {
         case 0:
-            reg[rd] = mem->read((int32_t)reg[rs1] + offset);
+            memAddr = (int32_t)reg[rs1] + offset;
+            former_val = reg[rd];
+            reg[rd] = mem->read(memAddr);
             numstall = (mem->checkCacheHit()) ? CACHEHITSTALL : CACHEMISSSTALL;
             pc++; reg[0] = 0; break;
         case 1:
+            memAddr = (int32_t)reg[rs1] + offset;
             former_val = freg[rd];
-            freg[rd] = mem->read((int32_t)reg[rs1] + offset);
+            freg[rd] = mem->read(memAddr);
             numstall = (mem->checkCacheHit()) ? CACHEHITSTALL : CACHEMISSSTALL;
             rd += 16;
             pc++; reg[0] = 0; break;
@@ -1069,11 +1073,7 @@ inline void CPU::simulate_acc()
         break;
     }
 
-    if(memAddr > -1){
-        log.push(former_pc, false, memAddr, former_val);
-    }else{
-        log.push(former_pc, true, rd, former_val);
-    }
+    log.push(former_pc, rd, memAddr, former_val);
 
     int32_t numStall = p.checkstall(numstall, rs1, rs2);
     p.update_pipeline(former_pc, rd, rs1, rs2, numStall, isFlush, clk);

@@ -136,16 +136,21 @@ void CPU::throw_err(int instr){
 void CPU::revert(){
     if(log.logSize <= 0) return;
     auto logd = log.pop();
-    if(logd.isreg){
-        if(logd.index){
-            reg[logd.index] = logd.former_val;
+    if(logd.rd > 0){
+        reg[logd.rd] = logd.former_val;
+        if(logd.memAddr == 0){
+            mem->uart.revertPop();
         }
     }else{
-        mem->write_without_cache(logd.index, logd.former_val);
+        if(logd.memAddr > 0){
+            mem->write_without_cache(logd.memAddr, logd.former_val);
+        }
+        else if(logd.memAddr == 0){
+            mem->uart.revertPush();
+        }
     }
 
     pc = logd.pc;
 
     p.revert(pc, clk);
-    mem->uart.revert();
 }

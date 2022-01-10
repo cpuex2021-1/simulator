@@ -103,9 +103,17 @@ public:
         }
     }
 
-    void revert(){
-        if(inbufIdx > 0) inbufIdx--;
+    void revertPush(){
         if(outbufIdx > 0) outbufIdx--;
+    }
+
+    void revertPop(){
+        if(inbufIdx > 0) inbufIdx--;
+    }
+
+    void reset(){
+        inbufIdx = 0;
+        outbufIdx = 0;
     }
 };
 
@@ -118,6 +126,8 @@ private:
     inline static uint64_t validnum;
     inline static uint64_t replacenum;
     inline static bool cachehit;
+    bool pushed;
+    bool popped;
 public:
     inline static int32_t *memory;
     Memory();
@@ -172,14 +182,15 @@ private:
 
 
 inline void Memory::write(uint32_t index, int32_t data){
+    pushed = false;
     if(index >= MEMSIZE){
         stringstream ss;
         ss << "Memory index out of range (write): " << index;
         throw std::out_of_range(ss.str());
     }
     if(index == 0){
-        uart.push(data);
-        return;
+        pushed = true;
+        return uart.push(data);
     }
     cachehit = false;
     update_cache(index);
@@ -187,18 +198,15 @@ inline void Memory::write(uint32_t index, int32_t data){
 }
 
 inline int32_t Memory::read(uint32_t index){
+    popped = false;
     if(index >= MEMSIZE){
         stringstream ss;
         ss << "Memory index out of range (read): " << index;
         throw std::out_of_range(ss.str());
     }
     if(index == 0){
-        try{
-            return uart.pop();
-        }catch(std::exception &e){
-            cerr << e.what() << endl;
-            return 0;
-        }        
+        popped = true;
+        return uart.pop();        
     }
     cachehit = false;
     update_cache(index);

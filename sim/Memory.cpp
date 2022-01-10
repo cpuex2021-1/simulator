@@ -87,4 +87,6 @@ void Memory::reset(){
     hitnum = 0;
     validnum = 0;
     replacenum = 0;
+
+    uart.reset();
 }
