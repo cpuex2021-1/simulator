@@ -75,10 +75,8 @@ private:
     int mem_addr;
     int inst_line;
     int uart_in_line;
-    int former_uart_out_line;
     bool isReghex;
     bool running;
-    stringstream uout;
 
 Q_SIGNALS:
     void tellSimRun();

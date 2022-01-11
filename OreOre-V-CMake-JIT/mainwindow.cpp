@@ -11,7 +11,6 @@ MainWindow::MainWindow(QWidget *parent)
     , mem_addr(0)
     , inst_line(0)
     , uart_in_line(0)
-    , former_uart_out_line(0)
     , isReghex(false)
     , running(false)
 {
@@ -255,14 +254,18 @@ void MainWindow::refreshUartView(){
         }
     }
 
-    for(int i = former_uart_out_line; i<uart.getOutbufIdx(); i++){
-        char so;
+    stringstream uout;
+
+    for(int i=0; i<uart.getOutbufIdx(); i++){
+        char so = '\0';
         try{
             so = ((char)uart.getOutbuf(i));
         }catch(exception &e){}
-        uout << so << flush;
+        uout << so;
     }
-    former_uart_out_line = uart.getOutbufIdx();
+
+    uout << flush;
+
     ui->uartOutputTextBrowser->setText(uout.str().data());
 }
 
@@ -462,7 +465,6 @@ void MainWindow::on_revertButton_released()
     sobj.sim.revert();
     if(sobj.needReset) sobj.needReset = false;
     running = true;
-    if(former_uart_out_line > 0) former_uart_out_line--;
     refreshAll();
 }
 
