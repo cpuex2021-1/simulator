@@ -34,7 +34,7 @@ private:
         read_float();
         read_float();
         //n_lights : Actually, it should be an int value !
-        read_float();
+        read_int();
         //light rotation
         read_float();
         read_float();
