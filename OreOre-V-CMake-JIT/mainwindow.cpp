@@ -256,11 +256,11 @@ void MainWindow::refreshUartView(){
     }
 
     for(int i = former_uart_out_line; i<uart.getOutbufIdx(); i++){
-        string so = "";
+        char so;
         try{
-            so = to_string(uart.getOutbuf(i));
+            so = ((char)uart.getOutbuf(i));
         }catch(exception &e){}
-        uout << so << endl;
+        uout << so << flush;
     }
     former_uart_out_line = uart.getOutbufIdx();
     ui->uartOutputTextBrowser->setText(uout.str().data());
