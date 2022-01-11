@@ -6,6 +6,16 @@ CPU::CPU()
 {
     pc = 0;
     clk = 0;
+    numInstruction = 0;
+    num1stall = 0;
+    num2stall = 0;
+    num3stall = 0;
+    num4stall = 0;
+    numFlush = 0;
+    numDataHazard = 0;
+
+    memDestRd = -1;
+
     mem = new Memory();
     reg = new int32_t[REGNUM + FREGNUM];
     freg = &reg[REGNUM];
@@ -116,6 +126,13 @@ void CPU::reset(){
     reg[3] = MEMSIZE / 2;
     pc = 0;
     clk = 0;
+    numInstruction = 0;
+    num1stall = 0;
+    num2stall = 0;
+    num3stall = 0;
+    num4stall = 0;
+    numFlush = 0;
+    numDataHazard = 0;
     mem->reset();
     p.reset();
     log.reset();
@@ -152,5 +169,9 @@ void CPU::revert(){
 
     pc = logd.pc;
 
-    p.revert(pc, clk);
+    //p.revert(pc, clk);
+}
+
+void CPU::update_clkcount(){
+    clk = numInstruction + 1 * num2stall + 2 * num3stall + 3 * num4stall + 1 * numDataHazard + 2 * numFlush + mem->totalstall();
 }

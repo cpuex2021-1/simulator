@@ -163,6 +163,7 @@ int Simulator::cont_acc(){
             cout << endl;
             #endif
         }
+        update_clkcount();
     }
     return 0;
 }
@@ -176,6 +177,9 @@ int Simulator::cont(){
 int Simulator::step(){
     if(mode == Simulator::accurate) simulate_acc();
     else if(mode == Simulator::fast) simulate_fast();
+    
+    update_clkcount();
+    
     if(pc >= instructions.size()){
         return 0;
     }else{

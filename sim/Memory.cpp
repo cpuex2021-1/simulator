@@ -90,3 +90,7 @@ void Memory::reset(){
 
     uart.reset();
 }
+
+uint64_t Memory::totalstall(){
+    return 20 * (access - hitnum);
+}

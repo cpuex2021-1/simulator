@@ -141,6 +141,7 @@ public:
     void setup_uart(string);
     void print_memory(string filename);
     void print_cache_summary();
+    uint64_t totalstall();
     int read_without_cache(unsigned int index);
     void write_without_cache(unsigned int index, int data);
     void reset();
