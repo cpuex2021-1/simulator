@@ -45,7 +45,7 @@ public:
         inbuf.reserve(16384);
         outbuf.reserve(16384);
 
-        uint32_t code;
+        uint32_t code = 0;
         while(in.read((char *) &code, sizeof(char))){
             inbuf.push_back(code);
         }
