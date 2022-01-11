@@ -221,6 +221,7 @@ public:
 //currently not supported
 inline void CPU::simulate_fast()
 {
+    /*
     uint32_t instr = instructions[pc];
     uint32_t op = getBits(instr, 2, 0);
     uint32_t funct3 = getBits(instr, 5, 3);
@@ -605,6 +606,7 @@ inline void CPU::simulate_fast()
 
     clk++;
     return;
+    */
 }
 
 inline void CPU::simulate_acc()
@@ -755,56 +757,56 @@ inline void CPU::simulate_acc()
         case 0:
             former_val = freg[rd];
             freg[rd] = FPU::fadd(freg[rs1], freg[rs2]);
-            rd += 16;
-            rs1 += 16;
-            rs2 += 16;
+            rd += REGNUM;
+            rs1 += REGNUM;
+            rs2 += REGNUM;
             pc++; reg[0] = 0; break;
         case 1:
             former_val = freg[rd];
             freg[rd] = FPU::fsub(freg[rs1], freg[rs2]);
-            rd += 16;
-            rs1 += 16;
-            rs2 += 16;
+            rd += REGNUM;
+            rs1 += REGNUM;
+            rs2 += REGNUM;
             pc++; reg[0] = 0; break;
         case 2:
             former_val = freg[rd];
             freg[rd] = FPU::fmul(freg[rs1], freg[rs2]);
-            rd += 16;
-            rs1 += 16;
-            rs2 += 16;
+            rd += REGNUM;
+            rs1 += REGNUM;
+            rs2 += REGNUM;
             pc++; reg[0] = 0; break;
         case 3:
             former_val = freg[rd];
             freg[rd] = FPU::fdiv(freg[rs1], freg[rs2]);
-            rd += 16;
-            rs1 += 16;
-            rs2 += 16;
+            rd += REGNUM;
+            rs1 += REGNUM;
+            rs2 += REGNUM;
             pc++; reg[0] = 0; break;
         case 4:
             former_val = freg[rd];
             freg[rd] = FPU::fsqrt(freg[rs1]);
-            rd += 16;
-            rs1 += 16;
+            rd += REGNUM;
+            rs1 += REGNUM;
             pc++; reg[0] = 0; break;
         case 5:
             former_val = freg[rd];
             freg[rd] = FPU::fneg(freg[rs1]);
-            rd += 16;
-            rs1 += 16;
+            rd += REGNUM;
+            rs1 += REGNUM;
             pc++; reg[0] = 0; break;
         case 6:
             former_val = freg[rd];
             freg[rd] = FPU::fmin(freg[rs1], freg[rs2]);
-            rd += 16;
-            rs1 += 16;
-            rs2 += 16;
+            rd += REGNUM;
+            rs1 += REGNUM;
+            rs2 += REGNUM;
             pc++; reg[0] = 0; break;
         case 7:
             former_val = freg[rd];
             freg[rd] = FPU::fmax(freg[rs1], freg[rs2]);
-            rd += 16;
-            rs1 += 16;
-            rs2 += 16;
+            rd += REGNUM;
+            rs1 += REGNUM;
+            rs2 += REGNUM;
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
@@ -827,42 +829,42 @@ inline void CPU::simulate_acc()
         {
         case 0:
             reg[rd] = FPU::feq(freg[rs1], freg[rs2]);
-            rs1 += 16;
-            rs2 += 16;
+            rs1 += REGNUM;
+            rs2 += REGNUM;
             pc++; reg[0] = 0; break;
         case 1:
             reg[rd] = FPU::flt(freg[rs1], freg[rs2]);
-            rs1 += 16;
-            rs2 += 16;
+            rs1 += REGNUM;
+            rs2 += REGNUM;
             pc++; reg[0] = 0; break;
         case 2:
             reg[rd] = FPU::fle(freg[rs1], freg[rs2]);
-            rs1 += 16;
-            rs2 += 16;
+            rs1 += REGNUM;
+            rs2 += REGNUM;
             pc++; reg[0] = 0; break;
         case 3:
             reg[rd] = freg[rs1];
-            rs1 += 16;
+            rs1 += REGNUM;
             pc++; reg[0] = 0; break;
         case 4:
             former_val = freg[rd];
             freg[rd] = (int32_t)reg[rs1];
-            rd += 16;
+            rd += REGNUM;
             pc++; reg[0] = 0; break;
         case 5:
             former_val = freg[rd];
             freg[rd] = freg[rs1];
-            rd += 16;
-            rs1 += 16;
+            rd += REGNUM;
+            rs1 += REGNUM;
             pc++; reg[0] = 0; break;
         case 6:
             former_val = freg[rd];
             freg[rd] = FPU::itof(reg[rs1]);
-            rd += 16;
+            rd += REGNUM;
             pc++; reg[0] = 0; break;
         case 7:
             reg[rd] = FPU::ftoi(freg[rs1]);
-            rs1 += 16;
+            rs1 += REGNUM;
             pc++; reg[0] = 0; break;
         
         default:
@@ -945,7 +947,7 @@ inline void CPU::simulate_acc()
             former_val = freg[rd];
             freg[rd] = mem->read(memAddr);
             numstall = (mem->checkCacheHit()) ? CACHEHITSTALL : CACHEMISSSTALL;
-            rd += 16;
+            rd += REGNUM;
             pc++; reg[0] = 0; break;
         case 2:
             reg[rd] = (((rs1 << 16) + luioffset) & ((1 << 20) - 1)) << 12;
@@ -1026,7 +1028,7 @@ inline void CPU::simulate_acc()
             former_val = mem->read_without_cache(memAddr);
             mem->write((int32_t)memAddr, (int32_t)freg[rs2]);
             numstall = (mem->checkCacheHit()) ? CACHEHITSTALL : CACHEMISSSTALL;
-            rs2 += 16;
+            rs2 += REGNUM;
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;

@@ -404,7 +404,7 @@ Parse :: Parse(string str, bool label_only, int now_addr)
         }else if(match[1].str() ==  "ftoi"){
             Rtype ret(
                 3,
-                6,
+                7,
                 regname_to_addr(match[2].str()),
                 regname_to_addr(match[3].str()),
                 0,
