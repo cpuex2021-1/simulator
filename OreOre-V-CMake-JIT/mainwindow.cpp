@@ -149,7 +149,7 @@ void MainWindow::refreshMemView(){
     auto& memt = ui->MemTable;
     for(int i=0; i<memt->rowCount(); i++){
         stringstream ss;
-        ss << "0x" << hex << (mem_addr + (i * 8));
+        ss << "0x" << hex << (mem_addr + (i * memt->columnCount()));
         if(memt->verticalHeaderItem(i) == NULL){
             memt->setVerticalHeaderItem(i, new QTableWidgetItem(ss.str().data()));
         }else{
