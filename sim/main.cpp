@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 #include "Compiler.hpp"
-#include "util.hpp"
+#include "../lib/util.hpp"
 
 using std::cout;
 using std::endl;

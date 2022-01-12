@@ -6,7 +6,7 @@
 #include <map>
 #include <vector>
 #include "CPU.hpp"
-#include "util.hpp"
+#include "../lib/util.hpp"
 #include "../asm/Assembler.hpp"
 
 
@@ -35,6 +35,7 @@ public:
     bool isasm;
     bool uart_ready;
     void full_reset();
+    int read_asm(string filename);
     int eat_bin(string filename);
     int set_brk(string bp);
     int del_brk(string bp);

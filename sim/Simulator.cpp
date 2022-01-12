@@ -26,6 +26,13 @@ void Simulator::full_reset(){
     str_instr = vector<string>();
 }
 
+int Simulator::read_asm(string filename){
+    isasm = true;
+    int ret = Assembler::read_asm(filename);
+    ready = (ret == 0);
+    return ret;
+}
+
 int Simulator::eat_bin(string filename){
     std::ifstream test(filename); 
     if (!test)
@@ -40,9 +47,13 @@ int Simulator::eat_bin(string filename){
     binput.open(filename);
 
     int code;
-    binput.read((char *) &code, sizeof(unsigned int));
+    int now_addr = 0;
+
     while(binput.read((char *) &code, sizeof(unsigned int))){
         instructions.push_back(code);
+         
+        cout << now_addr << ": " << disassemble(code) << endl;
+        now_addr++;
     }
 
     binput.close();

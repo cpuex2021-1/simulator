@@ -2,8 +2,9 @@
 #define CPU_H_INCLUDED
 #include "Memory.hpp"
 #include "fpu.hpp"
-#include "util.hpp"
+#include "../lib/util.hpp"
 #include "../asm/Assembler.hpp"
+#include "../lib/DisAssembler.hpp"
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -734,11 +735,6 @@ inline int CPU::checkDataHazard(int memdestRd, int rs1, int rs2){
         }
     }    
 }
-
-
-extern map<int, string> xregName;
-extern map<int, string> fregName; 
-
 
 //currently not supported
 inline void CPU::simulate_fast()
