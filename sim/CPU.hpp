@@ -3,6 +3,7 @@
 #include "Memory.hpp"
 #include "fpu.hpp"
 #include "util.hpp"
+#include "../asm/Assembler.hpp"
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -192,7 +193,7 @@ public:
     {}
 };
 
-class CPU
+class CPU : public Assembler
 {
 protected:
     void throw_err(int32_t instr);
@@ -203,7 +204,6 @@ protected:
 public:
     inline static int32_t* reg;
     inline static int32_t* freg;
-    vector<int> instructions;
 
     uint64_t pc;
 

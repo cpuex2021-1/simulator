@@ -7,7 +7,7 @@
 #include <vector>
 #include "CPU.hpp"
 #include "util.hpp"
-#include "../asm/Instructions.hpp"
+#include "../asm/Assembler.hpp"
 
 
 class Simulator: public CPU
@@ -17,8 +17,6 @@ public:
 protected:
     map<int,bool> break_pc;
     vector<unsigned long long> break_clk;
-    inline static vector<int> l_to_p; //line_to_pc
-    inline static vector<int> p_to_l; //pc_to_line
 
     //vars and functions for profiling
     int sectionid;
@@ -29,17 +27,14 @@ protected:
 
     
     Mode mode;
-    void setup(string filename, bool isasm);
     int cont_fast();
     int cont_acc();
 public:
-    inline static vector<string> str_instr;
 
     bool ready;
     bool isasm;
     bool uart_ready;
     void full_reset();
-    int read_asm(string filename);
     int eat_bin(string filename);
     int set_brk(string bp);
     int del_brk(string bp);
