@@ -11,9 +11,7 @@ extern long long div_grad[1024];
 extern long long sqrt_grad[1024];
 inline long long finv(long long x);
 inline long long fadd(long long f1, long long f2);
-inline long long fsub(long long f1, long long f2);
-inline long long fmul(long long f1, long long f2);
-inline long long fdiv(long long f1, long long f2);
+inline long long fsub(long long f1, long long f2); inline long long fmul(long long f1, long long f2); inline long long fdiv(long long f1, long long f2);
 inline long long fsqrt(long long f1);
 inline long long fneg(long long f1);
 inline long long fmin(long long f1, long long f2);
@@ -140,7 +138,7 @@ inline long long fmin(long long x, long long y){
     long long ml = xm < ym;
     long long absl = el | (eeq & ml);
 
-    long long pp = 1- (xs & ys);
+    long long pp = xs==0 && ys==0;
     long long np = xs && ~ys;
     long long nn = xs & ys;
 
@@ -168,7 +166,7 @@ inline long long fmax(long long x, long long y){
     long long ml = xm < ym;
     long long absl = el | (eeq & ml);
 
-    long long pp = 1- (xs & ys);
+    long long pp = xs ==0 && ys==0;
     long long np = xs && ~ys;
     long long nn = xs & ys;
 
@@ -196,7 +194,7 @@ inline long long flt(long long x, long long y){
     long long ml = xm < ym;
     long long absl = el | (eeq & ml);
 
-    long long pp = 1- (xs & ys);
+    long long pp = xs==0 && ys==0;
     long long np = xs && ~ys;
     long long nn = xs & ys;
 
@@ -219,7 +217,7 @@ inline long long fle(long long x, long long y){
     long long ml = xm < ym;
     long long absl = el | (eeq & ml);
 
-    long long pp = 1- (xs & ys);
+    long long pp = xs==0 && ys==0;
     long long np = xs && ~ys;
     long long nn = xs & ys;
 
