@@ -65,5 +65,6 @@ public:
     unsigned int assemble() override;
 };
 
-extern map<string, unsigned int> regs;
+extern map<string, unsigned int> xregs;
+extern map<string, unsigned int> fregs;
 extern map<string, unsigned int> labels;

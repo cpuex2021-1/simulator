@@ -55,7 +55,7 @@ unsigned int Jtype :: assemble(){
 
     return (addr << 6) | (funct3 << 3) | opcode;
 }
-map<string, unsigned int> regs = {
+map<string, unsigned int> xregs = {
     {"zero", 0},
     {"ra", 1},
     {"sp", 2},
@@ -87,7 +87,10 @@ map<string, unsigned int> regs = {
     {"a22", 28},
     {"r0", 29},
     {"r1", 30},
-    {"r2", 31},
+    {"r2", 31}
+};
+
+map<string, unsigned int> fregs = {
     {"fzero", 0},
     {"fsw", 1},
     {"f0", 2},

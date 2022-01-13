@@ -18,7 +18,7 @@ Simulator::~Simulator()
 
 void Simulator::full_reset(){
     reset();
-    instructions = vector<int>();
+    instructions = vector<uint32_t>();
     l_to_p = vector<int>();
     p_to_l = vector<int>();
     break_pc = map<int,bool>();
@@ -27,21 +27,12 @@ void Simulator::full_reset(){
 }
 
 int Simulator::read_asm(string filename){
-    std::ifstream test(filename); 
-    if (!test)
-    {
-        std::cout << "The file \"" << filename << "\" doesn't exist" << std::endl;
-        return -1;
-    }
-    setup(filename, true);
     isasm = true;
-    if(instructions.size() <= 0){
-        ready = false;
-        return -1;
-    }
-    ready = true;
-    return 0;
+    int ret = Assembler::read_asm(filename);
+    ready = (ret == 0);
+    return ret;
 }
+
 int Simulator::eat_bin(string filename){
     std::ifstream test(filename); 
     if (!test)
@@ -50,7 +41,23 @@ int Simulator::eat_bin(string filename){
         return -1;
     }
     cout << "Eating " << filename << "...";
-    setup(filename, false);
+    
+    fstream binput;
+
+    binput.open(filename);
+
+    int code;
+    int now_addr = 0;
+
+    while(binput.read((char *) &code, sizeof(unsigned int))){
+        instructions.push_back(code);
+         
+        cout << now_addr << ": " << disassemble(code) << endl;
+        now_addr++;
+    }
+
+    binput.close();
+
     if(instructions.size() <= 0){
         ready = false;
         return -1;
@@ -203,13 +210,17 @@ void Simulator::show_clock(){
     cout << "Clock: " << clk << endl;
 }
 void Simulator::show_instruction(){
+    cout << get_string_instruction_by_line(pc_to_line(pc)) << endl;
+}
+
+string Simulator::get_string_instruction_by_line(int l){
     if(isasm){
-        cout << "Instruction (Assembly): " << str_instr[pc_to_line(pc)] << endl;        
-        cout << "Instruction (Binary): "; print_instr(instructions[pc]);
+        return str_instr.at(line_to_pc(l));
     }else{
-        cout << "Instruction (Binary): "; print_instr(instructions[pc]);
+        return disassemble(instructions.at(line_to_pc(l)));
     }
 }
+
 void Simulator::show_cache(){
     mem->print_cache_summary();
 }
@@ -285,98 +296,6 @@ bool Simulator::getPipelineInfoByLineNum(int l, string& s, bool& flushed){
 
 void Simulator::setMode(Mode m){
     mode = m;
-}
-
-void Simulator::setup(string filename, bool isasm){
-    fstream input;
-    input.open(filename, ios::in);
-    if(isasm){
-        int now_addr = 2;
-        int line_num = 1;
-        string str;
-        while(getline(input, str)){
-            Parse pres(str, true, now_addr);
-
-            if(pres.type == label){
-                labels[pres.labl] = now_addr;
-                line_num++;
-            }else if(pres.type == error){
-                cerr << "Parsing Error at line " << line_num << endl;
-                exit(1);
-            }else if(pres.type == none){
-                line_num++;
-            }else if(pres.type == instruction){
-                line_num++;
-                now_addr += pres.size;
-            }
-        }
-        input.close();
-        input.open(filename, ios::in);
-
-        stringstream init_ra_str1;
-        init_ra_str1 << "\tlui ra, " << ((now_addr) >> 12);
-
-        stringstream init_ra_str2;
-        init_ra_str2 << "\taddi ra, ra, " << ((now_addr) & ((1 << 12) - 1));
-
-        str_instr.push_back(init_ra_str1.str());
-        str_instr.push_back(init_ra_str2.str());
-        
-        Parse init_ra1(init_ra_str1.str(), false, 0);
-        Parse init_ra2(init_ra_str2.str(), false, 0);
-
-        line_num = 1;
-        now_addr = 0;
-
-        l_to_p.push_back(now_addr);
-        p_to_l.push_back(line_num - 1);
-        instructions.push_back(init_ra1.codes[0]);
-        line_num++;
-        now_addr++;
-
-        l_to_p.push_back(now_addr);
-        p_to_l.push_back(line_num - 1);
-        instructions.push_back(init_ra2.codes[0]);
-        line_num++;
-        now_addr++;
-
-        while(getline(input, str)){
-            str_instr.push_back(str);
-            #ifdef DEBUG
-            cout << "line:" << line_num << " ";
-            Debug_parse(str);
-            #endif
-            l_to_p.push_back(now_addr);
-            Parse pres(str, false, now_addr);
-            if(pres.type == instruction){
-                #ifdef DEBUG
-                pres.print_instr();
-                #endif
-                for(unsigned int i=0; i<pres.codes.size(); i++){
-                    instructions.push_back(pres.codes[i]);
-                    p_to_l.push_back(line_num - 1);
-                    now_addr += 1;
-                }
-                line_num++;
-            }else if(pres.type == none || pres.type == label){
-                line_num++;
-            }else if(pres.type == error){
-                cerr << "Parsing Error at line " << line_num << endl;
-                exit(1);
-            }
-        }
-
-        //instructions.pop_back();
-        //instructions.push_back(0);
-        
-    }else{
-        int code;
-        input.read((char *) &code, sizeof(unsigned int));
-        while(input.read((char *) &code, sizeof(unsigned int))){
-            instructions.push_back(code);
-        }
-    }
-    input.close();
 }
 
 int Simulator::getNewSectionId(){

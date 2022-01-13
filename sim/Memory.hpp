@@ -2,7 +2,7 @@
 #define MEMORY_H_INCLUDED
 #include <string>
 #include <sstream>
-#include "util.hpp"
+#include "../lib/util.hpp"
 #include <iomanip>
 #include <iostream>
 #include <fstream>
