@@ -14,6 +14,7 @@ cli:
 	cp build/assembler assembler
 	cp build/cli-simulator cli-simulator
 	cp build/simple-simulator simple-simulator
+	cp build/disassembler disassembler
 
 gui:
 	mkdir -p build
@@ -28,7 +29,8 @@ ninja:
 	cp build/assembler assembler
 	cp build/cli-simulator cli-simulator
 	cp build/simple-simulator simple-simulator
-	cp build/gui-simulator gui-simulator		
+	cp build/gui-simulator gui-simulator	
+	cp build/disassembler disassembler	
 
 fver:
 	make -C sim fverify
