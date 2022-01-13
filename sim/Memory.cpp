@@ -15,6 +15,8 @@ Memory::Memory()
         cache[i].tag = 0;
     }
     memory = new int32_t[MEMSIZE];
+    latest_read_index = 0;
+    latest_write_index = 0;
 }
 
 Memory::~Memory(){
@@ -87,6 +89,8 @@ void Memory::reset(){
     hitnum = 0;
     validnum = 0;
     replacenum = 0;
+    latest_read_index = 0;
+    latest_write_index = 0;
 
     uart.reset();
 }

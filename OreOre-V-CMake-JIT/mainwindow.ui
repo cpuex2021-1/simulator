@@ -22,7 +22,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_6">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,5,1,1,1">
+     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="3,5,1,1,1">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
@@ -107,6 +107,23 @@
            </widget>
           </item>
           <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>13</width>
+              <height>21</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
            <widget class="QLabel" name="label_5">
             <property name="text">
              <string>Line:</string>
@@ -121,17 +138,42 @@
            </widget>
           </item>
           <item>
-           <spacer name="horizontalSpacer_3">
+           <spacer name="horizontalSpacer_2">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>13</width>
-              <height>21</height>
+              <width>40</width>
+              <height>20</height>
              </size>
             </property>
            </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <item>
+           <widget class="QPushButton" name="jumpToPCButton">
+            <property name="text">
+             <string>Jump to PC</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="instUpButton">
+            <property name="text">
+             <string>Up</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="instDownButton">
+            <property name="text">
+             <string>Down</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -369,24 +411,18 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_12">
           <item>
-           <widget class="QLabel" name="CacheSummary">
+           <widget class="QPushButton" name="latestWriteButton">
             <property name="text">
-             <string>Valid rate: Hit rate: Replace rate: </string>
+             <string>Jump to Recently Accessed (Write)</string>
             </property>
            </widget>
           </item>
           <item>
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+           <widget class="QPushButton" name="latestReadButton">
+            <property name="text">
+             <string>Jump to Recently Accessed (Read)</string>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
+           </widget>
           </item>
          </layout>
         </item>

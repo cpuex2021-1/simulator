@@ -61,6 +61,16 @@ private Q_SLOTS:
 
     void on_BinaryButton_released();
 
+    void on_jumpToPCButton_released();
+
+    void on_instUpButton_released();
+
+    void on_instDownButton_released();
+
+    void on_latestWriteButton_released();
+
+    void on_latestReadButton_released();
+
 private:
     Ui::MainWindow *ui;
     QThread simThread;

@@ -334,7 +334,7 @@ void MainWindow::refreshAll(){
             << "\n\nCache replace rate:\n" << memtmp->getReplaceRate() << endl;
     ui->statsTextBrowser->setText(ssstats.str().data());
 
-    if(sobj.sim.ready && running){
+    if(sobj.sim.ready && (running)){
         if(sobj.sim.pc_to_line(sobj.sim.get_pc()) >= ui->Instructions->rowCount() + inst_line) inst_line = sobj.sim.pc_to_line(sobj.sim.get_pc());
         else if(sobj.sim.pc_to_line(sobj.sim.get_pc()) < inst_line) inst_line = sobj.sim.pc_to_line(sobj.sim.get_pc());
         running = false;
@@ -446,13 +446,13 @@ void MainWindow::on_MemScrollBar_valueChanged(int value)
 
 void MainWindow::on_memUpButton_released()
 {
-    ui->address->setValue(ui->address->value() + 8 * ui->MemTable->rowCount());
+    ui->address->setValue(ui->address->value() - (ui->MemTable->columnCount() * ui->MemTable->rowCount() / 3));
 }
 
 
 void MainWindow::on_memDownButton_released()
 {
-    ui->address->setValue(max(ui->address->value() - 8 * ui->MemTable->rowCount(), 0));
+    ui->address->setValue(max(ui->address->value() + (ui->MemTable->columnCount() * ui->MemTable->rowCount() / 3), 0));
 }
 
 
@@ -522,5 +522,55 @@ void MainWindow::on_BinaryButton_released()
     }
     sobj.sim.eat_bin(sobj.filename);
     refreshAll();
+}
+
+
+void MainWindow::on_jumpToPCButton_released()
+{
+    if(sobj.sim.ready){
+        inst_line = max(sobj.sim.pc_to_line(sobj.sim.get_pc()) - 2, 0);
+        ui->InstLinespinBox->setValue(inst_line);
+    }
+}
+
+
+void MainWindow::on_instUpButton_released()
+{
+    if(sobj.sim.ready){
+        inst_line -= ui->Instructions->rowCount() / 3;
+        if(inst_line < 0) inst_line = 0;
+        ui->InstLinespinBox->setValue(inst_line);
+    }
+}
+
+
+
+
+void MainWindow::on_instDownButton_released()
+{
+    if(sobj.sim.ready){
+        inst_line += ui->Instructions->rowCount() / 3;
+        if(inst_line < 0) inst_line = 0;
+        ui->InstLinespinBox->setValue(inst_line);
+    }
+
+}
+
+
+void MainWindow::on_latestWriteButton_released()
+{
+    if(sobj.sim.ready){
+        mem_addr = sobj.sim.mem->getLatestWriteIndex();
+        ui->address->setValue(mem_addr);
+    }
+}
+
+
+void MainWindow::on_latestReadButton_released()
+{
+    if(sobj.sim.ready){
+        mem_addr = sobj.sim.mem->getLatestReadIndex();
+        ui->address->setValue(mem_addr);
+    }
 }
 
