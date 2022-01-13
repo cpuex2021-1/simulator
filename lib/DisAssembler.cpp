@@ -272,6 +272,16 @@ string disassemble(uint32_t instr){
         case 2:
             ss << "LUI " << xregName.at(rd) << ", " << (((rs1 << 16) + luioffset) << 12);
             break;
+
+        case 5:
+            ss << "FSIN " << xregName.at(rd) << ", " << xregName.at(rs1); 
+            break;
+        case 6:
+            ss << "FCOS " << fregName.at(rd) << ", " << xregName.at(rs1);
+            break;
+        case 7:
+            ss << "ATAN " << xregName.at(rd) << ", " << xregName.at(rs1);
+            break;
         default:
             return "Unknown Instruction";
             break;
