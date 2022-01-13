@@ -20,9 +20,9 @@
    <string>☆彡OreOre-V Simulator☆彡</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_5">
+   <layout class="QVBoxLayout" name="verticalLayout_6">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="4,4,1,1">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,5,1,1,1">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
@@ -57,28 +57,21 @@
           <item>
            <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>File:</string>
+             <string>Open File</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="pushButton_9">
             <property name="text">
-             <string>Open</string>
+             <string>Assembly</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_5">
+           <widget class="QPushButton" name="BinaryButton">
             <property name="text">
-             <string>Line:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="InstLinespinBox">
-            <property name="maximum">
-             <number>1000000000</number>
+             <string>Binary</string>
             </property>
            </widget>
           </item>
@@ -114,16 +107,16 @@
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="ClockSpin">
-            <property name="maximum">
-             <number>999999999</number>
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Line:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_5">
-            <property name="text">
-             <string>Run Until Clockcount</string>
+           <widget class="QSpinBox" name="InstLinespinBox">
+            <property name="maximum">
+             <number>1000000000</number>
             </property>
            </widget>
           </item>
@@ -562,6 +555,20 @@
         </item>
         <item>
          <widget class="QTextBrowser" name="uartOutputTextBrowser"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="QLabel" name="StatsLabel">
+          <property name="text">
+           <string>Statistics</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextBrowser" name="statsTextBrowser"/>
         </item>
        </layout>
       </item>

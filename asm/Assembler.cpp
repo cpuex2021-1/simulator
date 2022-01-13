@@ -1,4 +1,5 @@
 #include "Assembler.hpp"
+#include "../lib/DisAssembler.hpp"
 #include <iostream>
 #include <sstream>
 
@@ -29,7 +30,7 @@ void Assembler::read_one_line(int &line_num, int &now_addr, string str){
         }else if(pres.type == Parse::none){
         }else if(pres.type == Parse::unresolved){
             unresolved.push(tobeAssembled(now_addr, str));
-            for(uint i=0; i<pres.size; i++){
+            for(int i=0; i<pres.size; i++){
                 add_to_vector<uint32_t>(instructions, now_addr, 0);
                 add_to_vector(p_to_l, now_addr, line_num);
                 now_addr += 1;
@@ -38,15 +39,17 @@ void Assembler::read_one_line(int &line_num, int &now_addr, string str){
         }else if(pres.type == Parse::label){
             labels[pres.labl] = now_addr;
         }else if(pres.type == Parse::error){
-            cerr << "Parsing Error at line " << (line_num) << ": " << str << endl;
-            exit(1);
+            stringstream err;
+            err << "Parsing Error at line " << (line_num) << ": " << str << endl;
+            throw parsing_error(err.str());
         }
         add_to_vector(str_instr, line_num, str);
         line_num++;
 }
 
 int Assembler::read_asm(string filename){
-    input.open(filename, ios::in);
+    fstream ainput;
+    ainput.open(filename, ios::in);
 
     string str;
     int line_num = 0;
@@ -57,12 +60,13 @@ int Assembler::read_asm(string filename){
     read_one_line(line_num, now_addr, nop);
     read_one_line(line_num, now_addr, nop);
   
-    while(getline(input, str)){
+    while(getline(ainput, str)){
         try{  
             read_one_line(line_num, now_addr, str);
         }catch(exception &e){
-            cerr << "Parsing Error at line " << (line_num) << ": " << str << "\n\t" << e.what() << endl;
-            exit(1);
+            stringstream err;
+            err << "Parsing Error at line " << (line_num) << ": " << str << "\n\t" << e.what() << endl;
+            throw parsing_error(err.str());
         }
     }
 
@@ -77,8 +81,9 @@ int Assembler::read_asm(string filename){
                 instructions.at(unr.addr+i) = pres.codes[i];
             }
         }else{
-            cerr << "Label resolution Failed at line " << pc_to_line(unr.addr) << ":\n" << unr.str << endl;
-            exit(1);
+            stringstream err;
+            err << "Label resolution Failed at line " << pc_to_line(unr.addr) << ":\n" << unr.str << endl;
+            throw parsing_error(err.str());
         }
 
         unresolved.pop();
@@ -98,13 +103,46 @@ int Assembler::read_asm(string filename){
     read_one_line(line_num, now_addr, addistr.str());
     
     return 0;
-    input.close();
+    ainput.close();
+}
+
+int Assembler::eat_bin(string filename){
+    std::ifstream test(filename); 
+    if (!test)
+    {
+        std::cout << "The file \"" << filename << "\" doesn't exist" << std::endl;
+        return -1;
+    }
+    cout << "Eating " << filename << "...";
+    
+    fstream binput;
+
+    binput.open(filename);
+
+    uint32_t code = 0;
+    int now_addr = 0;
+
+    while(binput.read((char *) &code, sizeof(uint32_t))){
+        add_to_vector(instructions, now_addr, code);
+        add_to_vector(str_instr, now_addr, disassemble(code));
+        add_to_vector(p_to_l, now_addr, now_addr);
+        add_to_vector(l_to_p, now_addr, now_addr);
+        now_addr++;
+    }
+
+    binput.close();
+
+    if(instructions.size() <= 0){
+        return -1;
+    }
+    cout << " complete!" << endl;
+    return 0;
 }
 
 void Assembler::write_to_file(string filename){
     fstream output;
     output.open(filename, ios::binary | ios::out);
-    for(uint i=0; i<instructions.size(); i++){
+    for(uint32_t i=0; i<instructions.size(); i++){
         output.write(reinterpret_cast<char *> (&instructions[i]), sizeof(instructions[i]));
     }
     output.close();
@@ -126,4 +164,12 @@ int Assembler::pc_to_line(int pc){
     }else{
         return p_to_l.at(pc);
     }
+}
+
+void Assembler::full_reset(){
+    instructions = vector<uint32_t>();
+    str_instr = vector<string>();
+    unresolved = queue<tobeAssembled>();
+    l_to_p = vector<int>();
+    p_to_l = vector<int>();
 }

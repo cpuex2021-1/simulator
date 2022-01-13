@@ -211,7 +211,6 @@ public:
     //statistics
     inline static uint64_t clk;
     inline static uint64_t numInstruction;
-    inline static uint64_t num1stall;
     inline static uint64_t num2stall;
     inline static uint64_t num3stall;
     inline static uint64_t num4stall;
@@ -719,14 +718,15 @@ inline void CPU::simulate_acc()
 
 inline int CPU::checkDataHazard(int memdestRd, int rs1, int rs2){    
     if(memdestRd > 0){
-        memDestRd = memdestRd;
-        if(memDestRd == rs1 || memDestRd == rs2){
+        if((memDestRd == rs1 || memDestRd == rs2) && memDestRd != -1){
+            memDestRd = memdestRd;
             return 1;
         }else{
+            memDestRd = memdestRd;
             return 0;
         }
     }else{
-        if(memDestRd == rs1 || memDestRd == rs2){
+        if((memDestRd == rs1 || memDestRd == rs2) && memDestRd != -1){
             memDestRd = -1;
             return 1;
         }else{

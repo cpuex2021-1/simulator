@@ -7,7 +7,6 @@ CPU::CPU()
     pc = 0;
     clk = 0;
     numInstruction = 0;
-    num1stall = 0;
     num2stall = 0;
     num3stall = 0;
     num4stall = 0;
@@ -57,7 +56,6 @@ void CPU::reset(){
     pc = 0;
     clk = 0;
     numInstruction = 0;
-    num1stall = 0;
     num2stall = 0;
     num3stall = 0;
     num4stall = 0;
@@ -71,11 +69,7 @@ void CPU::reset(){
 
 void CPU::throw_err(int instr){
     stringstream sserr;
-    sserr << "Invalid_instruction: ";
-    for(int i=31; i>=0; i--){
-        sserr << (instr >> i & 1);
-    }
-    sserr << endl;
+    sserr << "Invalid_instruction: " << disassemble(instr);
     throw invalid_argument(sserr.str());
 }
 
@@ -103,5 +97,5 @@ void CPU::revert(){
 }
 
 void CPU::update_clkcount(){
-    clk = numInstruction + 1 * num2stall + 2 * num3stall + 3 * num4stall + 1 * numDataHazard + 2 * numFlush + mem->totalstall();
+    clk = numInstruction + 1 * num2stall + 2 * num3stall + 3 * num4stall + CACHEHITSTALL * numDataHazard + 2 * numFlush + CACHEMISSSTALL * mem->totalstall();
 }
