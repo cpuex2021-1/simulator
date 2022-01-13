@@ -139,14 +139,14 @@ inline long long fmin(long long x, long long y){
     long long absl = el | (eeq & ml);
 
     long long pp = xs==0 && ys==0;
-    long long np = xs && ~ys;
-    long long nn = xs & ys;
+    long long np = xs==1 && ys==0;
+    long long nn = xs==1 && ys==1;
 
-    long long emeq = (x & 0x3fffffff) == (y& 0x3fffffff);
+    long long emeq = (x & 0x7fffffff) == (y& 0x7fffffff);
     //prlong longf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
     //prlong longf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
     //prlong longf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
-    long long lt = (pp&&absl) || np || (nn && ~absl && ~emeq);
+    long long lt = (pp==1&&absl==1) || np || (nn==1 && absl==0 && emeq==0);
     if(lt){
         return x;
     }else {
@@ -166,11 +166,11 @@ inline long long fmax(long long x, long long y){
     long long ml = xm < ym;
     long long absl = el | (eeq & ml);
 
-    long long pp = xs ==0 && ys==0;
-    long long np = xs && ~ys;
-    long long nn = xs & ys;
+    long long pp = xs==0 && ys==0;
+    long long np = xs==1 && ys==0;
+    long long nn = xs==1 && ys==1;
 
-    long long emeq = (x & 0x3fffffff) == (y& 0x3fffffff);
+    long long emeq = (x & 0x7fffffff) == (y& 0x7fffffff);(pp==1&&absl==1) || np || (nn==1 && absl==0 && emeq==0);
     //prlong longf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
     //prlong longf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
     //prlong longf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
@@ -195,14 +195,14 @@ inline long long flt(long long x, long long y){
     long long absl = el | (eeq & ml);
 
     long long pp = xs==0 && ys==0;
-    long long np = xs && ~ys;
-    long long nn = xs & ys;
+    long long np = xs==1 && ys==0;
+    long long nn = xs==1 && ys==1;
 
-    long long emeq = (x & 0x3fffffff) == (y& 0x3fffffff);
+    long long emeq = (x & 0x7fffffff) == (y& 0x7fffffff);
     //prlong longf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
     //prlong longf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
     //prlong longf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
-    return (pp&&absl) || np || (nn && ~absl && ~emeq);
+    return (pp==1&&absl==1) || np || (nn==1 && absl==0 && emeq==0);
 }
 
 inline long long fle(long long x, long long y){
@@ -218,18 +218,17 @@ inline long long fle(long long x, long long y){
     long long absl = el | (eeq & ml);
 
     long long pp = xs==0 && ys==0;
-    long long np = xs && ~ys;
-    long long nn = xs & ys;
+    long long np = xs==1 && ys==0;
+    long long nn = xs==1 && ys==1;
 
-    long long emeq = (x & 0x3fffffff) == (y& 0x3fffffff);
+    long long emeq = (x & 0x7fffffff) == (y& 0x7fffffff);
     //prlong longf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
     //prlong longf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
     //prlong longf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
-    return (pp&&absl) || np || (nn && ~absl && ~emeq) || x==y;
+    return (pp==1&&absl==1) || np || (nn==1 && absl==0 && emeq==0) || x==y;
 }
 
 inline long long fmul(long long a,long long b){
-    long long s1,s2, s;
     s1 = a>>31;
     s2 = b>>31;
     s  = s1 ^ s2;
