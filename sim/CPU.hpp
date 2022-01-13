@@ -589,6 +589,26 @@ inline void CPU::simulate_acc()
         case 2:
             reg[rd] = (((rs1 << 16) + luioffset) & ((1 << 20) - 1)) << 12;
             pc++; reg[0] = 0; break;
+
+        case 5:
+            former_val = freg[rd];
+            freg[rd] = FPU::fsin(freg[rs1]);
+            rd += REGNUM;
+            rs1 += REGNUM;
+            pc++; reg[0] = 0; break;
+        case 6:
+            former_val = freg[rd];
+            freg[rd] = FPU::fcos(freg[rs1]);
+            rd += REGNUM;
+            rs1 += REGNUM;
+            pc++; reg[0] = 0; break;
+        case 7:
+            former_val = freg[rd];
+            freg[rd] = FPU::atan(freg[rs1]);
+            rd += REGNUM;
+            rs1 += REGNUM;
+            pc++; reg[0] = 0; break;
+
         default:
             throw_err(instr); return;
             break;
