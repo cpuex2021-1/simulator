@@ -22,7 +22,7 @@ int main(int argc, char* argv[]){
 
     while(input.read((char*) &code, sizeof(int)))
     {
-        cout << now_addr << ": ";
+        cout << (now_addr++) << ": ";
         cout << disassemble(code) << endl;
     }
 
