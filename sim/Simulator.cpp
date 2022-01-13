@@ -390,10 +390,7 @@ int Simulator::getNewFuncId(){
 
 void Simulator::show_uart_output(){
     for(int i=0; i<mem->uart.getOutbufIdx(); i++){
-        if (i != 0 && i % 8 == 0){
-            cout << endl;
-        }
-        cout << mem->uart.getOutbuf(i) << " ";
+        cout << (char)mem->uart.getOutbuf(i);
     }
     cout << endl;
 }
