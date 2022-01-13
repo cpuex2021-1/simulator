@@ -40,7 +40,7 @@ int Parse::xregname_to_addr(string str){
             throw invalid_argument(err.str());
         }
         stringstream err;
-        err << "Illegal use of floating point register " << str << ", expected integer one";
+        err << "Illegal use of floating-point register " << str << ", expected integer one";
         throw invalid_argument(err.str());
     }
 }
@@ -57,7 +57,7 @@ int Parse::fregname_to_addr(string str){
             throw invalid_argument(err.str());
         }
         stringstream err;
-        err << "Illegal use of integer register " << str << "\nexpected floating point one";
+        err << "Illegal use of integer register " << str << ", expected floating-point one";
         throw invalid_argument(err.str());
     }
 }
