@@ -28,12 +28,36 @@ int Parse::label_to_addr(string str, int now_addr){
     return -1;
 }
 
-int Parse::regname_to_addr(string str){
+int Parse::xregname_to_addr(string str){
     try {
-        return regs.at(str);
-    } catch (out_of_range &e){
+        return xregs.at(str);
+    } catch (exception &e){
+        try{
+            fregs.at(str);
+        }catch(exception &e){
+            stringstream err;
+            err << "Unknown register: " << str;
+            throw invalid_argument(err.str());
+        }
         stringstream err;
-        err << "Unknown register: " << str;
+        err << "Illegal use of floating point register " << str << ", expected integer one";
+        throw invalid_argument(err.str());
+    }
+}
+
+int Parse::fregname_to_addr(string str){
+    try {
+        return fregs.at(str);
+    } catch (exception &e){
+        try {
+            xregs.at(str);
+        }catch(exception &e){
+            stringstream err;
+            err << "Unknown register: " << str;
+            throw invalid_argument(err.str());
+        }
+        stringstream err;
+        err << "Illegal use of integer register " << str << "\nexpected floating point one";
         throw invalid_argument(err.str());
     }
 }
@@ -103,90 +127,90 @@ Parse :: Parse(string str, int now_addr)
                 Rtype ret(
                     0,
                     0,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "sub"){
                 Rtype ret(
                     0,
                     0,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     1);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "sll"){
                 Rtype ret(
                     0,
                     1,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "srl"){
                 Rtype ret(
                     0,
                     2,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "sra"){
                 Rtype ret(
                     0,
                     2,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     1);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "slt"){
                 Rtype ret(
                     0,
                     3,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "sltu"){
                 Rtype ret(
                     0,
                     4,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "xor"){
                 Rtype ret(
                     0,
                     5,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "or"){
                 Rtype ret(
                     0,
                     6,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "and"){
                 Rtype ret(
                     0,
                     7,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }
@@ -195,72 +219,72 @@ Parse :: Parse(string str, int now_addr)
                 Rtype ret(
                     1,
                     0,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "mulh"){
                 Rtype ret(
                     1,
                     1,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "mulhsu"){
                 Rtype ret(
                     1,
                     2,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "mulhu"){
                 Rtype ret(
                     1,
                     3,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "div"){
                 Rtype ret(
                     1,
                     4,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "divu"){
                 Rtype ret(
                     1,
                     5,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "rem"){
                 Rtype ret(
                     1,
                     6,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "remu"){
                 Rtype ret(
                     1,
                     7,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
+                    xregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }
@@ -269,44 +293,44 @@ Parse :: Parse(string str, int now_addr)
                 Rtype ret(
                     2,
                     0,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    fregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
+                    fregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "fsub"){
                 Rtype ret(
                     2,
                     1,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    fregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
+                    fregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "fmul"){
                 Rtype ret(
                     2,
                     2,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    fregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
+                    fregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "fdiv"){
                 Rtype ret(
                     2,
                     3,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    fregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
+                    fregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "fsqrt"){
                 Rtype ret(
                     2,
                     4,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    fregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
                     0,
                     0);
                 codes.push_back(ret.assemble());
@@ -314,8 +338,8 @@ Parse :: Parse(string str, int now_addr)
                 Rtype ret(
                     2,
                     5,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    fregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
                     0,
                     0);
                 codes.push_back(ret.assemble());
@@ -323,18 +347,18 @@ Parse :: Parse(string str, int now_addr)
                 Rtype ret(
                     2,
                     6,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    fregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
+                    fregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "fmax"){
                 Rtype ret(
                     2,
                     7,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    fregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
+                    fregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }
@@ -343,35 +367,35 @@ Parse :: Parse(string str, int now_addr)
                 Rtype ret(
                     3,
                     0,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
+                    fregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "flt"){
                 Rtype ret(
                     3,
                     1,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
+                    fregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "fle"){
                 Rtype ret(
                     3,
                     2,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
+                    fregname_to_addr(match[4].str()),
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "fmv.x.w"){
                 Rtype ret(
                     3,
                     3,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
                     0,
                     0);
                 codes.push_back(ret.assemble());
@@ -379,8 +403,8 @@ Parse :: Parse(string str, int now_addr)
                 Rtype ret(
                     3,
                     4,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    fregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     0,
                     0);
                 codes.push_back(ret.assemble());
@@ -388,8 +412,8 @@ Parse :: Parse(string str, int now_addr)
                 Rtype ret(
                     3,
                     5,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    fregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
                     0,
                     0);
                 codes.push_back(ret.assemble());
@@ -397,8 +421,8 @@ Parse :: Parse(string str, int now_addr)
                 Rtype ret(
                     3,
                     6,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    fregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     0,
                     0);
                 codes.push_back(ret.assemble());
@@ -406,8 +430,8 @@ Parse :: Parse(string str, int now_addr)
                 Rtype ret(
                     3,
                     7,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
                     0,
                     0);
                 codes.push_back(ret.assemble());
@@ -417,8 +441,8 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret(
                     4,
                     0,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     stoi(match[4].str())
                 );
                 codes.push_back(ret.assemble());
@@ -426,8 +450,8 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret(
                     4,
                     1,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     stoi(match[4].str()) & 0b11111
                 );
                 codes.push_back(ret.assemble());
@@ -435,8 +459,8 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret(
                     4,
                     2,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     stoi(match[4].str()) & 0b11111
                 );
                 codes.push_back(ret.assemble());
@@ -444,8 +468,8 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret(
                     4,
                     2,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     stoi(match[4].str()) & 0b11111
                 );
                 codes.push_back(ret.assemble());
@@ -453,8 +477,8 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret(
                     4,
                     3,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     stoi(match[4].str())
                 );
                 codes.push_back(ret.assemble());
@@ -462,8 +486,8 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret(
                     4,
                     4,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     stoi(match[4].str())
                 );
                 codes.push_back(ret.assemble());
@@ -471,8 +495,8 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret(
                     4,
                     5,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     stoi(match[4].str())
                 );
                 codes.push_back(ret.assemble());
@@ -480,8 +504,8 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret(
                     4,
                     6,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     stoi(match[4].str())
                 );
                 codes.push_back(ret.assemble());
@@ -489,8 +513,8 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret(
                     4,
                     7,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     stoi(match[4].str())
                 );
                 codes.push_back(ret.assemble());
@@ -500,8 +524,8 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret(
                     5,
                     0,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[4].str()),
                     stoi(match[3].str())
                 );
                 codes.push_back(ret.assemble());
@@ -509,8 +533,8 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret(
                     5,
                     1,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[4].str()),
+                    fregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[4].str()),
                     stoi(match[3].str())
                 );
                 codes.push_back(ret.assemble());
@@ -519,7 +543,7 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret(
                     5,
                     2,
-                    regname_to_addr(match[2].str()),
+                    xregname_to_addr(match[2].str()),
                     ((unsigned int)imm >> 16),
                     imm & ((1 << 16) -1)
                 );
@@ -530,8 +554,8 @@ Parse :: Parse(string str, int now_addr)
                 S_Btype ret(
                     6,
                     0,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     label_to_addr(match[4].str(), now_addr)
                 );
                 codes.push_back(ret.assemble());
@@ -539,8 +563,8 @@ Parse :: Parse(string str, int now_addr)
                 S_Btype ret(
                     6,
                     1,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     label_to_addr(match[4].str(), now_addr)
                 );
                 codes.push_back(ret.assemble());
@@ -548,8 +572,8 @@ Parse :: Parse(string str, int now_addr)
                 S_Btype ret(
                     6,
                     2,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     label_to_addr(match[4].str(), now_addr)
                 );
                 codes.push_back(ret.assemble());
@@ -557,8 +581,8 @@ Parse :: Parse(string str, int now_addr)
                 S_Btype ret(
                     6,
                     3,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     label_to_addr(match[4].str(), now_addr)
                 );
                 codes.push_back(ret.assemble());
@@ -566,8 +590,8 @@ Parse :: Parse(string str, int now_addr)
                 S_Btype ret(
                     6,
                     4,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     label_to_addr(match[4].str(), now_addr)
                 );
                 codes.push_back(ret.assemble());
@@ -575,8 +599,8 @@ Parse :: Parse(string str, int now_addr)
                 S_Btype ret(
                     6,
                     5,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[3].str()),
                     label_to_addr(match[4].str(), now_addr)
                 );
                 codes.push_back(ret.assemble());
@@ -584,8 +608,8 @@ Parse :: Parse(string str, int now_addr)
                 S_Btype ret(
                     6,
                     6,
-                    regname_to_addr(match[4].str()),
-                    regname_to_addr(match[2].str()),
+                    xregname_to_addr(match[4].str()),
+                    xregname_to_addr(match[2].str()),
                     stoi(match[3].str())
                 );
                 codes.push_back(ret.assemble());
@@ -593,8 +617,8 @@ Parse :: Parse(string str, int now_addr)
                 S_Btype ret(
                     6,
                     7,
-                    regname_to_addr(match[4].str()),
-                    regname_to_addr(match[2].str()),
+                    xregname_to_addr(match[4].str()),
+                    fregname_to_addr(match[2].str()),
                     stoi(match[3].str())
                 );
                 codes.push_back(ret.assemble());
@@ -610,7 +634,7 @@ Parse :: Parse(string str, int now_addr)
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "jal"){
                 int lab = label_to_addr(match[3].str(), 0);
-                int rd = regs[match[2].str()];
+                int rd = xregname_to_addr(match[2].str());
                 Jtype ret(
                     7,
                     1,
@@ -618,8 +642,8 @@ Parse :: Parse(string str, int now_addr)
                 );
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "jalr"){
-                int rd = regs[match[2].str()] & 0b11111;
-                int rs1 = regs[match[3].str()] & 0b11111;
+                int rd = xregname_to_addr(match[2].str()) & 0b11111;
+                int rs1 = xregname_to_addr(match[3].str()) & 0b11111;
                 Jtype ret(
                     7,
                     2,
@@ -636,7 +660,7 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret1(
                     5,
                     2,
-                    regname_to_addr("a21"),
+                    xregname_to_addr("a21"),
                     ((unsigned int)luiimm >> 16),
                     luiimm & ((1 << 16) -1)
                 );
@@ -644,16 +668,16 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret2(
                     4,
                     0,
-                    regname_to_addr("a21"),
-                    regname_to_addr("a21"),
+                    xregname_to_addr("a21"),
+                    xregname_to_addr("a21"),
                     addiimm
                 );
                 codes.push_back(ret2.assemble());
                 Rtype ret3(
                     3,
                     4,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr("a21"),
+                    fregname_to_addr(match[2].str()),
+                    xregname_to_addr("a21"),
                     0,
                     0);
                 codes.push_back(ret3.assemble());
@@ -667,7 +691,7 @@ Parse :: Parse(string str, int now_addr)
                     I_Ltype ret1(
                         5,
                         2,
-                        regname_to_addr(match[2].str()),
+                        xregname_to_addr(match[2].str()),
                         ((unsigned int)luiimm >> 16),
                         luiimm & ((1 << 16) -1)
                     );
@@ -676,8 +700,8 @@ Parse :: Parse(string str, int now_addr)
                     I_Ltype ret2(
                         4,
                         0,
-                        regname_to_addr(match[2].str()),
-                        regname_to_addr(match[2].str()),
+                        xregname_to_addr(match[2].str()),
+                        xregname_to_addr(match[2].str()),
                         addiimm
                     );
                     codes.push_back(ret2.assemble());
@@ -685,8 +709,8 @@ Parse :: Parse(string str, int now_addr)
                     I_Ltype ret2(
                         4,
                         0,
-                        regname_to_addr(match[2].str()),
-                        regname_to_addr("zero"),
+                        xregname_to_addr(match[2].str()),
+                        xregname_to_addr("zero"),
                         imm
                     );
                     codes.push_back(ret2.assemble());
@@ -702,7 +726,7 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret1(
                     5,
                     2,
-                    regname_to_addr(match[2].str()),
+                    xregname_to_addr(match[2].str()),
                     ((unsigned int)luiimm >> 16),
                     luiimm & ((1 << 16) -1)
                 );
@@ -711,8 +735,8 @@ Parse :: Parse(string str, int now_addr)
                 I_Ltype ret2(
                     4,
                     0,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr(match[2].str()),
+                    xregname_to_addr(match[2].str()),
+                    xregname_to_addr(match[2].str()),
                     addiimm
                 );
                 codes.push_back(ret2.assemble());                

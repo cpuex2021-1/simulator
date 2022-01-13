@@ -219,14 +219,14 @@ string disassemble(uint32_t instr){
             ss << "ADDI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << imm; 
             break;
         case 1:
-            ss << "SLLI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << imm; 
+            ss << "SLLI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << shamt; 
             break;
         case 2:
             if(judge){
-                ss << "SRLI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << imm; 
+                ss << "SRLI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << shamt; 
                 break;
             }else{
-                ss << "SRAI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << imm; 
+                ss << "SRAI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << shamt; 
                 break;
             }
         case 3:

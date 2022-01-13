@@ -210,13 +210,17 @@ void Simulator::show_clock(){
     cout << "Clock: " << clk << endl;
 }
 void Simulator::show_instruction(){
+    cout << get_string_instruction_by_line(pc_to_line(pc)) << endl;
+}
+
+string Simulator::get_string_instruction_by_line(int l){
     if(isasm){
-        cout << "Instruction (Assembly): " << str_instr[pc_to_line(pc)] << endl;        
-        cout << "Instruction (Binary): "; print_instr(instructions[pc]);
+        return str_instr.at(line_to_pc(l));
     }else{
-        cout << "Instruction (Binary): "; print_instr(instructions[pc]);
+        return disassemble(instructions.at(line_to_pc(l)));
     }
 }
+
 void Simulator::show_cache(){
     mem->print_cache_summary();
 }

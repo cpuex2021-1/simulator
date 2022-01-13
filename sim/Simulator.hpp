@@ -52,6 +52,7 @@ public:
     void show_pc();
     void show_clock();
     void show_instruction();
+    string get_string_instruction_by_line(int);
     int get_pc();
     int get_clock();
     void show_cache();

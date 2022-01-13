@@ -13,7 +13,8 @@ class Parse
 {
 private:
     int label_to_addr(string str, int now_addr);
-    int regname_to_addr(string str);
+    int xregname_to_addr(string str);
+    int fregname_to_addr(string str);
 
     //label exception
     class label_not_found : public invalid_argument{
