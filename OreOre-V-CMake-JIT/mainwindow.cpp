@@ -4,6 +4,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <QFileDialog>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -181,10 +182,6 @@ void MainWindow::refreshMemView(){
             }
         }
     }
-    stringstream ss;
-    auto& memtmp = sobj.sim.mem;
-    ss << "Valid rate: " << setw(12) << memtmp->getValidRate() << "\tHit rate: " << setw(12) << memtmp->getHitRate() << "\tReplace rate: " << setw(12) << memtmp->getReplaceRate();
-    ui->CacheSummary->setText(ss.str().data());
 }
 
 void MainWindow::refreshInstView(){
@@ -317,11 +314,27 @@ void MainWindow::on_Instructions_cellClicked(int row, int column)
 
 void MainWindow::refreshAll(){
     string pc_text = string("PC: ") + to_string(sobj.sim.get_pc());
-    ui->ClockSpin->setValue(sobj.sim.get_clock());
+    string clk_text = string("CLOCK: ") + to_string(sobj.sim.get_clock());
     ui->InstLinespinBox->setValue(inst_line);
     ui->pc->setText(pc_text.data());
+    ui->clk->setText(clk_text.data());
 
-    if(sobj.sim.ready && running){
+    //show statistics
+    stringstream ssstats;
+    ssstats << "Number of Instructions:\n" << sobj.sim.numInstruction << "\n\n" \
+            << "Number of 1 cycle stalls (non-memory-access):\n" << sobj.sim.num2stall << "\n\n" \
+            << "Number of 2 cycle stalls (non-memory-access):\n" << sobj.sim.num3stall << "\n\n" \
+            << "Number of 3 cycle stalls (non-memory-access):\n" << sobj.sim.num4stall << "\n\n" \
+            << "Number of data hazards:\n" << sobj.sim.numDataHazard << "\n\n" \
+            << "Number of branch prediction miss:\n" << sobj.sim.numFlush << "\n\n" \
+            << "Number of cache miss:\n" << sobj.sim.mem->totalstall() << "\n" << endl;
+    auto& memtmp = sobj.sim.mem;
+    ssstats << "Cache valid rate:\n" << memtmp->getValidRate() \
+            << "\n\nCache hit rate:\n" << memtmp->getHitRate() \
+            << "\n\nCache replace rate:\n" << memtmp->getReplaceRate() << endl;
+    ui->statsTextBrowser->setText(ssstats.str().data());
+
+    if(sobj.sim.ready && (running)){
         if(sobj.sim.pc_to_line(sobj.sim.get_pc()) >= ui->Instructions->rowCount() + inst_line) inst_line = sobj.sim.pc_to_line(sobj.sim.get_pc());
         else if(sobj.sim.pc_to_line(sobj.sim.get_pc()) < inst_line) inst_line = sobj.sim.pc_to_line(sobj.sim.get_pc());
         running = false;
@@ -331,20 +344,17 @@ void MainWindow::refreshAll(){
         ui->pushButton->setDisabled(true);
         ui->pushButton_2->setDisabled(true);
         ui->pushButton_3->setDisabled(true);
-        ui->pushButton_5->setDisabled(true);
         ui->revertButton->setDisabled(true);
     }else{
         if(sobj.needReset){
             ui->pushButton->setDisabled(true);
             ui->pushButton_2->setDisabled(true);
             ui->pushButton_3->setDisabled(false);
-            ui->pushButton_5->setDisabled(true);
             ui->revertButton->setDisabled(false);
         }else{
             ui->pushButton->setDisabled(false);
             ui->pushButton_2->setDisabled(false);
             ui->pushButton_3->setDisabled(false);
-            ui->pushButton_5->setDisabled(false);
             ui->revertButton->setDisabled(false);
         }
     }
@@ -366,7 +376,19 @@ void MainWindow::on_pushButton_2_released()
 {
     if(sobj.sim.str_instr.size() <= 0) return;
     if(sobj.needReset) sobj.sim.reset();
-    int ret = sobj.sim.step();
+
+    int ret = 0;
+
+    try {
+        ret = sobj.sim.step();
+    }  catch (exception &e) {
+        stringstream err;
+        err << "Error Occured!" << endl << "Error: " << e.what() << endl << "Aborting" << endl;
+        QMessageBox errBox;
+        errBox.setText(err.str().data());
+        errBox.exec();
+    }
+
     sobj.needReset = (ret == 0) ? true : false;
     running = true;
     refreshAll();
@@ -422,29 +444,15 @@ void MainWindow::on_MemScrollBar_valueChanged(int value)
     refreshAll();
 }
 
-void MainWindow::on_ClockSpin_editingFinished()
-{
-}
-
-
-void MainWindow::on_pushButton_5_released()
-{
-    if(!sobj.sim.ready) return;
-    unsigned long long clkbr = ui->ClockSpin->value();
-    sobj.sim.clk_set_brk(clkbr);
-    tellSimRun();
-}
-
-
 void MainWindow::on_memUpButton_released()
 {
-    ui->address->setValue(ui->address->value() + 8 * ui->MemTable->rowCount());
+    ui->address->setValue(ui->address->value() - (ui->MemTable->columnCount() * ui->MemTable->rowCount() / 3));
 }
 
 
 void MainWindow::on_memDownButton_released()
 {
-    ui->address->setValue(max(ui->address->value() - 8 * ui->MemTable->rowCount(), 0));
+    ui->address->setValue(max(ui->address->value() + (ui->MemTable->columnCount() * ui->MemTable->rowCount() / 3), 0));
 }
 
 
@@ -500,6 +508,69 @@ void MainWindow::on_uartInputTable_itemChanged(QTableWidgetItem *item)
     try{
         sobj.sim.mem->uart.setInbuf(uart_in_line + item->row(), item->data(QMetaType::Int).toInt());
     }catch(exception &e){
+    }
+}
+
+
+void MainWindow::on_BinaryButton_released()
+{
+    sobj.sim.isasm=false;
+    auto filename = QFileDialog::getOpenFileName(this, tr("Open Binary"), "", tr("Binary Files (*)"));
+    sobj.filename = filename.toStdString();
+    if(sobj.filename != string("")){
+        sobj.sim.full_reset();
+    }
+    sobj.sim.eat_bin(sobj.filename);
+    refreshAll();
+}
+
+
+void MainWindow::on_jumpToPCButton_released()
+{
+    if(sobj.sim.ready){
+        inst_line = max(sobj.sim.pc_to_line(sobj.sim.get_pc()) - 2, 0);
+        ui->InstLinespinBox->setValue(inst_line);
+    }
+}
+
+
+void MainWindow::on_instUpButton_released()
+{
+    if(sobj.sim.ready){
+        inst_line -= ui->Instructions->rowCount() / 3;
+        if(inst_line < 0) inst_line = 0;
+        ui->InstLinespinBox->setValue(inst_line);
+    }
+}
+
+
+
+
+void MainWindow::on_instDownButton_released()
+{
+    if(sobj.sim.ready){
+        inst_line += ui->Instructions->rowCount() / 3;
+        if(inst_line < 0) inst_line = 0;
+        ui->InstLinespinBox->setValue(inst_line);
+    }
+
+}
+
+
+void MainWindow::on_latestWriteButton_released()
+{
+    if(sobj.sim.ready){
+        mem_addr = sobj.sim.mem->getLatestWriteIndex();
+        ui->address->setValue(mem_addr);
+    }
+}
+
+
+void MainWindow::on_latestReadButton_released()
+{
+    if(sobj.sim.ready){
+        mem_addr = sobj.sim.mem->getLatestReadIndex();
+        ui->address->setValue(mem_addr);
     }
 }
 

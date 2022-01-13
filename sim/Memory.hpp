@@ -128,6 +128,8 @@ private:
     inline static bool cachehit;
     bool pushed;
     bool popped;
+    uint32_t latest_write_index;
+    uint32_t latest_read_index;
 public:
     inline static int32_t *memory;
     Memory();
@@ -158,6 +160,22 @@ public:
 
     uint32_t getContentSize(){
         return sizeof(memory[0]);
+    }
+
+    uint32_t getLatestReadIndex(){
+        return latest_read_index;
+    }
+
+    uint32_t getLatestWriteIndex(){
+        return latest_write_index;
+    }
+
+    void setLatestWriteIndex(uint32_t i){
+        latest_write_index = i;
+    }
+
+    void setLatestReadIndex(uint32_t i){
+        latest_read_index = i;
     }
 
 private:
@@ -195,6 +213,7 @@ inline void Memory::write(uint32_t index, int32_t data){
     }
     cachehit = false;
     update_cache(index);
+    latest_write_index = index;
     memory[index] = data;
 }
 
@@ -211,6 +230,7 @@ inline int32_t Memory::read(uint32_t index){
     }
     cachehit = false;
     update_cache(index);
+    latest_read_index = index;
     return memory[index];
 }
 

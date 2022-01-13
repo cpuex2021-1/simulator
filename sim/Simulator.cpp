@@ -18,12 +18,9 @@ Simulator::~Simulator()
 
 void Simulator::full_reset(){
     reset();
-    instructions = vector<uint32_t>();
-    l_to_p = vector<int>();
-    p_to_l = vector<int>();
+    Assembler::full_reset();
     break_pc = map<int,bool>();
     break_clk = vector<unsigned long long>();
-    str_instr = vector<string>();
 }
 
 int Simulator::read_asm(string filename){
@@ -34,33 +31,11 @@ int Simulator::read_asm(string filename){
 }
 
 int Simulator::eat_bin(string filename){
-    std::ifstream test(filename); 
-    if (!test)
-    {
-        std::cout << "The file \"" << filename << "\" doesn't exist" << std::endl;
-        return -1;
-    }
-    cout << "Eating " << filename << "...";
-    
-    fstream binput;
+    int ret = Assembler::eat_bin(filename);
 
-    binput.open(filename);
-
-    int code;
-    int now_addr = 0;
-
-    while(binput.read((char *) &code, sizeof(unsigned int))){
-        instructions.push_back(code);
-         
-        cout << now_addr << ": " << disassemble(code) << endl;
-        now_addr++;
-    }
-
-    binput.close();
-
-    if(instructions.size() <= 0){
+    if(ret == -1){
         ready = false;
-        return -1;
+        return ret;
     }
     ready = true;
     cout << " complete!" << endl;

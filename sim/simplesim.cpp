@@ -4,7 +4,7 @@
 #include "Compiler.hpp"
 
 string usage = "Usage:\n\t-a [Assembly file name] : Execute an assembly file \
-                      \n\t-b [Binary file name]   : Execute a binary file\t \
+                      \n\t-b [Binary file name]   : Execute a binary file \
                       \n\t-f                      : Enable JIT Compilation \
                       \n\t-u [Input file name]    : Select UART input file \
                       \n\t-d                      : Show Result in detail";

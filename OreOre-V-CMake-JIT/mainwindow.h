@@ -46,10 +46,6 @@ private Q_SLOTS:
 
     void on_address_valueChanged(int arg1);
 
-    void on_ClockSpin_editingFinished();
-
-    void on_pushButton_5_released();
-
     void on_memUpButton_released();
 
     void on_memDownButton_released();
@@ -62,6 +58,18 @@ private Q_SLOTS:
 
     void on_RegTable_itemChanged(QTableWidgetItem *item);
     void on_uartInputTable_itemChanged(QTableWidgetItem *item);
+
+    void on_BinaryButton_released();
+
+    void on_jumpToPCButton_released();
+
+    void on_instUpButton_released();
+
+    void on_instDownButton_released();
+
+    void on_latestWriteButton_released();
+
+    void on_latestReadButton_released();
 
 private:
     Ui::MainWindow *ui;
