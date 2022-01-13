@@ -1,15 +1,26 @@
 #include "Simulator.hpp"
 
+#ifndef WINDOWS
+#include <sys/signal.h>
+#endif
+
 using std::cout;
 using std::cerr;
 using std::endl;
 using std::string;
 using std::map;
 
+bool stop;
+
+void handler(int signum){
+    stop = true;
+}
+
 Simulator::Simulator() 
 : CPU(), sectionid(0), funcid(0), mode(accurate), ready(false), uart_ready(false)
 {
     isasm = false;
+    stop = false;
 }
 
 Simulator::~Simulator()
@@ -99,7 +110,10 @@ int Simulator::rerun(){
     reset();
     return cont();
 }
+
+//currently not supported
 int Simulator::cont_fast(){
+    /*
     if(step()){
         while(pc < instructions.size()){
             #ifdef DEBUG
@@ -120,17 +134,29 @@ int Simulator::cont_fast(){
             cout << endl;
             #endif
         }
-    }
+    }*/
     return 0;
 }
 
 int Simulator::cont_acc(){
+
+    #ifndef WINDOWS
+    if(signal(SIGINT, handler) == SIG_ERR){
+        cerr << "signal init error" << endl;
+        exit(1);
+    }
+    #endif
+
     if(step()){
         while(pc < instructions.size()){
             #ifdef DEBUG
             cout << "PC:" << pc << endl << "Instruction:";
             print_register();
             #endif
+            if(stop){
+                stop = false;
+                throw runtime_error("SIGINT by User");
+            }
 
             if(break_pc.size() != 0 && break_pc[pc]){
                 return 1;
