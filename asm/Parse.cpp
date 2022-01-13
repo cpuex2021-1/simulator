@@ -550,6 +550,36 @@ Parse :: Parse(string str, int now_addr)
                 codes.push_back(ret.assemble());
             }
 
+            //only on simulator
+            else if(match[1].str() ==  "fsin"){
+                Rtype ret(
+                    5,
+                    5,
+                    fregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
+                    0,
+                    0);
+                codes.push_back(ret.assemble());
+            }else if(match[1].str() ==  "fcos"){
+                Rtype ret(
+                    5,
+                    6,
+                    fregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
+                    0,
+                    0);
+                codes.push_back(ret.assemble());
+            }else if(match[1].str() ==  "atan"){
+                Rtype ret(
+                    5,
+                    7,
+                    fregname_to_addr(match[2].str()),
+                    fregname_to_addr(match[3].str()),
+                    0,
+                    0);
+                codes.push_back(ret.assemble());
+            }
+
             else if(match[1].str() ==  "beq"){
                 S_Btype ret(
                     6,
