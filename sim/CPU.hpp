@@ -27,7 +27,12 @@ using std::cerr;
 using std::endl;
 using std::stringstream;
 
+#ifdef STDFPU
 #define FPU StdFPU
+#endif
+#ifndef STDFPU
+#define FPU OrenoFPU
+#endif
 
 typedef struct Pinfo {int32_t pc; bool flushed;} pinfo;
 
@@ -498,6 +503,7 @@ inline void CPU::simulate_acc()
             reg[rd] = (((rs1 << 16) + luioffset) & ((1 << 20) - 1)) << 12;
             pc++; reg[0] = 0; break;
 
+        #ifdef STDFPU
         case 5:
             former_val = freg[rd];
             freg[rd] = FPU::fsin(freg[rs1]);
@@ -516,6 +522,7 @@ inline void CPU::simulate_acc()
             rd += REGNUM;
             rs1 += REGNUM;
             pc++; reg[0] = 0; break;
+        #endif
 
         default:
             throw_err(instr); return;

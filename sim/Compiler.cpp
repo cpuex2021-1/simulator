@@ -2,7 +2,13 @@
 #include "../lib/util.hpp"
 
 #define SLIDE 10
+
+#ifdef STDFPU
 #define FPU StdFPU
+#endif
+#ifndef STDFPU
+#define FPU OrenoFPU
+#endif
 
 Compiler::Compiler()
 : regAllocList(REGNUM+FREGNUM), memDestRd(-2)
@@ -748,6 +754,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             cc.jb(pctolabel(pc+imm));
             cc.dec(numFlushptr);
             break;
+        #ifdef STDFPU
         case 5:
             setDataHazard(memdestRd, rs1, rs2, cc);
             cc.inc(numFlushptr);
@@ -782,6 +789,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                 cacheInvokeNode->setArg(1, getFregGp(rs2, cc));
             }                        
             break;
+        #endif
         default:
             throw_err(instr); return;
             break;
