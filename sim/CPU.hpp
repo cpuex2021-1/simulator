@@ -27,123 +27,9 @@ using std::cerr;
 using std::endl;
 using std::stringstream;
 
+#define FPU StdFPU
 
 typedef struct Pinfo {int32_t pc; bool flushed;} pinfo;
-
-class Pipeline
-{
-protected:
-    int32_t ifidx;
-    class Sinfo{
-    public:
-        int32_t instr_idx;
-        int32_t rd;
-        int32_t rs1;
-        int32_t rs2;
-        bool flushed;
-        bool valid;
-        Sinfo(){
-            instr_idx = -1;
-            rd = 0;
-            rs1 = 0;
-            rs2 = 0;
-            flushed = false;
-            valid = false;
-        }
-        inline void set_nop(){
-            instr_idx = -1;
-            rd = 0;
-            rs1 = 0;
-            rs2 = 0;
-            flushed = false;
-            valid = false;
-        }
-        inline void flush(int32_t index){
-            instr_idx = index;
-            flushed = true;
-            valid = false;
-        }
-        inline void set(int32_t instr_idx_, int32_t rd_, int32_t rs1_, int32_t rs2_){
-            instr_idx = instr_idx_;
-            rd = rd_;
-            rs1 = rs1_;
-            rs2 = rs2_;
-            valid = true;
-            flushed = false;
-        }
-    };
-    Sinfo pipe[LOG_SIZE];
-    int32_t stallNum;
-    
-public:
-    Pipeline()
-    : ifidx(0), stallNum(0)
-    {}
-
-    inline int32_t checkstall(int32_t stallnum, int32_t rs1, int32_t rs2){
-        if(stallnum){
-            stallNum = stallnum;
-            return 0;
-        }else{
-            int32_t ans = 0;
-            if(stallNum){
-                bool checkstall = false;
-                int32_t i = 1;
-                for(; i < LOG_SIZE && (!checkstall) && i <= stallNum; i++){
-                    checkstall |= pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].rd != 0 \
-                            && pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].valid \
-                            && (pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].rd == rs1 || \
-                            pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].rd == rs2);
-                }
-                ans = stallNum - i + 2;
-            }
-            stallNum = 0;
-            return ans;
-        }
-    }
-
-    inline void update_pipeline(int32_t instr_idx, int32_t rd, int32_t rs1, int32_t rs2, int32_t numstall, bool flush, uint64_t &clk){
-        if(flush){
-            pipe[ifidx].set(instr_idx, rd, rs1, rs2);
-            ifidx++; ifidx %= LOG_SIZE;
-            for(int32_t i=0; i<BRANCH; i++){
-                pipe[ifidx].flush(instr_idx + i + 1);
-                ifidx++; ifidx %= LOG_SIZE;
-            }
-            clk += BRANCH;
-        }else{
-            for(int32_t i=0; i<numstall; i++){
-                pipe[ifidx].set_nop();
-                ifidx++; ifidx %= LOG_SIZE;
-            }
-            pipe[ifidx].set(instr_idx, rd, rs1, rs2);
-            ifidx++; ifidx %= LOG_SIZE;
-            clk += numstall;
-        }
-    }
-
-    inline void getPipelineInfo(vector<pinfo>& P){
-        for(uint32_t i=0; i<P.size(); i++){
-            P[i].pc = -1; //pipe[(ifidx - 1 - i + 2 * LOG_SIZE) % LOG_SIZE].instr_idx;
-            P[i].flushed = false; //pipe[(ifidx -1 - i + 2 * LOG_SIZE) % LOG_SIZE].flushed;
-        }
-    }
-
-    void reset(){
-        for(int32_t i=0; i<LOG_SIZE; i++){
-            pipe[i].set_nop();
-        }
-    }
-
-    void revert(int32_t pc, uint64_t &clk){
-        ifidx += LOG_SIZE - 1; ifidx %= LOG_SIZE; clk--;
-        int32_t cnt = 0;
-        while((pipe[ifidx].instr_idx != pc && (!pipe[ifidx].flushed)) || cnt > LOG_SIZE){
-            pipe[ifidx].set_nop();
-            ifidx += LOG_SIZE - 1; ifidx %= LOG_SIZE; clk--; cnt++;
-        }
-    }
-};
 
 class Log
 {
@@ -198,7 +84,6 @@ class CPU : public Assembler
 {
 protected:
     void throw_err(int32_t instr);
-    Pipeline p;
     Log log;
     int32_t memDestRd;
 
@@ -226,10 +111,15 @@ public:
     void reset();
     void revert();
     inline void getPipelineInfo(vector<pinfo>& P){
-        return p.getPipelineInfo(P);
+        for(uint32_t i=0; i<P.size(); i++){
+            P[i].pc = -1; //pipe[(ifidx - 1 - i + 2 * LOG_SIZE) % LOG_SIZE].instr_idx;
+            P[i].flushed = false; //pipe[(ifidx -1 - i + 2 * LOG_SIZE) % LOG_SIZE].flushed;
+        }
+        return;
     }
 
     inline int checkDataHazard(int memDestRd, int rs1, int rs2);
+    inline void setMemDestRd();
 
     void update_clkcount();
 };
@@ -271,7 +161,7 @@ inline void CPU::simulate_acc()
     int64_t memAddr = -1;
     int32_t former_val = 0;
 
-    int32_t memdestRd = -1;
+    int32_t memdestRd = -2;
     
     numInstruction++;
 
@@ -600,7 +490,7 @@ inline void CPU::simulate_acc()
         case 1:
             memAddr = (int32_t)reg[rs1] + offset;
             former_val = freg[rd];
-            memdestRd = rd;
+            memdestRd = rd + REGNUM;
             freg[rd] = mem->read(memAddr);
             rd += REGNUM;
             pc++; reg[0] = 0; break;
@@ -754,24 +644,14 @@ inline void CPU::simulate_acc()
     return;
 }
 
-inline int CPU::checkDataHazard(int memdestRd, int rs1, int rs2){    
-    if(memdestRd > 0){
-        if((memDestRd == rs1 || memDestRd == rs2) && memDestRd != -1){
-            memDestRd = memdestRd;
-            return 1;
-        }else{
-            memDestRd = memdestRd;
-            return 0;
-        }
+inline int CPU::checkDataHazard(int memdestRd, int rs1, int rs2){
+    if((memDestRd == rs1 || memDestRd == rs2)){
+        memDestRd = memdestRd;
+        return 1;
     }else{
-        if((memDestRd == rs1 || memDestRd == rs2) && memDestRd != -1){
-            memDestRd = -1;
-            return 1;
-        }else{
-            memDestRd = -1;
-            return 0;
-        }
-    }    
+        memDestRd = memdestRd;
+        return 0;
+    }
 }
 
 //currently not supported
@@ -1164,5 +1044,120 @@ inline void CPU::simulate_fast()
     return;
     */
 }
+class Pipeline
+{
+protected:
+    int32_t ifidx;
+    class Sinfo{
+    public:
+        int32_t instr_idx;
+        int32_t rd;
+        int32_t rs1;
+        int32_t rs2;
+        bool flushed;
+        bool valid;
+        Sinfo(){
+            instr_idx = -1;
+            rd = 0;
+            rs1 = 0;
+            rs2 = 0;
+            flushed = false;
+            valid = false;
+        }
+        inline void set_nop(){
+            instr_idx = -1;
+            rd = 0;
+            rs1 = 0;
+            rs2 = 0;
+            flushed = false;
+            valid = false;
+        }
+        inline void flush(int32_t index){
+            instr_idx = index;
+            flushed = true;
+            valid = false;
+        }
+        inline void set(int32_t instr_idx_, int32_t rd_, int32_t rs1_, int32_t rs2_){
+            instr_idx = instr_idx_;
+            rd = rd_;
+            rs1 = rs1_;
+            rs2 = rs2_;
+            valid = true;
+            flushed = false;
+        }
+    };
+    Sinfo pipe[LOG_SIZE];
+    int32_t stallNum;
+    
+public:
+    Pipeline()
+    : ifidx(0), stallNum(0)
+    {}
 
+    inline int32_t checkstall(int32_t stallnum, int32_t rs1, int32_t rs2){
+        if(stallnum){
+            stallNum = stallnum;
+            return 0;
+        }else{
+            int32_t ans = 0;
+            if(stallNum){
+                bool checkstall = false;
+                int32_t i = 1;
+                for(; i < LOG_SIZE && (!checkstall) && i <= stallNum; i++){
+                    checkstall |= pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].rd != 0 \
+                            && pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].valid \
+                            && (pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].rd == rs1 || \
+                            pipe[(ifidx + (LOG_SIZE - i)) % LOG_SIZE].rd == rs2);
+                }
+                ans = stallNum - i + 2;
+            }
+            stallNum = 0;
+            return ans;
+        }
+    }
+
+    inline void update_pipeline(int32_t instr_idx, int32_t rd, int32_t rs1, int32_t rs2, int32_t numstall, bool flush, uint64_t &clk){
+        if(flush){
+            pipe[ifidx].set(instr_idx, rd, rs1, rs2);
+            ifidx++; ifidx %= LOG_SIZE;
+            for(int32_t i=0; i<BRANCH; i++){
+                pipe[ifidx].flush(instr_idx + i + 1);
+                ifidx++; ifidx %= LOG_SIZE;
+            }
+            clk += BRANCH;
+        }else{
+            for(int32_t i=0; i<numstall; i++){
+                pipe[ifidx].set_nop();
+                ifidx++; ifidx %= LOG_SIZE;
+            }
+            pipe[ifidx].set(instr_idx, rd, rs1, rs2);
+            ifidx++; ifidx %= LOG_SIZE;
+            clk += numstall;
+        }
+    }
+
+    inline void getPipelineInfo(vector<pinfo>& P){
+        for(uint32_t i=0; i<P.size(); i++){
+            P[i].pc = -1; //pipe[(ifidx - 1 - i + 2 * LOG_SIZE) % LOG_SIZE].instr_idx;
+            P[i].flushed = false; //pipe[(ifidx -1 - i + 2 * LOG_SIZE) % LOG_SIZE].flushed;
+        }
+    }
+
+    void reset(){
+        for(int32_t i=0; i<LOG_SIZE; i++){
+            pipe[i].set_nop();
+        }
+    }
+
+    void revert(int32_t pc, uint64_t &clk){
+        ifidx += LOG_SIZE - 1; ifidx %= LOG_SIZE; clk--;
+        int32_t cnt = 0;
+        while((pipe[ifidx].instr_idx != pc && (!pipe[ifidx].flushed)) || cnt > LOG_SIZE){
+            pipe[ifidx].set_nop();
+            ifidx += LOG_SIZE - 1; ifidx %= LOG_SIZE; clk--; cnt++;
+        }
+    }
+};
+
+#undef FPU
 #endif

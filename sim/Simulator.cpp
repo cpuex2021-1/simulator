@@ -226,13 +226,27 @@ void Simulator::show_cache(){
 }
 
 void Simulator::show_result(){
-    cout << endl << "Result Summary" << endl << "Clock count: " << get_clock() << endl;
+    cout << endl << "Result Summary" << endl << "Clock count: " << get_clock() << "\n\n Statistics\n";
+    //show statistics
+    stringstream ssstats;
+    ssstats << "\tNumber of Instructions:                      \t" << numInstruction << "\n" \
+            << "\tNumber of 1 cycle stalls (non-memory-access):\t" << num2stall << "\n" \
+            << "\tNumber of 2 cycle stalls (non-memory-access):\t" << num3stall << "\n" \
+            << "\tNumber of 3 cycle stalls (non-memory-access):\t" << num4stall << "\n" \
+            << "\tNumber of data hazards:                      \t" << numDataHazard << "\n" \
+            << "\tNumber of branch prediction miss:            \t" << numFlush << "\n" \
+            << "\tNumber of cache miss:                        \t" << mem->totalstall() << "\n";
+    ssstats << "\tCache valid rate:                            \t" << mem->getValidRate() << "\n" \
+            << "\tCache hit rate:                              \t" << mem->getHitRate()  << "\n" \
+            << "\tCache replace rate:                          \t" << mem->getReplaceRate() << endl;
     /* << "Time: " << (end_time - start_time) << endl << */
+
+    cout << ssstats.str() << endl;
+
     cout << "Register:" << endl;
     show_reg();
     //cout << "Writing memory state into memResult.txt... " << endl;
     //dump("memResult.txt");
-    show_cache();
 }
 
 int Simulator::get_clock(){

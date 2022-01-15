@@ -35,7 +35,13 @@ protected:
     x86::Gp zero;
     x86::Gp jumpBase;
 
+    //stats
     x86::Gp clkptr;
+    x86::Gp num2stallptr;
+    x86::Gp num3stallptr;
+    x86::Gp num4stallptr;
+    x86::Gp numDataHazardptr;
+    x86::Gp numFlushptr;
 
     Label** pctolabelptr;
 
@@ -57,6 +63,10 @@ protected:
     void StoreAllRegs(x86::Compiler&);
 
     void setUpLabel(x86::Compiler&);
+
+    void setDataHazard(int memdestRd, int rs1, int rs2, x86::Compiler&);
+    
+    int memDestRd;
 
     static void JitBreakPoint(int pc);
 

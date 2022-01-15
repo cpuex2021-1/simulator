@@ -13,7 +13,7 @@ CPU::CPU()
     numFlush = 0;
     numDataHazard = 0;
 
-    memDestRd = -1;
+    memDestRd = -2;
 
     mem = new Memory();
     reg = new int32_t[REGNUM + FREGNUM];
@@ -61,8 +61,9 @@ void CPU::reset(){
     num4stall = 0;
     numFlush = 0;
     numDataHazard = 0;
+    memDestRd = -2;
+
     mem->reset();
-    p.reset();
     log.reset();
 }
 
