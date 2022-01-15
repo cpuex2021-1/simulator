@@ -433,16 +433,19 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdRegGp(rd,cc));
+            break;
         case 1:
             cc.invoke(&fpuInvokeNode, FPU::flt, FuncSignatureT<long long,long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdRegGp(rd,cc));
+            break;
         case 2:
             cc.invoke(&fpuInvokeNode, FPU::fle, FuncSignatureT<long long,long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdRegGp(rd,cc));
+            break;
         case 3:
             cc.mov(getRdRegGp(rd,cc), getFregGp(rs1,cc));
             break;
@@ -507,7 +510,6 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                     cc.mov(getRdRegGp(rd,cc), getRegGp(rs1,cc));
                     cc.sar(getRdRegGp(rd,cc), shamt);
                 }
-                break;
             }else{
                 if(rd == rs1){
                     cc.shr(getRdRegGp(rd,cc), shamt);
@@ -515,8 +517,8 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                     cc.mov(getRdRegGp(rd,cc), getRegGp(rs1,cc));
                     cc.shr(getRdRegGp(rd,cc), shamt);
                 }
-                break;
             }
+            break;
         case 3:
             cc.cmp(getRegGp(rs1,cc), imm);
             cc.sets(getRdRegGp(rd,cc));
