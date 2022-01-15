@@ -236,6 +236,24 @@ public:
 
 inline void CPU::simulate_acc()
 {
+    /*
+    // for jit compiler debugging
+    cout << "PC: " << pc;
+    cout << " LINE: " << pc_to_line(pc);
+    cout << " CLK: " << numInstruction << "\n";
+    cout << " Instruction: " << str_instr[pc_to_line(pc)] << "\n";
+    for(int i=0; i<32; i++){
+        cout << i << " " << reg[i] << "\t";
+    }
+    cout << "\n";
+    for(int i=32; i<64; i++){
+        cout << i << " " << convert_to_float(reg[i]) << "\t";
+    }
+    cout << "\n";
+    if(numInstruction == 3999572){
+        exit(0);
+    }*/
+    
     uint32_t instr = instructions[pc];
     uint32_t op = getBits(instr, 2, 0);
     uint32_t funct3 = getBits(instr, 5, 3);

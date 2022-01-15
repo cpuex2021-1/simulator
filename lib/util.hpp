@@ -19,5 +19,9 @@ void get_filesize(std::fstream& f, unsigned long long& fsize);
 string joking_face();
 void print_instr(unsigned int instr);
 double elapsed();
+inline float convert_to_float(int i){
+    float* f = (float*)&i;
+    return *f;
+}
 
 #endif

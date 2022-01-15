@@ -51,7 +51,7 @@ int Assembler::read_asm(string filename){
     fstream ainput;
     ainput.open(filename, ios::in);
 
-    cerr << "Reading " << filename << flush;
+    cerr << "Reading " << filename <<  "..." << flush;
 
     string str;
     int line_num = 0;
@@ -104,7 +104,7 @@ int Assembler::read_asm(string filename){
     addistr << "\taddi ra, ra, " << ((instructions.size()) & ((1 << 12) - 1)) << " #initialize ra (added by assembler)";
     read_one_line(line_num, now_addr, addistr.str());
     
-    cout << " complete!" << endl;
+    cerr << " complete!" << endl;
     return 0;
     ainput.close();
 }
@@ -116,7 +116,7 @@ int Assembler::eat_bin(string filename){
         std::cout << "The file \"" << filename << "\" doesn't exist" << std::endl;
         return -1;
     }
-    cout << "Eating " << filename << "...";
+    cerr << "Eating " << filename << "...";
     
     fstream binput;
 
@@ -138,7 +138,7 @@ int Assembler::eat_bin(string filename){
     if(instructions.size() <= 0){
         return -1;
     }
-    cout << " complete!" << endl;
+    cerr << " complete!" << endl;
     return 0;
 }
 

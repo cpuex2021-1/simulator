@@ -1,4 +1,5 @@
 #include "Compiler.hpp"
+#include "../lib/util.hpp"
 
 #define SLIDE 10
 
@@ -81,28 +82,40 @@ void Compiler::StoreAllRegs(x86::Compiler& cc){
 }
 
 void Compiler::JitBreakPoint(int pc){
-    cout << "PC: " << pc << endl;
-    cout << "Instruction: " << str_instr[pc_to_line(pc)] << endl;
-
-    print_register();
-
-    cout << endl;
+    cout << "PC: " << pc;
+    cout << " LINE: " << pc_to_line(pc);
+    cout << " CLK: " << numInstruction << "\n";
+    cout << " Instruction: " << str_instr[pc_to_line(pc)] << "\n";/*
+    for(int i=0; i<32; i++){
+        cout << i << " " << reg[i] << "\t";
+    }
+    cout << "\n";
+    for(int i=32; i<64; i++){
+        cout << i << " " << convert_to_float(reg[i]) << "\t";
+    }
+    cout << "\n";
+    if(numInstruction == 3999572){
+        exit(0);
+    }*/
 }
 
 
 void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
     bindLabel(pc, cc);
-    cc.inc(clkptr);
-
-    #ifdef JITDEBUG
-
+    
+    /*
+    //for_debugging
     StoreAllRegs(cc);
+    cc.mov(x86::qword_ptr((uint64_t)&numInstruction), clkptr);
 
     InvokeNode* printInvNode;
     cc.invoke(&printInvNode, JitBreakPoint, FuncSignatureT<void, int>());
     printInvNode->setArg(0, pc);
+    */
 
-    #endif
+    //incriment counter
+    cc.inc(clkptr);
+
 
     unsigned int instr = instructions[pc];
     unsigned int op = getBits(instr, 2, 0);
@@ -461,7 +474,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 7:
-            cc.invoke(&fpuInvokeNode, FPU::itof, FuncSignatureT<long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::ftoi, FuncSignatureT<long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdRegGp(rd,cc));
             break;
@@ -570,6 +583,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
 
         InvokeNode* cacheInvokeNode; getNewInvokeNode(cacheInvokeNode);
         InvokeNode* uartInvokeNode; getNewInvokeNode(uartInvokeNode);
+        InvokeNode* fpuInvokeNode; getNewInvokeNode(fpuInvokeNode);
 
         switch (funct3)
         {
@@ -600,6 +614,23 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         case 2:
             cc.mov(getRdRegGp(rd,cc), ((rs1 << 16) + luioffset) << 12);
             break;
+
+        case 5:
+            cc.invoke(&fpuInvokeNode, FPU::fsin, FuncSignatureT<long long,long long>());
+            fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
+            fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
+            break;
+        case 6:
+            cc.invoke(&fpuInvokeNode, FPU::fcos, FuncSignatureT<long long,long long>());
+            fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
+            fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
+            break;
+        case 7:
+            cc.invoke(&fpuInvokeNode, FPU::atan, FuncSignatureT<long long,long long>());
+            fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
+            fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
+            break;
+
         default:
             throw_err(instr); return;
             break;
@@ -714,6 +745,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
 }
 
 void Compiler::compileAll(){
+    cerr << "Started AOT Compilation..." << flush; 
     pctolabelptr = new Label*[instructions.size()+1];
     pctoaddr = new uint64_t[instructions.size()+SLIDE];
     endLabel = new Label;
@@ -734,7 +766,7 @@ void Compiler::compileAll(){
     
     //clockcount setup
     clkptr = cc.newGpq();
-    cc.mov(clkptr, clk);
+    cc.mov(clkptr, numInstruction);
 
     //tmporary register setup
     qtmpReg = cc.newGpq();
@@ -767,9 +799,13 @@ void Compiler::compileAll(){
     Error err = rt.add(&fn, &code);
 
     if (err) {
-        printf("AsmJit failed: %s\n", DebugUtils::errorAsString(err));
+        printf("\nAsmJit failed: %s\n", DebugUtils::errorAsString(err));
+        exit(1);
     }
-    clk = fn();
+
+    cerr << " complete!\nRunning" << endl;
+    
+    numInstruction = fn();
     rt.release(fn);
 }
 

@@ -49,7 +49,6 @@ int Simulator::eat_bin(string filename){
         return ret;
     }
     ready = true;
-    cout << " complete!" << endl;
     isasm = false;
     return 0;
 }

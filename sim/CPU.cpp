@@ -1,5 +1,5 @@
 #include "CPU.hpp"
-
+#include "../lib/util.hpp"
 using namespace std;
 
 CPU::CPU()
@@ -39,7 +39,7 @@ void CPU::print_register(){
     cout << endl << " ";
     for(int i=0; i<FREGNUM; i++){
         if(i % 8 == 0 && i>0) cout << endl << " ";
-        cout << left << setw(6) << fregName[i] + ":" << right << setw(8) << freg[i] << " " << dec;
+        cout << left << setw(6) << fregName[i] + ":" << right << setw(8) << convert_to_float(freg[i]) << " " << dec;
     }
     cout << endl;
 }
