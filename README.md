@@ -1,5 +1,7 @@
 # simulator
 
+FPUをStandardじゃないほうにするときはトップの`CMakeLists.txt`の`add_definition(-DSTDFPU)`をコメントアウトしてください
+
 ## ビルド方法(CLI)
 
 ```shell
