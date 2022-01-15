@@ -51,6 +51,8 @@ int Assembler::read_asm(string filename){
     fstream ainput;
     ainput.open(filename, ios::in);
 
+    cerr << "Reading " << filename << flush;
+
     string str;
     int line_num = 0;
     int now_addr = 0;
@@ -102,6 +104,7 @@ int Assembler::read_asm(string filename){
     addistr << "\taddi ra, ra, " << ((instructions.size()) & ((1 << 12) - 1)) << " #initialize ra (added by assembler)";
     read_one_line(line_num, now_addr, addistr.str());
     
+    cout << " complete!" << endl;
     return 0;
     ainput.close();
 }
