@@ -7,7 +7,7 @@ clean:
 
 cli:
 	mkdir -p build
-	cmake -S ./OreOre-V-CMake-JIT -B build
+	cmake -B build
 	make -C build assembler
 	make -C build cli-simulator
 	make -C build simple-simulator
@@ -18,13 +18,13 @@ cli:
 
 gui:
 	mkdir -p build
-	cmake -S ./OreOre-V-CMake-JIT -B build
+	cmake  -B build
 	make -C build gui-simulator
 	cp build/gui-simulator gui-simulator
 
 ninja:
 	mkdir -p build
-	cmake -GNinja -S ./OreOre-V-CMake-JIT -B build
+	cmake -GNinja  -B build
 	ninja -C build
 	cp build/assembler assembler
 	cp build/cli-simulator cli-simulator
