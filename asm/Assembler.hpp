@@ -9,7 +9,7 @@
 
 using namespace std;
 
-class Assembler
+class Reader
 {
 protected:
     class tobeAssembled{

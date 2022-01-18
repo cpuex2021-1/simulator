@@ -56,17 +56,19 @@ protected:
     void compileSingleInstruction(int pc, x86::Compiler&);
     void bindLabel(int pc, x86::Compiler&);
 
-    void setUpRegs(x86::Compiler&);
-
     void LoadAllRegs(x86::Compiler&);
 
     void StoreAllRegs(x86::Compiler&);
 
     void setUpLabel(x86::Compiler&);
 
-    void setDataHazard(int memdestRd, int rs1, int rs2, x86::Compiler&);
+    void setDataHazard(int pc, int memdestRd, int rs1, int rs2, x86::Compiler&);
     
     int memDestRd;
+
+    JumpAnnotation* ann;
+
+    Label RunLabel, LoadLabel;
 
     static void JitBreakPoint(int pc);
 

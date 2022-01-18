@@ -85,7 +85,7 @@ public:
     {}
 };
 
-class CPU : public Assembler
+class CPU : public Reader
 {
 protected:
     void throw_err(int32_t instr);

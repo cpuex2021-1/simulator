@@ -2,7 +2,7 @@
 #define PROFILER_H_INCLUDED
 #include "Simulator.hpp"
 
-class Profiler : public Simulator
+class Profiler : public Reader
 {
 protected:
     int sectid;

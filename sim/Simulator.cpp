@@ -29,20 +29,20 @@ Simulator::~Simulator()
 
 void Simulator::full_reset(){
     reset();
-    Assembler::full_reset();
+    Reader::full_reset();
     break_pc = map<int,bool>();
     break_clk = vector<unsigned long long>();
 }
 
 int Simulator::read_asm(string filename){
     isasm = true;
-    int ret = Assembler::read_asm(filename);
+    int ret = Reader::read_asm(filename);
     ready = (ret == 0);
     return ret;
 }
 
 int Simulator::eat_bin(string filename){
-    int ret = Assembler::eat_bin(filename);
+    int ret = Reader::eat_bin(filename);
 
     if(ret == -1){
         ready = false;

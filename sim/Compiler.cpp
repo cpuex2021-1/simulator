@@ -40,6 +40,10 @@ x86::Gp Compiler::getRdFregGp(int i, x86::Compiler& cc){
 x86::Gp Compiler::getGp(int i, bool isrd, x86::Compiler& cc){
     if(i != 0 && i != 32)
     {
+        if(!regAllocList[i].valid){
+            regAllocList[i].valid = true;
+            regAllocList[i].gp = cc.newGpd();
+        }        
         return regAllocList[i].gp;
     }else{
         if(isrd) return tmpReg;
@@ -53,12 +57,14 @@ void Compiler::bindLabel(int pc, x86::Compiler& cc){
 
 void Compiler::setUpLabel(x86::Compiler& cc){
     *endLabel = cc.newLabel();
+    ann = cc.newJumpAnnotation();
     for(uint64_t i=0; i<instructions.size(); i++){
         Label* l = new Label;
         (*l) = cc.newLabel();
         pctolabelptr[i] = l;
         cc.lea(qtmpReg, x86::ptr(*l));
         cc.mov(x86::qword_ptr((uint64_t)&(pctoaddr[i])), qtmpReg);
+        ann->addLabel(*l);
     }
 
     pctolabelptr[instructions.size()] = endLabel;
@@ -66,13 +72,6 @@ void Compiler::setUpLabel(x86::Compiler& cc){
     cc.lea(qtmpReg, x86::ptr(*endLabel));
     for(int i=0; i<SLIDE; i++){
         cc.mov(x86::qword_ptr((uint64_t)&(pctoaddr[i+instructions.size()])), qtmpReg);
-    }
-}
-
-void Compiler::setUpRegs(x86::Compiler& cc){    
-    for(unsigned int i=0; i<regAllocList.size(); i++){
-        regAllocList[i].gp = cc.newGpd();
-        regAllocList[i].valid = true;
     }
 }
 
@@ -84,7 +83,9 @@ void Compiler::LoadAllRegs(x86::Compiler& cc){
 
 void Compiler::StoreAllRegs(x86::Compiler& cc){
     for(unsigned int i=0; i<regAllocList.size(); i++){
-        cc.mov(x86::dword_ptr((uint64_t)&reg[i]), regAllocList[i].gp);
+        if(regAllocList[i].valid){
+            cc.mov(x86::dword_ptr((uint64_t)&reg[i]), regAllocList[i].gp);
+        }       
     }
 }
 
@@ -108,8 +109,6 @@ void Compiler::JitBreakPoint(int pc){
 
 
 void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
-    bindLabel(pc, cc);
-    
     /*
     //for_debugging
     StoreAllRegs(cc);
@@ -119,10 +118,6 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
     cc.invoke(&printInvNode, JitBreakPoint, FuncSignatureT<void, int>());
     printInvNode->setArg(0, pc);
     */
-
-    //incriment counter
-    cc.inc(clkptr);
-
     int memdestRd = -2;
 
     unsigned int instr = instructions[pc];
@@ -156,7 +151,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             switch (funct11)
             {
             case 0:
-                setDataHazard(memdestRd, rs1, rs2, cc);
+                setDataHazard(pc, memdestRd, rs1, rs2, cc);
                 if(rd == rs1){
                     cc.add(getRdRegGp(rd,cc), getRegGp(rs2,cc));
                 }else if(rd == rs2){
@@ -167,7 +162,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                 }
                 break;
             case 1:
-                setDataHazard(memdestRd, rs1, rs2, cc);
+                setDataHazard(pc, memdestRd, rs1, rs2, cc);
                 if(rd == rs1){
                     cc.sub(getRdRegGp(rd,cc), getRegGp(rs2,cc));
                 }else if(rd == rs2){
@@ -184,7 +179,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 1:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.sal(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -200,7 +195,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             switch (funct11)
             {
             case 0:
-                setDataHazard(memdestRd, rs1, rs2, cc);
+                setDataHazard(pc, memdestRd, rs1, rs2, cc);
                 if(rd == rs1){
                     cc.shr(getRdRegGp(rd,cc), getRegGp(rs2,cc));
                 }else if(rd == rs2){
@@ -213,7 +208,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                 }
                 break;
             case 1:
-                setDataHazard(memdestRd, rs1, rs2, cc);
+                setDataHazard(pc, memdestRd, rs1, rs2, cc);
                 if(rd == rs1){
                     cc.sar(getRdRegGp(rd,cc), getRegGp(rs2,cc));
                 }else if(rd == rs2){
@@ -231,17 +226,17 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 3:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.sets(getRdRegGp(rd,cc));
             break;
         case 4:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.setb(getRdRegGp(rd,cc));
             break;
         case 5:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.xor_(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -252,7 +247,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 6:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.or_(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -263,7 +258,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 7:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.and_(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -292,7 +287,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.imul(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -303,7 +298,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 1:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.imul(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -316,7 +311,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             break;
         case 2:
             //Not supported
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.imul(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -328,7 +323,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 3:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.mul(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -340,7 +335,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 4:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.idiv(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -353,7 +348,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 5:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.div(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -366,7 +361,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 6:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             cc.mov(tmpReg, getRegGp(rs1,cc));
             cc.idiv(tmpReg, getRegGp(rs2,cc));
             cc.imul(tmpReg, getRegGp(rs2,cc));
@@ -374,7 +369,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             cc.mov(getRdRegGp(rd,cc), getRegGp(rs1,cc));
             break;
         case 7:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             cc.mov(tmpReg, getRegGp(rs1,cc));
             cc.div(tmpReg, getRegGp(rs2,cc));
             cc.mul(tmpReg, getRegGp(rs2,cc));
@@ -402,7 +397,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.inc(num3stallptr);
             cc.invoke(&fpuInvokeNode, FPU::fadd, FuncSignatureT<long long,long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
@@ -410,7 +405,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 1:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.inc(num3stallptr);
             cc.invoke(&fpuInvokeNode, FPU::fsub, FuncSignatureT<long long,long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
@@ -418,7 +413,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 2:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.inc(num3stallptr);
             cc.invoke(&fpuInvokeNode, FPU::fmul, FuncSignatureT<long long,long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
@@ -426,7 +421,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 3:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.inc(num4stallptr);
             cc.invoke(&fpuInvokeNode, FPU::fdiv, FuncSignatureT<long long,long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
@@ -434,20 +429,20 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 4:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.inc(num3stallptr);
             cc.invoke(&fpuInvokeNode, FPU::fsqrt, FuncSignatureT<long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 5:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.invoke(&fpuInvokeNode, FPU::fneg, FuncSignatureT<long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 6:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.inc(num2stallptr);
             cc.invoke(&fpuInvokeNode, FPU::fmin, FuncSignatureT<long long,long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
@@ -455,7 +450,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 7:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.inc(num2stallptr);
             cc.invoke(&fpuInvokeNode, FPU::fmax, FuncSignatureT<long long,long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
@@ -483,14 +478,14 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.invoke(&fpuInvokeNode, FPU::feq, FuncSignatureT<long long,long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdRegGp(rd,cc));
             break;
         case 1:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.inc(num2stallptr);
             cc.invoke(&fpuInvokeNode, FPU::flt, FuncSignatureT<long long,long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
@@ -498,7 +493,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             fpuInvokeNode->setRet(0, getRdRegGp(rd,cc));
             break;
         case 2:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.inc(num2stallptr);
             cc.invoke(&fpuInvokeNode, FPU::fle, FuncSignatureT<long long,long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
@@ -506,26 +501,26 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             fpuInvokeNode->setRet(0, getRdRegGp(rd,cc));
             break;
         case 3:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.mov(getRdRegGp(rd,cc), getFregGp(rs1,cc));
             break;
         case 4:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, -1, cc);
             cc.mov(getRdFregGp(rd,cc), getRegGp(rs1,cc));
             break;
         case 5:            
-            setDataHazard(memdestRd, rs1+REGNUM, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.mov(getRdFregGp(rd,cc), getFregGp(rs1,cc));
             break;
         case 6:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, -1, cc);
             cc.inc(num2stallptr);
             cc.invoke(&fpuInvokeNode, FPU::itof, FuncSignatureT<long long,long long>());
             fpuInvokeNode->setArg(0, getRegGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 7:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.inc(num2stallptr);
             cc.invoke(&fpuInvokeNode, FPU::ftoi, FuncSignatureT<long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
@@ -553,7 +548,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.add(getRdRegGp(rd,cc), imm);
             }else{
@@ -562,7 +557,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 1:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.sal(getRdRegGp(rd,cc), shamt);
             }else{
@@ -572,7 +567,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             break;
         case 2:
             if(judge){
-                setDataHazard(memdestRd, rs1, rs2, cc);
+                setDataHazard(pc, memdestRd, rs1, rs2, cc);
                 if(rd == rs1){
                     cc.sar(getRdRegGp(rd,cc), shamt);
                 }else{
@@ -580,7 +575,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                     cc.sar(getRdRegGp(rd,cc), shamt);
                 }
             }else{
-                setDataHazard(memdestRd, rs1, rs2, cc);
+                setDataHazard(pc, memdestRd, rs1, rs2, cc);
                 if(rd == rs1){
                     cc.shr(getRdRegGp(rd,cc), shamt);
                 }else{
@@ -590,17 +585,17 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 3:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             cc.cmp(getRegGp(rs1,cc), imm);
             cc.sets(getRdRegGp(rd,cc));
             break;
         case 4:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             cc.cmp(getRegGp(rs1,cc), imm);
             cc.setb(getRdRegGp(rd,cc));
             break;
         case 5:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.xor_(getRdRegGp(rd,cc), imm);
             }else{
@@ -609,7 +604,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 6:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.or_(getRdRegGp(rd,cc), imm);
             }else{
@@ -618,7 +613,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 7:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.and_(getRdRegGp(rd,cc), imm);
             }else{
@@ -650,7 +645,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            setDataHazard(rd, rs1, rs2, cc);
+            setDataHazard(pc, rd, rs1, rs2, cc);
             if(rs1 == 0 && offset == 0){
                 cc.invoke(&uartInvokeNode, UART::pop, FuncSignatureT<int, void>());
                 uartInvokeNode->setRet(0, getRdRegGp(rd,cc));
@@ -663,7 +658,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }                        
             break;
         case 1:
-            setDataHazard(rd+REGNUM, rs1, rs2, cc);
+            setDataHazard(pc, rd+REGNUM, rs1, rs2, cc);
             if(rs1 == 0 && offset == 0){
                 cc.invoke(&uartInvokeNode, UART::pop, FuncSignatureT<int, void>());
                 uartInvokeNode->setRet(0, getRdFregGp(rd,cc));
@@ -676,24 +671,24 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }                        
             break;
         case 2:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             cc.mov(getRdRegGp(rd,cc), ((rs1 << 16) + luioffset) << 12);
             break;
 
         case 5:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.invoke(&fpuInvokeNode, FPU::fsin, FuncSignatureT<long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 6:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.invoke(&fpuInvokeNode, FPU::fcos, FuncSignatureT<long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 7:
-            setDataHazard(memdestRd, rs1+REGNUM, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.invoke(&fpuInvokeNode, FPU::atan, FuncSignatureT<long long,long long>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
@@ -720,35 +715,35 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             cc.inc(numFlushptr);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.je(pctolabel(pc+imm));
             cc.dec(numFlushptr);
             break;
         case 1:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             cc.inc(numFlushptr);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.jne(pctolabel(pc+imm));
             cc.dec(numFlushptr);
             break;
         case 2:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             cc.inc(numFlushptr);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.jl(pctolabel(pc+imm));
             cc.dec(numFlushptr);
             break;
         case 3:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             cc.inc(numFlushptr);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.jge(pctolabel(pc+imm));
             cc.dec(numFlushptr);
             break;
         case 4:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             cc.inc(numFlushptr);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.jb(pctolabel(pc+imm));
@@ -756,14 +751,14 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             break;
         #ifdef STDFPU
         case 5:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             cc.inc(numFlushptr);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.jae(pctolabel(pc+imm));
             cc.dec(numFlushptr);
             break;
         case 6:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2, cc);
             if(rs1 == 0 && imm == 0){
                 cc.invoke(&uartInvokeNode, UART::push, FuncSignatureT<void, int>());
                 uartInvokeNode->setArg(0, getRegGp(rs2,cc));
@@ -777,7 +772,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             break;
 
         case 7:
-            setDataHazard(memdestRd, rs1, rs2+REGNUM, cc);
+            setDataHazard(pc, memdestRd, rs1, rs2+REGNUM, cc);
             if(rs1 == 0 && imm == 0){
                 cc.invoke(&uartInvokeNode, UART::push, FuncSignatureT<void, int>());
                 uartInvokeNode->setArg(0, getFregGp(rs2,cc));
@@ -810,19 +805,19 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, -1, -1, cc);
             cc.jmp(pctolabel(addr));
             break;
         case 1:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, -1, -1, cc);
             cc.mov(getRdRegGp(rd,cc), pc+1);
             cc.jmp(pctolabel(imm));
             break;
         case 2:
-            setDataHazard(memdestRd, rs1, rs2, cc);
+            setDataHazard(pc, memdestRd, rs1, -1, cc);
             cc.mov(getRdRegGp(rd,cc), pc+1);
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1, cc), 3, imm * 8));
-            cc.jmp(qtmpReg);
+            cc.jmp(qtmpReg, ann);
             break;
         default:
             throw_err(instr); return;
@@ -885,17 +880,31 @@ void Compiler::compileAll(){
     jumpBase = cc.newGpq();
     cc.mov(jumpBase, (uint64_t)pctoaddr);
 
-    setUpLabel(cc);
-    setUpRegs(cc);
+    RunLabel = cc.newLabel();
+    LoadLabel = cc.newLabel();
 
-    LoadAllRegs(cc);
+    //Label initialization
+    setUpLabel(cc);
+
+    //function body
+    cc.bind(RunLabel);
 
     for(unsigned int i=0; i<instructions.size(); i++){
         compileSingleInstruction(i, cc);
     }
+
+    cc.jmp(*endLabel);
+    
+    //Load register
+    cc.bind(LoadLabel);
+    LoadAllRegs(cc);
+    cc.jmp(RunLabel);
     
     //end
     cc.bind(*endLabel);
+    ann->addLabel(*endLabel);
+
+    //Store register
     StoreAllRegs(cc);
 
     cc.mov(x86::qword_ptr((uint64_t)&numInstruction), clkptr);
@@ -936,13 +945,18 @@ int Compiler::run(){
     else return -1;
 }
 
-void Compiler::setDataHazard(int memdestRd, int rs1, int rs2, x86::Compiler& cc){
+void Compiler::setDataHazard(int pc, int memdestRd, int rs1, int rs2, x86::Compiler& cc){
     if((memDestRd == rs1 || memDestRd == rs2)){
         memDestRd = memdestRd;
         cc.inc(numDataHazardptr);
     }else{
         memDestRd = memdestRd;
     }
+
+    bindLabel(pc, cc);
+    //incriment counter
+    cc.inc(clkptr);
+
 }
 
 #undef FPU

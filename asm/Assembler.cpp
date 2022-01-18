@@ -12,7 +12,7 @@ void add_to_vector(vector<T> &vec, uint64_t index, T value){
     }
 }
 
-void Assembler::read_one_line(int &line_num, int &now_addr, string str){
+void Reader::read_one_line(int &line_num, int &now_addr, string str){
         #ifdef DEBUG
         cout << "PC:" << now_addr << endl;
         cout << "line:" << line_num << " ";
@@ -47,7 +47,7 @@ void Assembler::read_one_line(int &line_num, int &now_addr, string str){
         line_num++;
 }
 
-int Assembler::read_asm(string filename){
+int Reader::read_asm(string filename){
     fstream ainput;
     ainput.open(filename, ios::in);
 
@@ -109,7 +109,7 @@ int Assembler::read_asm(string filename){
     ainput.close();
 }
 
-int Assembler::eat_bin(string filename){
+int Reader::eat_bin(string filename){
     std::ifstream test(filename); 
     if (!test)
     {
@@ -142,7 +142,7 @@ int Assembler::eat_bin(string filename){
     return 0;
 }
 
-void Assembler::write_to_file(string filename){
+void Reader::write_to_file(string filename){
     fstream output;
     output.open(filename, ios::binary | ios::out);
     for(uint32_t i=0; i<instructions.size(); i++){
@@ -151,7 +151,7 @@ void Assembler::write_to_file(string filename){
     output.close();
 }
 
-int Assembler::line_to_pc(int l){
+int Reader::line_to_pc(int l){
     if(l < 0) return 0;
     else if(l >= (int)l_to_p.size()){
         return l_to_p.at(l_to_p.size() - 1);
@@ -160,7 +160,7 @@ int Assembler::line_to_pc(int l){
     }
 }
 
-int Assembler::pc_to_line(int pc){
+int Reader::pc_to_line(int pc){
     if(pc < 0) return 0;
     else if(pc >= (int)p_to_l.size()){
         return p_to_l.at(p_to_l.size()-1);
@@ -169,7 +169,7 @@ int Assembler::pc_to_line(int pc){
     }
 }
 
-void Assembler::full_reset(){
+void Reader::full_reset(){
     instructions = vector<uint32_t>();
     str_instr = vector<string>();
     unresolved = queue<tobeAssembled>();
