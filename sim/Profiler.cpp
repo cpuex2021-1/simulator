@@ -497,9 +497,6 @@ vector<string> Profiler::stringOfEachInstr = {
 "LW",
 "FLW",
 "LUI",
-"(FSIN)",
-"(FCOS)",
-"(ATAN)",
 "BEQ",
 "BNE",
 "BLT",
@@ -510,4 +507,7 @@ vector<string> Profiler::stringOfEachInstr = {
 "FSW",
 "JUMP",
 "JAL",
-"JALR"};
+"JALR",
+"(FSIN)",
+"(FCOS)",
+"(ATAN)"};
