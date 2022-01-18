@@ -3,7 +3,7 @@
 #include "Memory.hpp"
 #include "fpu.hpp"
 #include "../lib/util.hpp"
-#include "../asm/Assembler.hpp"
+#include "Profiler.hpp"
 #include "../lib/DisAssembler.hpp"
 #include <string>
 #include <sstream>
@@ -85,7 +85,7 @@ public:
     {}
 };
 
-class CPU : public Reader
+class CPU : public Profiler
 {
 protected:
     void throw_err(int32_t instr);
@@ -97,15 +97,6 @@ public:
     inline static int32_t* freg;
 
     uint64_t pc;
-
-    //statistics
-    inline static uint64_t clk;
-    inline static uint64_t numInstruction;
-    inline static uint64_t num2stall;
-    inline static uint64_t num3stall;
-    inline static uint64_t num4stall;
-    inline static uint64_t numFlush;
-    inline static uint64_t numDataHazard;
 
     Memory* mem;
     CPU();
@@ -167,8 +158,7 @@ inline void CPU::simulate_acc()
     int32_t former_val = 0;
 
     int32_t memdestRd = -2;
-    
-    numInstruction++;
+    numExecuted[pc]++;
 
     switch (op)
     {
@@ -299,7 +289,6 @@ inline void CPU::simulate_acc()
             rd += REGNUM;
             rs1 += REGNUM;
             rs2 += REGNUM;
-            num3stall++;
             pc++; reg[0] = 0; break;
         case 1:
             former_val = freg[rd];
@@ -307,7 +296,6 @@ inline void CPU::simulate_acc()
             rd += REGNUM;
             rs1 += REGNUM;
             rs2 += REGNUM;
-            num3stall++;
             pc++; reg[0] = 0; break;
         case 2:
             former_val = freg[rd];
@@ -315,7 +303,6 @@ inline void CPU::simulate_acc()
             rd += REGNUM;
             rs1 += REGNUM;
             rs2 += REGNUM;
-            num3stall++;
             pc++; reg[0] = 0; break;
         case 3:
             former_val = freg[rd];
@@ -323,14 +310,12 @@ inline void CPU::simulate_acc()
             rd += REGNUM;
             rs1 += REGNUM;
             rs2 += REGNUM;
-            num4stall++;
             pc++; reg[0] = 0; break;
         case 4:
             former_val = freg[rd];
             freg[rd] = FPU::fsqrt(freg[rs1]);
             rd += REGNUM;
             rs1 += REGNUM;
-            num3stall++;
             pc++; reg[0] = 0; break;
         case 5:
             former_val = freg[rd];
@@ -344,7 +329,6 @@ inline void CPU::simulate_acc()
             rd += REGNUM;
             rs1 += REGNUM;
             rs2 += REGNUM;
-            num2stall++;
             pc++; reg[0] = 0; break;
         case 7:
             former_val = freg[rd];
@@ -352,7 +336,6 @@ inline void CPU::simulate_acc()
             rd += REGNUM;
             rs1 += REGNUM;
             rs2 += REGNUM;
-            num2stall++;
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
@@ -382,13 +365,11 @@ inline void CPU::simulate_acc()
             reg[rd] = FPU::flt(freg[rs1], freg[rs2]);
             rs1 += REGNUM;
             rs2 += REGNUM;
-            num2stall++;
             pc++; reg[0] = 0; break;
         case 2:
             reg[rd] = FPU::fle(freg[rs1], freg[rs2]);
             rs1 += REGNUM;
             rs2 += REGNUM;
-            num2stall++;
             pc++; reg[0] = 0; break;
         case 3:
             reg[rd] = freg[rs1];
@@ -409,12 +390,10 @@ inline void CPU::simulate_acc()
             former_val = freg[rd];
             freg[rd] = FPU::itof(reg[rs1]);
             rd += REGNUM;
-            num2stall++;
             pc++; reg[0] = 0; break;
         case 7:
             reg[rd] = FPU::ftoi(freg[rs1]);
             rs1 += REGNUM;
-            num2stall++;
             pc++; reg[0] = 0; break;
         
         default:
@@ -543,48 +522,48 @@ inline void CPU::simulate_acc()
         {
         case 0:
             if((int32_t)reg[rs1] == (int32_t)reg[rs2]){
+                numBranchTaken[pc]++;
                 pc += imm;
-                numFlush++;
             }else{
                 pc++;
             }
             reg[0] = 0; break;
         case 1:
             if((int32_t)reg[rs1] != (int32_t)reg[rs2]){
+                numBranchTaken[pc]++;
                 pc += imm;
-                numFlush++;
             }else{
                 pc++;
             }
             reg[0] = 0; break;
         case 2:
             if((int32_t)reg[rs1] < (int32_t)reg[rs2]){
+                numBranchTaken[pc]++;
                 pc += imm;
-                numFlush++;
             }else{
                 pc++;
             }
             reg[0] = 0; break;
         case 3:
             if((int32_t)reg[rs1] >= (int32_t)reg[rs2]){
+                numBranchTaken[pc]++;
                 pc += imm;
-                numFlush++;
             }else{
                 pc++;
             }
             reg[0] = 0; break;
         case 4:
             if((uint32_t)reg[rs1] < (uint32_t)reg[rs2]){
+                numBranchTaken[pc]++;
                 pc += imm;
-                numFlush++;
             }else{
                 pc++;
             }
             reg[0] = 0; break;
         case 5:
             if((uint32_t)reg[rs1] >= (uint32_t)reg[rs2]){
+                numBranchTaken[pc]++;
                 pc += imm;
-                numFlush++;
             }else{
                 pc++;
             }

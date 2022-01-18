@@ -18,7 +18,7 @@ endif(WIN32)
 
 add_library(simlib ${CMAKE_CURRENT_LIST_DIR}/CPU.cpp ${CMAKE_CURRENT_LIST_DIR}/Compiler.cpp 
     ${CMAKE_CURRENT_LIST_DIR}/Memory.cpp ${CMAKE_CURRENT_LIST_DIR}/Simulator.cpp 
-    ${CMAKE_CURRENT_LIST_DIR}/fpu.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/Profiler.cpp ${CMAKE_CURRENT_LIST_DIR}/fpu.cpp)
 
 target_link_libraries(simlib asmlib asmjit utillib)
 

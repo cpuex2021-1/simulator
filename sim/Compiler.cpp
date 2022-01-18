@@ -937,6 +937,7 @@ void Compiler::getNewInvokeNode(InvokeNode*& ptr){
 }
 
 int Compiler::run(){
+    initProfiler();
     if(mode == accurate) return Simulator::run();
     else if(mode == fast){
         compileAll();
@@ -956,7 +957,6 @@ void Compiler::setDataHazard(int pc, int memdestRd, int rs1, int rs2, x86::Compi
     bindLabel(pc, cc);
     //incriment counter
     cc.inc(clkptr);
-
 }
 
 #undef FPU

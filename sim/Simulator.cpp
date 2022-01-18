@@ -102,12 +102,16 @@ void Simulator::clk_del_brk(int new_br){
     break_clk.erase(find(break_clk.begin(), break_clk.end(), new_br));
 }
 int Simulator::run(){
-    return cont();
+    initProfiler();
+    int ret = cont();
+    updateProfilerResult();
+    update_clkcount();
+    return ret;
 }
 
 int Simulator::rerun(){
     reset();
-    return cont();
+    return run();
 }
 
 //currently not supported
@@ -242,6 +246,8 @@ void Simulator::show_result(){
     /* << "Time: " << (end_time - start_time) << endl << */
 
     cout << ssstats.str() << endl;
+    
+    exportToCsv();
 
     cout << "Register:" << endl;
     show_reg();
