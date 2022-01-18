@@ -66,10 +66,11 @@ void Profiler::exportToCsv(){
     out << ",\nAddress, Instruction, Times Executed, Branch Taken Times, Branch Untaken Times\n";
     for(uint32_t i=0; i<str_instr.size(); i++){
         out << i << ", \"" << str_instr[i] << "\", ";
+        auto p = line_to_pc(i);
         if(pc_to_line(line_to_pc(i)) == (int)i){
-            out << numExecuted[i] << ", ";
-            if(instructionTypes[i].op == 6 && (instructionTypes[i].funct3 >= 0 && instructionTypes[i].funct3 <= 5)){
-                out << numBranchTaken[i] << ", " << (numExecuted[i] - numBranchTaken[i]) << "\n";
+            out << numExecuted[p] << ", ";
+            if(instructionTypes[p].op == 6 && (instructionTypes[p].funct3 >= 0 && instructionTypes[p].funct3 <= 5)){
+                out << numBranchTaken[p] << ", " << (numExecuted[p] - numBranchTaken[p]) << "\n";
             }else{
                 out << "N/A, N/A\n";
             }
