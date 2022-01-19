@@ -71,6 +71,8 @@ private Q_SLOTS:
 
     void on_latestReadButton_released();
 
+    void on_exportCSVButton_released();
+
 private:
     Ui::MainWindow *ui;
     QThread simThread;

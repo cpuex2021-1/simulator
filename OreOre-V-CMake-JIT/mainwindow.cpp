@@ -574,3 +574,11 @@ void MainWindow::on_latestReadButton_released()
     }
 }
 
+
+void MainWindow::on_exportCSVButton_released()
+{
+    if(sobj.sim.ready){
+        sobj.sim.exportToCsv();
+    }
+}
+
