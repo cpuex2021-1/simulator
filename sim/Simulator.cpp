@@ -38,6 +38,7 @@ int Simulator::read_asm(string filename){
     isasm = true;
     int ret = Reader::read_asm(filename);
     ready = (ret == 0);
+    initProfiler();
     return ret;
 }
 
@@ -50,6 +51,7 @@ int Simulator::eat_bin(string filename){
     }
     ready = true;
     isasm = false;
+    initProfiler();
     return 0;
 }
 int Simulator::set_brk(string bp){
@@ -102,7 +104,6 @@ void Simulator::clk_del_brk(int new_br){
     break_clk.erase(find(break_clk.begin(), break_clk.end(), new_br));
 }
 int Simulator::run(){
-    initProfiler();
     int ret = cont();
     updateProfilerResult();
     update_clkcount();

@@ -5,8 +5,7 @@
 
 #ifdef STDFPU
 #define FPU StdFPU
-#endif
-#ifndef STDFPU
+#else
 #define FPU OrenoFPU
 #endif
 
