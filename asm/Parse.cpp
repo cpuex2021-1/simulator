@@ -684,9 +684,9 @@ Parse :: Parse(string str, int now_addr)
             
             else if(match[1].str() == "fli"){
                 float imm = stof(match[3].str());
-                int* immint = (int *)&imm;
-                int luiimm = (*immint) >> 12;
-                int addiimm = (*immint) & ((1 << 12) - 1);
+                uint32_t* immint = (uint32_t *)&imm;
+                uint32_t luiimm = (*immint) >> 12;
+                uint32_t addiimm = (*immint) & ((1 << 12) - 1);
                 I_Ltype ret1(
                     5,
                     2,
@@ -712,7 +712,7 @@ Parse :: Parse(string str, int now_addr)
                     0);
                 codes.push_back(ret3.assemble());
             }else if(match[1].str() == "li"){
-                int imm = stoi(match[3].str());
+                uint32_t imm = (uint32_t)stoi(match[3].str());
 
                 if(imm >= (1 << 16)){
                     int luiimm = imm >> 12;
