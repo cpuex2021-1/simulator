@@ -76,7 +76,9 @@ void Compiler::setUpLabel(x86::Compiler& cc){
 
 void Compiler::LoadAllRegs(x86::Compiler& cc){
     for(unsigned int i=0; i<regAllocList.size(); i++){
-        cc.mov(regAllocList[i].gp, x86::dword_ptr((uint64_t)&reg[i]));
+        if(regAllocList[i].valid){
+            cc.mov(regAllocList[i].gp, x86::dword_ptr((uint64_t)&reg[i]));
+        }        
     }    
 }
 
@@ -108,15 +110,6 @@ void Compiler::JitBreakPoint(int pc){
 
 
 void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
-    /*
-    //for_debugging
-    StoreAllRegs(cc);
-    cc.mov(x86::qword_ptr((uint64_t)&numInstruction), clkptr);
-
-    InvokeNode* printInvNode;
-    cc.invoke(&printInvNode, JitBreakPoint, FuncSignatureT<void, int>());
-    printInvNode->setArg(0, pc);
-    */
     int memdestRd = -2;
 
     unsigned int instr = instructions[pc];
@@ -674,6 +667,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             cc.mov(getRdRegGp(rd,cc), ((rs1 << 16) + luioffset) << 12);
             break;
 
+        #ifdef STDFPU
         case 5:
             setDataHazard(pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.invoke(&fpuInvokeNode, FPU::fsin, FuncSignatureT<long long,long long>());
@@ -692,7 +686,8 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
-
+        #endif
+        
         default:
             throw_err(instr); return;
             break;
@@ -748,7 +743,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             cc.jb(pctolabel(pc+imm));
             cc.dec(numFlushptr);
             break;
-        #ifdef STDFPU
+            
         case 5:
             setDataHazard(pc, memdestRd, rs1, rs2, cc);
             cc.inc(numFlushptr);
@@ -783,7 +778,6 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                 cacheInvokeNode->setArg(1, getFregGp(rs2, cc));
             }                        
             break;
-        #endif
         default:
             throw_err(instr); return;
             break;
@@ -816,7 +810,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             setDataHazard(pc, memdestRd, rs1, -1, cc);
             cc.mov(getRdRegGp(rd,cc), pc+1);
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1, cc), 3, imm * 8));
-            cc.jmp(qtmpReg, ann);
+            cc.jmp(qtmpReg);
             break;
         default:
             throw_err(instr); return;
@@ -884,6 +878,9 @@ void Compiler::compileAll(){
 
     //Label initialization
     setUpLabel(cc);
+
+    //jump to load register
+    cc.jmp(LoadLabel);
 
     //function body
     cc.bind(RunLabel);
@@ -954,8 +951,21 @@ void Compiler::setDataHazard(int pc, int memdestRd, int rs1, int rs2, x86::Compi
     }
 
     bindLabel(pc, cc);
+    
+    /*
+    //for_debugging
+    //StoreAllRegs(cc);
+    cc.mov(x86::qword_ptr((uint64_t)&numInstruction), clkptr);
+
+    InvokeNode* printInvNode;
+    cc.invoke(&printInvNode, JitBreakPoint, FuncSignatureT<void, int>());
+    printInvNode->setArg(0, pc);
+    */
+    
     //incriment counter
     cc.inc(clkptr);
+
+
 }
 
 #undef FPU
