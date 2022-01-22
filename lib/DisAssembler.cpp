@@ -318,10 +318,10 @@ string disassemble(uint32_t instr){
             ss << "BGEU " << xregName.at(rs1) << ", " << xregName.at(rs2) << ", " << imm; 
             break;
         case 6:
-            ss << "SW " << xregName.at(rs2) << ", " << imm << "(" << xregName.at(rs2) << ")";
+            ss << "SW " << xregName.at(rs2) << ", " << imm << "(" << xregName.at(rs1) << ")";
             break;
         case 7:
-            ss << "FSW " << fregName.at(rs2) << ", " << imm << "(" << xregName.at(rs2) << ")";
+            ss << "FSW " << fregName.at(rs2) << ", " << imm << "(" << xregName.at(rs1) << ")";
             break;
         default:
             return "Unknown Instruction";
