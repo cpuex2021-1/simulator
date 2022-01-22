@@ -8,7 +8,7 @@ Profiler::Profiler()
 
 void Profiler::initProfiler(){
     numExecuted = vector<uint64_t> (instructions.size(), 0);
-    numBranchTaken = vector<uint64_t> (instructions.size(), 0);
+    numBranchUnTaken = vector<uint64_t> (instructions.size(), 0);
     numCacheMiss = vector<uint64_t> (instructions.size(), 0);
     instructionTypes = vector<InstInfo> (instructions.size());
 
@@ -48,7 +48,7 @@ void Profiler::updateProfilerResult(){
             num4stall += numExecuted[i];
         }
         //assume always untaken
-        numFlush += numBranchTaken[i];
+        numFlush += numExecuted[i] - numBranchUnTaken[i];
 
         numEachInstrExecuted[encoded] += numExecuted[i];
     }
@@ -70,7 +70,7 @@ void Profiler::exportToCsv(){
         if(pc_to_line(line_to_pc(i)) == (int)i){
             out << numExecuted[p] << ", ";
             if(instructionTypes[p].op == 6 && (instructionTypes[p].funct3 >= 0 && instructionTypes[p].funct3 <= 5)){
-                out << numBranchTaken[p] << ", " << (numExecuted[p] - numBranchTaken[p]) << "\n";
+                out << (numExecuted[p] - numBranchUnTaken[p]) << ", " << numBranchUnTaken[p] << "\n";
             }else{
                 out << "N/A, N/A\n";
             }

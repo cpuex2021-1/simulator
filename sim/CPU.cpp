@@ -31,17 +31,17 @@ CPU::~CPU(){
 }
 
 void CPU::print_register(){
-    cout << " ";
+    cerr << " ";
     for(int i=0; i<REGNUM; i++){
-    if(i % 8 == 0 && i > 0) cout << endl << " ";
-        cout << left << setw(6) << xregName[i] + ":" << right << setw(8) << reg[i] << " " << dec;
+    if(i % 8 == 0 && i > 0) cerr << endl << " ";
+        cerr << left << setw(6) << xregName[i] + ":" << right << setw(8) << reg[i] << " " << dec;
     }
-    cout << endl << " ";
+    cerr << endl << " ";
     for(int i=0; i<FREGNUM; i++){
-        if(i % 8 == 0 && i>0) cout << endl << " ";
-        cout << left << setw(6) << fregName[i] + ":" << right << setw(8) << convert_to_float(freg[i]) << " " << dec;
+        if(i % 8 == 0 && i>0) cerr << endl << " ";
+        cerr << left << setw(6) << fregName[i] + ":" << right << setw(8) << convert_to_float(freg[i]) << " " << dec;
     }
-    cout << endl;
+    cerr << endl;
 }
 
 void CPU::reset(){

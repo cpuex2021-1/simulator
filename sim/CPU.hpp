@@ -522,49 +522,49 @@ inline void CPU::simulate_acc()
         {
         case 0:
             if((int32_t)reg[rs1] == (int32_t)reg[rs2]){
-                numBranchTaken[pc]++;
                 pc += imm;
             }else{
+                numBranchUnTaken[pc]++;
                 pc++;
             }
             reg[0] = 0; break;
         case 1:
             if((int32_t)reg[rs1] != (int32_t)reg[rs2]){
-                numBranchTaken[pc]++;
                 pc += imm;
             }else{
+                numBranchUnTaken[pc]++;
                 pc++;
             }
             reg[0] = 0; break;
         case 2:
             if((int32_t)reg[rs1] < (int32_t)reg[rs2]){
-                numBranchTaken[pc]++;
                 pc += imm;
             }else{
+                numBranchUnTaken[pc]++;
                 pc++;
             }
             reg[0] = 0; break;
         case 3:
             if((int32_t)reg[rs1] >= (int32_t)reg[rs2]){
-                numBranchTaken[pc]++;
                 pc += imm;
             }else{
+                numBranchUnTaken[pc]++;
                 pc++;
             }
             reg[0] = 0; break;
         case 4:
             if((uint32_t)reg[rs1] < (uint32_t)reg[rs2]){
-                numBranchTaken[pc]++;
                 pc += imm;
             }else{
+                numBranchUnTaken[pc]++;
                 pc++;
             }
             reg[0] = 0; break;
         case 5:
             if((uint32_t)reg[rs1] >= (uint32_t)reg[rs2]){
-                numBranchTaken[pc]++;
                 pc += imm;
             }else{
+                numBranchUnTaken[pc]++;
                 pc++;
             }
             reg[0] = 0; break;

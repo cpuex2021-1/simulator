@@ -8,7 +8,7 @@ class Profiler : public Reader
 {
 protected:
     vector<uint64_t> numExecuted;
-    vector<uint64_t> numBranchTaken;
+    vector<uint64_t> numBranchUnTaken;
     vector<uint64_t> numCacheMiss;
     static vector<string> stringOfEachInstr;
     vector<uint64_t> numEachInstrExecuted;

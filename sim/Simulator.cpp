@@ -231,7 +231,7 @@ void Simulator::show_cache(){
 }
 
 void Simulator::show_result(){
-    cout << endl << "Result Summary" << endl << "Clock count: " << get_clock() << "\n\n Statistics\n";
+    cerr << endl << "Result Summary" << endl << "Clock count: " << get_clock() << "\n\n Statistics\n";
     //show statistics
     stringstream ssstats;
     ssstats << "\tNumber of Instructions:                      \t" << numInstruction << "\n" \
@@ -246,11 +246,11 @@ void Simulator::show_result(){
             << "\tCache replace rate:                          \t" << mem->getReplaceRate() << endl;
     /* << "Time: " << (end_time - start_time) << endl << */
 
-    cout << ssstats.str() << endl;
+    cerr << ssstats.str() << endl;
     
     exportToCsv();
 
-    cout << "Register:" << endl;
+    cerr << "Register:" << endl;
     show_reg();
     //cout << "Writing memory state into memResult.txt... " << endl;
     //dump("memResult.txt");

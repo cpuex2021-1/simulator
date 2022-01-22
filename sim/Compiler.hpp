@@ -22,6 +22,7 @@ protected:
         }
     };
 
+    //simulator register <-> vReg
     vector<regAlloc> regAllocList;
 
     x86::Gp getRegGp(int i, x86::Compiler&);
@@ -36,12 +37,7 @@ protected:
     x86::Gp jumpBase;
 
     //stats
-    x86::Gp clkptr;
-    x86::Gp num2stallptr;
-    x86::Gp num3stallptr;
-    x86::Gp num4stallptr;
     x86::Gp numDataHazardptr;
-    x86::Gp numFlushptr;
 
     Label** pctolabelptr;
 
@@ -62,7 +58,7 @@ protected:
 
     void setUpLabel(x86::Compiler&);
 
-    void setDataHazard(int pc, int memdestRd, int rs1, int rs2, x86::Compiler&);
+    void preProcs(int pc, int memdestRd, int rs1, int rs2, x86::Compiler&);
     
     int memDestRd;
 
@@ -81,6 +77,7 @@ public:
     ~Compiler();
     void compileAll();
     int run();
+    void reset();
 };
 
 #endif
