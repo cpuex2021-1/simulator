@@ -98,5 +98,12 @@ void CPU::revert(){
 }
 
 void CPU::update_clkcount(){
-    clk = numInstruction + 1 * num2stall + 2 * num3stall + 3 * num4stall + CACHEHITSTALL * numDataHazard + 2 * numFlush + CACHEMISSSTALL * mem->totalstall();
+    clk = 0;
+    clk += numInstruction;
+    clk += num2stall;
+    clk += 2 * num3stall;
+    clk += 3 * num4stall;
+    clk += numDataHazard;
+    clk += 2 * numFlush;
+    clk += 35 * mem->totalstall();
 }

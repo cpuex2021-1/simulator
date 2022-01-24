@@ -256,7 +256,7 @@ void Simulator::show_result(){
     //dump("memResult.txt");
 }
 
-int Simulator::get_clock(){
+uint64_t Simulator::get_clock(){
     return clk;
 }
 int Simulator::get_pc(){

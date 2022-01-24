@@ -48,7 +48,9 @@ void Profiler::updateProfilerResult(){
             num4stall += numExecuted[i];
         }
         //assume always untaken
-        numFlush += numExecuted[i] - numBranchUnTaken[i];
+        if(instructionTypes[i].op == 6 && (instructionTypes[i].funct3 <= 5)){
+            numFlush += numExecuted[i] - numBranchUnTaken[i];
+        }
 
         numEachInstrExecuted[encoded] += numExecuted[i];
     }

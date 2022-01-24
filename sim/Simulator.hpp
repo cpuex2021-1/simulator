@@ -54,7 +54,7 @@ public:
     void show_instruction();
     string get_string_instruction_by_line(int);
     int get_pc();
-    int get_clock();
+    uint64_t get_clock();
     void show_cache();
     void show_result();
     void show_uart_output();

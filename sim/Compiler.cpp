@@ -925,6 +925,7 @@ void Compiler::compileAll(){
     rt.release(fn);
 
     updateProfilerResult();
+    update_clkcount();
 }
 
 void Compiler::getNewInvokeNode(InvokeNode*& ptr){
