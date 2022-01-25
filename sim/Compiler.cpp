@@ -61,16 +61,20 @@ void Compiler::setUpLabel(x86::Compiler& cc){
         Label* l = new Label;
         (*l) = cc.newLabel();
         pctolabelptr[i] = l;
+        cc.embedLabel(*l, sizeof(uint64_t));
+        /*
         cc.lea(qtmpReg, x86::ptr(*l));
         cc.mov(x86::qword_ptr((uint64_t)&(pctoaddr[i])), qtmpReg);
+        */
         ann->addLabel(*l);
     }
 
     pctolabelptr[instructions.size()] = endLabel;
 
-    cc.lea(qtmpReg, x86::ptr(*endLabel));
+    //cc.lea(qtmpReg, x86::ptr(*endLabel));
     for(int i=0; i<SLIDE; i++){
-        cc.mov(x86::qword_ptr((uint64_t)&(pctoaddr[i+instructions.size()])), qtmpReg);
+        cc.embedLabel(*endLabel);
+        //cc.mov(x86::qword_ptr((uint64_t)&(pctoaddr[i+instructions.size()])), qtmpReg);
     }
 }
 
@@ -872,21 +876,23 @@ void Compiler::compileAll(){
     zero = cc.newGpd();
     cc.mov(zero, 0);
 
-    //jump table setup
-    jumpBase = cc.newGpq();
-    cc.mov(jumpBase, (uint64_t)pctoaddr);
-
     RunLabel = cc.newLabel();
     LoadLabel = cc.newLabel();
-
-    //Label initialization
-    setUpLabel(cc);
 
     //jump to load register
     cc.jmp(LoadLabel);
 
+    //Label initialization
+    Label jTableLabel = cc.newLabel();
+    cc.bind(jTableLabel);
+    setUpLabel(cc);
+
     //function body
     cc.bind(RunLabel);
+
+    //jump table setup
+    jumpBase = cc.newGpq();
+    cc.lea(jumpBase, x86::ptr(jTableLabel));
 
     for(unsigned int i=0; i<instructions.size(); i++){
         compileSingleInstruction(i, cc);
