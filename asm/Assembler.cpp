@@ -38,6 +38,8 @@ void Reader::read_one_line(int &line_num, int &now_addr, string str){
             
         }else if(pres.type == Parse::label){
             labels[pres.labl] = now_addr;
+            pcandlabel linfo(now_addr, pres.labl);
+            labellist.push_back(linfo);
         }else if(pres.type == Parse::error){
             stringstream err;
             err << "Parsing Error at line " << (line_num) << ": " << str << endl;

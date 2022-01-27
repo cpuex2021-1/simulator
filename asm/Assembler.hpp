@@ -24,6 +24,17 @@ protected:
     inline static vector<int> p_to_l;
     void read_one_line(int &line_num, int &now_addr, string str);
 
+    class pcandlabel{
+    public:
+        uint32_t pc;
+        string label;
+        pcandlabel(uint32_t p, string l)
+        :pc(p), label(l)
+        {};
+    };
+
+    vector<pcandlabel> labellist;
+
 public:
     class parsing_error : public invalid_argument{
     public:

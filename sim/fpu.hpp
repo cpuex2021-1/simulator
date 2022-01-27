@@ -427,7 +427,7 @@ inline long long fmul(long long a,long long b){
 
 inline long long ftoi(long long f1){
     float* f = (float*) &f1;
-    long long res = (long long)(*f);
+    long long res = (long long)round(*f);
     return res;
 }
 
