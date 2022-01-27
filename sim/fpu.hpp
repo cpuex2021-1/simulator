@@ -160,20 +160,22 @@ namespace OrenoFPU
 {
 extern long long div_grad[1024];
 extern long long sqrt_grad[1024];
-inline long long finv(long long x);
-inline long long fadd(long long f1, long long f2);
-inline long long fsub(long long f1, long long f2); inline long long fmul(long long f1, long long f2); inline long long fdiv(long long f1, long long f2);
-inline long long fsqrt(long long f1);
-inline long long fneg(long long f1);
-inline long long fmin(long long f1, long long f2);
-inline long long fmax(long long f1, long long f2);
-inline long long feq(long long f1, long long f2);
-inline long long flt(long long f1, long long f2);
-inline long long fle(long long f1, long long f2);
-inline long long itof(long long f1);
-inline long long ftoi(long long f2);
+inline int finv(long long x);
+inline int fadd(int f1, int f2);
+inline int fsub(int f1, int f2);
+inline int fmul(int f1, int f2);
+inline int fdiv(int f1, int f2);
+inline int fsqrt(int f1);
+inline int fneg(int f1);
+inline int fmin(int f1, int f2);
+inline int fmax(int f1, int f2);
+inline int feq(int f1, int f2);
+inline int flt(int f1, int f2);
+inline int fle(int f1, int f2);
+inline int itof(int f1);
+inline int ftoi(int f2);
 
-inline long long fadd(long long f1, long long f2){
+inline int fadd(int f1, int f2){
     float* f = (float*) &f1;
     float* g = (float*) &f2;
 
@@ -183,7 +185,7 @@ inline long long fadd(long long f1, long long f2){
     return *res;
 }
 
-inline long long fsub(long long f1, long long f2){
+inline int fsub(int f1, int f2){
     float* f = (float*) &f1;
     float* g = (float*) &f2;
 
@@ -193,7 +195,7 @@ inline long long fsub(long long f1, long long f2){
     return *res;
 }
 
-inline long long fneg(long long f1){
+inline int fneg(int f1){
     float* f = (float*) &f1;
     float fres = -(*f);
     long long *res = (long long *)&fres;
@@ -201,11 +203,11 @@ inline long long fneg(long long f1){
     return *res;
 }
 
-inline long long feq(long long x, long long y){
+inline int feq(int x, int y){
     return x==y;
 }
 
-inline long long finv(long long x){
+inline int finv(int x){
     long key = (x >> 13) & ((1ll<<10) - 1);
     long diff= x & ((1<<13) -1);
     long long ae = (x >>23) & ((1<<8)-1);
@@ -223,7 +225,7 @@ inline long long finv(long long x){
     return x;
 }
 
-inline long long fdiv(long long x, long long y){
+inline int fdiv(int x, int y){
     long long xs = x>>31;
     long long ys = y>>31;
     long long xe = (x>>23) & 0xff;
@@ -255,7 +257,7 @@ inline long long fdiv(long long x, long long y){
     }
 }
 
-inline long long fsqrt(long long a){
+inline int fsqrt(int a){
     long long s = a>>31;
     long long e = (a>>23 ) & 0xff;
     long key = (a>>14) & 0x3ff;
@@ -277,7 +279,7 @@ inline long long fsqrt(long long a){
     return a;
 }
 
-inline long long fmin(long long x, long long y){
+inline int fmin(int x, int y){
     long long xs = (x>>31) & 1;
     long long ys = (y>>31) & 1;
     long long xe = (x>>23) & 0xff;
@@ -305,7 +307,7 @@ inline long long fmin(long long x, long long y){
     }
 }
 
-inline long long fmax(long long x, long long y){
+inline int fmax(int x, int y){
     long long xs = (x>>31) & 1;
     long long ys = (y>>31) & 1;
     long long xe = (x>>23) & 0xff;
@@ -333,7 +335,7 @@ inline long long fmax(long long x, long long y){
     }
 }
 
-inline long long flt(long long x, long long y){
+inline int flt(int x, int y){
     long long xs = (x>>31) & 1;
     long long ys = (y>>31) & 1;
     long long xe = (x>>23) & 0xff;
@@ -356,7 +358,7 @@ inline long long flt(long long x, long long y){
     return (pp==1&&absl==1) || np || (nn==1 && absl==0 && emeq==0);
 }
 
-inline long long fle(long long x, long long y){
+inline int fle(int x, int y){
     long long xs = (x>>31) & 1;
     long long ys = (y>>31) & 1;
     long long xe = (x>>23) & 0xff;
@@ -379,7 +381,7 @@ inline long long fle(long long x, long long y){
     return (pp==1&&absl==1) || np || (nn==1 && absl==0 && emeq==0) || x==y;
 }
 
-inline long long fmul(long long a,long long b){
+inline int fmul(int a, int b){
     long long s1,s2,s;
     s1 = a>>31;
     s2 = b>>31;
@@ -425,13 +427,13 @@ inline long long fmul(long long a,long long b){
     }
 }
 
-inline long long ftoi(long long f1){
+inline int ftoi(int f1){
     float* f = (float*) &f1;
     long long res = (long long)round(*f);
     return res;
 }
 
-inline long long itof(long long f1){
+inline int itof(int f1){
     float f = (float) f1;
     long long* res = (long long *) &f;
     return (*res);
