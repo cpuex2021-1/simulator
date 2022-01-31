@@ -394,56 +394,54 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         {
         case 0:
             preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
-            cc.invoke(&fpuInvokeNode, FPU::fadd, FuncSignatureT<long long,long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::fadd, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 1:
             preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
-            cc.invoke(&fpuInvokeNode, FPU::fsub, FuncSignatureT<long long,long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::fsub, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 2:
             preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
-            cc.invoke(&fpuInvokeNode, FPU::fmul, FuncSignatureT<long long,long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::fmul, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 3:
             preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
-            cc.invoke(&fpuInvokeNode, FPU::fdiv, FuncSignatureT<long long,long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::fdiv, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 4:
             preProcs(pc, memdestRd, rs1+REGNUM, -1, cc);
-            cc.invoke(&fpuInvokeNode, FPU::fsqrt, FuncSignatureT<long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::fsqrt, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 5:
             preProcs(pc, memdestRd, rs1+REGNUM, -1, cc);
-            cc.invoke(&fpuInvokeNode, FPU::fneg, FuncSignatureT<long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::fneg, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 6:
             preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
-            cc.invoke(&fpuInvokeNode, FPU::fmin, FuncSignatureT<long long,long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::fabs, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
-            fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 7:
             preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
-            cc.invoke(&fpuInvokeNode, FPU::fmax, FuncSignatureT<long long,long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::floor, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
-            fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         default:
@@ -468,21 +466,21 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         {
         case 0:
             preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
-            cc.invoke(&fpuInvokeNode, FPU::feq, FuncSignatureT<long long,long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::feq, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdRegGp(rd,cc));
             break;
         case 1:
             preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
-            cc.invoke(&fpuInvokeNode, FPU::flt, FuncSignatureT<long long,long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::flt, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdRegGp(rd,cc));
             break;
         case 2:
             preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
-            cc.invoke(&fpuInvokeNode, FPU::fle, FuncSignatureT<long long,long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::fle, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdRegGp(rd,cc));
@@ -501,13 +499,13 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             break;
         case 6:
             preProcs(pc, memdestRd, rs1, -1, cc);
-            cc.invoke(&fpuInvokeNode, FPU::itof, FuncSignatureT<long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::itof, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 7:
             preProcs(pc, memdestRd, rs1+REGNUM, -1, cc);
-            cc.invoke(&fpuInvokeNode, FPU::ftoi, FuncSignatureT<long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::ftoi, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdRegGp(rd,cc));
             break;
@@ -663,19 +661,19 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         #ifdef STDFPU
         case 5:
             preProcs(pc, memdestRd, rs1+REGNUM, -1, cc);
-            cc.invoke(&fpuInvokeNode, FPU::fsin, FuncSignatureT<long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::fsin, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 6:
             preProcs(pc, memdestRd, rs1+REGNUM, -1, cc);
-            cc.invoke(&fpuInvokeNode, FPU::fcos, FuncSignatureT<long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::fcos, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 7:
             preProcs(pc, memdestRd, rs1+REGNUM, -1, cc);
-            cc.invoke(&fpuInvokeNode, FPU::atan, FuncSignatureT<long long,long long>());
+            cc.invoke(&fpuInvokeNode, FPU::atan, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;

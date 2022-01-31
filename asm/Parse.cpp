@@ -343,22 +343,22 @@ Parse :: Parse(string str, int now_addr)
                     0,
                     0);
                 codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "fmin"){
+            }else if(match[1].str() ==  "fabs"){
                 Rtype ret(
                     2,
                     6,
                     fregname_to_addr(match[2].str()),
                     fregname_to_addr(match[3].str()),
-                    fregname_to_addr(match[4].str()),
+                    0,
                     0);
                 codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "fmax"){
+            }else if(match[1].str() ==  "floor"){
                 Rtype ret(
                     2,
                     7,
                     fregname_to_addr(match[2].str()),
                     fregname_to_addr(match[3].str()),
-                    fregname_to_addr(match[4].str()),
+                    0,
                     0);
                 codes.push_back(ret.assemble());
             }

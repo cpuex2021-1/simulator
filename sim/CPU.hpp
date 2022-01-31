@@ -325,17 +325,15 @@ inline void CPU::simulate_acc()
             pc++; reg[0] = 0; break;
         case 6:
             former_val = freg[rd];
-            freg[rd] = FPU::fmin(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::fabs(freg[rs1]);
             rd += REGNUM;
             rs1 += REGNUM;
-            rs2 += REGNUM;
             pc++; reg[0] = 0; break;
         case 7:
             former_val = freg[rd];
-            freg[rd] = FPU::fmax(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::floor(freg[rs1]);
             rd += REGNUM;
             rs1 += REGNUM;
-            rs2 += REGNUM;
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
@@ -796,10 +794,10 @@ inline void CPU::simulate_fast()
             freg[rd] = FPU::fneg(freg[rs1]);
             pc++; reg[0] = 0; break;
         case 6:
-            freg[rd] = FPU::fmin(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::fabs(freg[rs1], freg[rs2]);
             pc++; reg[0] = 0; break;
         case 7:
-            freg[rd] = FPU::fmax(freg[rs1], freg[rs2]);
+            freg[rd] = FPU::floor(freg[rs1], freg[rs2]);
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
