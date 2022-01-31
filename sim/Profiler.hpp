@@ -27,6 +27,18 @@ protected:
     int checkIfForceStall(char op, char funct3);
     void translateInstructionType(char op, char funct3, char funct11, int& encoded, string& str);
 
+
+    class lstats
+    {
+    public:
+        uint64_t max;
+        uint64_t min;
+    };
+    vector<lstats> labelStats;
+    int labelIdx;
+    void initLabelStats();
+    void updateLabelStats(uint64_t numexec, uint64_t addr);
+
 public:
     Profiler();
     void initProfiler();
