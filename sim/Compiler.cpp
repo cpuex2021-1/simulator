@@ -97,7 +97,7 @@ void Compiler::JitBreakPoint(int pc){
     cout << "PC: " << pc;
     cout << " LINE: " << pc_to_line(pc);
     cout << " CLK: " << numInstruction << "\n";
-    cout << " Instruction: " << str_instr[pc_to_line(pc)] << "\n";/*
+    cout << " Instruction: " << str_instr[pc_to_line(pc)] << endl;/*
     for(int i=0; i<32; i++){
         cout << i << " " << reg[i] << "\t";
     }
@@ -824,7 +824,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             preProcs(true, pc, memdestRd, rs1, -1, cc);
             cc.mov(getRdRegGp(rd,cc), pc+1);
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1, cc), 3, imm * 8));
-            cc.jmp(qtmpReg);
+            cc.jmp(qtmpReg, ann);
             break;
         default:
             throw_err(instr); return;
@@ -955,25 +955,24 @@ void Compiler::preProcs(bool usera, int pc, int memdestRd, int rs1, int rs2, x86
 
     bindLabel(pc, cc);
     
-    /*
+    
     //for_debugging
     //StoreAllRegs(cc);
-    cc.mov(x86::qword_ptr((uint64_t)&numInstruction), clkptr);
-
+    //cc.mov(x86::qword_ptr((uint64_t)&numInstruction), clkptr);
+    /*
     InvokeNode* printInvNode;
     cc.invoke(&printInvNode, JitBreakPoint, FuncSignatureT<void, int>());
     printInvNode->setArg(0, pc);
     */
 
     if(hasDebuggingInfo){
-        if(usera) ann->addLabel(pctolabel(pc));
-        else if(((uint32_t)labellist[labellistIdx].pc) == pc){
+        if(labellist[labellistIdx].pc == (uint32_t)pc){
             ann->addLabel(pctolabel(pc));
-            
-            while(((uint32_t)labellist[labelIdx].pc) <= pc){
-                labelIdx++;
+            while(labellist[labellistIdx].pc == (uint32_t)pc){
+                labellistIdx++;
             }
         }
+        else if(usera) ann->addLabel(pctolabel(pc+1));
     }else{
         ann->addLabel(pctolabel(pc));
     }
