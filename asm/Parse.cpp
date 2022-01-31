@@ -135,153 +135,7 @@ Parse :: Parse(string str, int now_addr)
             }else if(match[1].str() ==  "sub"){
                 Rtype ret(
                     0,
-                    0,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    1);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "sll"){
-                Rtype ret(
-                    0,
                     1,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "srl"){
-                Rtype ret(
-                    0,
-                    2,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "sra"){
-                Rtype ret(
-                    0,
-                    2,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    1);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "slt"){
-                Rtype ret(
-                    0,
-                    3,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "sltu"){
-                Rtype ret(
-                    0,
-                    4,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "xor"){
-                Rtype ret(
-                    0,
-                    5,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "or"){
-                Rtype ret(
-                    0,
-                    6,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "and"){
-                Rtype ret(
-                    0,
-                    7,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    0);
-                codes.push_back(ret.assemble());
-            }
-            
-            else if(match[1].str() ==  "mul"){
-                Rtype ret(
-                    1,
-                    0,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "mulh"){
-                Rtype ret(
-                    1,
-                    1,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "mulhsu"){
-                Rtype ret(
-                    1,
-                    2,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "mulhu"){
-                Rtype ret(
-                    1,
-                    3,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "div"){
-                Rtype ret(
-                    1,
-                    4,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "divu"){
-                Rtype ret(
-                    1,
-                    5,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "rem"){
-                Rtype ret(
-                    1,
-                    6,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    xregname_to_addr(match[4].str()),
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "remu"){
-                Rtype ret(
-                    1,
-                    7,
                     xregname_to_addr(match[2].str()),
                     xregname_to_addr(match[3].str()),
                     xregname_to_addr(match[4].str()),
@@ -343,22 +197,22 @@ Parse :: Parse(string str, int now_addr)
                     0,
                     0);
                 codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "fmin"){
+            }else if(match[1].str() ==  "floor"){
                 Rtype ret(
                     2,
                     6,
                     fregname_to_addr(match[2].str()),
                     fregname_to_addr(match[3].str()),
-                    fregname_to_addr(match[4].str()),
+                    0,
                     0);
                 codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "fmax"){
+            }else if(match[1].str() ==  "fabs"){
                 Rtype ret(
                     2,
                     7,
                     fregname_to_addr(match[2].str()),
                     fregname_to_addr(match[3].str()),
-                    fregname_to_addr(match[4].str()),
+                    0,
                     0);
                 codes.push_back(ret.assemble());
             }
@@ -388,33 +242,6 @@ Parse :: Parse(string str, int now_addr)
                     xregname_to_addr(match[2].str()),
                     fregname_to_addr(match[3].str()),
                     fregname_to_addr(match[4].str()),
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "fmv.x.w"){
-                Rtype ret(
-                    3,
-                    3,
-                    xregname_to_addr(match[2].str()),
-                    fregname_to_addr(match[3].str()),
-                    0,
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "fmv.w.x"){
-                Rtype ret(
-                    3,
-                    4,
-                    fregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    0,
-                    0);
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "fmv"){
-                Rtype ret(
-                    3,
-                    5,
-                    fregname_to_addr(match[2].str()),
-                    fregname_to_addr(match[3].str()),
-                    0,
                     0);
                 codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "itof"){
@@ -455,15 +282,6 @@ Parse :: Parse(string str, int now_addr)
                     stoi(match[4].str()) & 0b11111
                 );
                 codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "srli"){
-                I_Ltype ret(
-                    4,
-                    2,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    stoi(match[4].str()) & 0b11111
-                );
-                codes.push_back(ret.assemble());
             }else if(match[1].str() ==  "srai"){
                 I_Ltype ret(
                     4,
@@ -471,51 +289,6 @@ Parse :: Parse(string str, int now_addr)
                     xregname_to_addr(match[2].str()),
                     xregname_to_addr(match[3].str()),
                     stoi(match[4].str()) & 0b11111
-                );
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "slti"){
-                I_Ltype ret(
-                    4,
-                    3,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    stoi(match[4].str())
-                );
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "sltui"){
-                I_Ltype ret(
-                    4,
-                    4,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    stoi(match[4].str())
-                );
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "xori"){
-                I_Ltype ret(
-                    4,
-                    5,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    stoi(match[4].str())
-                );
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "ori"){
-                I_Ltype ret(
-                    4,
-                    6,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    stoi(match[4].str())
-                );
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "andi"){
-                I_Ltype ret(
-                    4,
-                    7,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    stoi(match[4].str())
                 );
                 codes.push_back(ret.assemble());
             }
@@ -529,7 +302,7 @@ Parse :: Parse(string str, int now_addr)
                     stoi(match[3].str())
                 );
                 codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "flw"){
+            }else if(match[1].str() ==  "vlw"){
                 I_Ltype ret(
                     5,
                     1,
@@ -616,16 +389,7 @@ Parse :: Parse(string str, int now_addr)
                     label_to_addr(match[4].str(), now_addr)
                 );
                 codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "bltu"){
-                S_Btype ret(
-                    6,
-                    4,
-                    xregname_to_addr(match[2].str()),
-                    xregname_to_addr(match[3].str()),
-                    label_to_addr(match[4].str(), now_addr)
-                );
-                codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "bgeu"){
+            }else if(match[1].str() ==  "bnei"){
                 S_Btype ret(
                     6,
                     5,
@@ -643,7 +407,7 @@ Parse :: Parse(string str, int now_addr)
                     stoi(match[3].str())
                 );
                 codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "fsw"){
+            }else if(match[1].str() ==  "vsw"){
                 S_Btype ret(
                     6,
                     7,
@@ -662,26 +426,32 @@ Parse :: Parse(string str, int now_addr)
                     addr & ((1 << 25) - 1)
                 );
                 codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "jal"){
-                int lab = label_to_addr(match[3].str(), 0);
-                int rd = xregname_to_addr(match[2].str());
+            }else if(match[1].str() ==  "call"){
+                int addr = label_to_addr(match[2].str(), 0);
                 Jtype ret(
                     7,
                     1,
-                    ((lab & (0b11111 << 16)) << 21) | ((rd & 0b11111) << 16) | (lab & ((1 << 16) -1))
+                    addr & ((1 << 25) - 1)
                 );
                 codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "jalr"){
-                int rd = xregname_to_addr(match[2].str()) & 0b11111;
-                int rs1 = xregname_to_addr(match[3].str()) & 0b11111;
+            }else if(match[1].str() ==  "callcls"){
+                int rs1 = xregname_to_addr(match[2].str()) & 0b11111;
                 Jtype ret(
                     7,
                     2,
-                    (rs1 << 21) | (rd << 16) | (label_to_addr(match[4].str(), 0) & ((1 << 16) -1))
+                    (rs1 << 20)
+                );
+                codes.push_back(ret.assemble());
+            }else if(match[1].str() ==  "ret"){
+                Jtype ret(
+                    7,
+                    3,
+                    0
                 );
                 codes.push_back(ret.assemble());
             }
             
+            //psuedo instructions
             else if(match[1].str() == "fli"){
                 float imm = stof(match[3].str());
                 uint32_t* immint = (uint32_t *)&imm;

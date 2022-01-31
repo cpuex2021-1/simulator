@@ -18,7 +18,7 @@ protected:
     unsigned int rd;
     unsigned int rs1;
     unsigned int rs2;
-    unsigned int funct10;
+    unsigned int mask;
 
 public:
     Rtype(unsigned int op_, unsigned int funct3_, unsigned int rd_, unsigned int rs1_, unsigned int rs2_, unsigned int funct10_);
