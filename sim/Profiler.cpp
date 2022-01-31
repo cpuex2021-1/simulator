@@ -48,7 +48,7 @@ void Profiler::updateProfilerResult(){
             num4stall += numExecuted[i];
         }
         //assume always untaken
-        if(instructionTypes[i].op == 6 && (instructionTypes[i].funct3 <= 5)){
+        if((instructionTypes[i].op == 6 && (instructionTypes[i].funct3 <= 5)) || instructionTypes[i].op == 7){
             numFlush += numExecuted[i] - numBranchUnTaken[i];
         }
 
@@ -71,7 +71,7 @@ void Profiler::exportToCsv(){
         auto p = line_to_pc(i);
         if(pc_to_line(line_to_pc(i)) == (int)i){
             out << numExecuted[p] << ", ";
-            if(instructionTypes[p].op == 6 && (instructionTypes[p].funct3 >= 0 && instructionTypes[p].funct3 <= 5)){
+            if((instructionTypes[p].op == 6 && (instructionTypes[p].funct3 >= 0 && instructionTypes[p].funct3 <= 5)) || instructionTypes[i].op == 7){
                 out << (numExecuted[p] - numBranchUnTaken[p]) << ", " << numBranchUnTaken[p] << "\n";
             }else{
                 out << "N/A, N/A\n";
