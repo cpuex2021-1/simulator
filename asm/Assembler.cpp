@@ -12,6 +12,10 @@ void add_to_vector(vector<T> &vec, uint64_t index, T value){
     }
 }
 
+Reader::Reader()
+:hasDebuggingInfo(false)
+{}
+
 void Reader::read_one_line(int &line_num, int &now_addr, string str){
         #ifdef DEBUG
         cout << "PC:" << now_addr << endl;
@@ -54,6 +58,8 @@ int Reader::read_asm(string filename){
     ainput.open(filename, ios::in);
 
     cerr << "Reading " << filename <<  "..." << flush;
+
+    hasDebuggingInfo = true;
 
     string str;
     int line_num = 0;
