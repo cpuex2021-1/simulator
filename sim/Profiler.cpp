@@ -168,7 +168,6 @@ void Profiler::initLabelStats(){
 }
 
 void Profiler::updateLabelStats(uint64_t numexec, uint64_t addr){
-    cout << labellist[labelIdx].pc << " " << addr << endl;
     if(labellist[labelIdx].pc == addr){
         while(labellist[labelIdx].pc <= addr){
             labelIdx++;
