@@ -47,7 +47,7 @@ protected:
         return *(pctolabelptr[pc]);
     }
 
-    Label* endLabel;
+    Label endLabel;
     
     void compileSingleInstruction(int pc, x86::Compiler&);
     void bindLabel(int pc, x86::Compiler&);
@@ -58,7 +58,7 @@ protected:
 
     void setUpLabel(x86::Compiler&);
 
-    void preProcs(int pc, int memdestRd, int rs1, int rs2, x86::Compiler&);
+    void preProcs(bool usera, int pc, int memdestRd, int rs1, int rs2, x86::Compiler&);
     
     int memDestRd;
 
@@ -70,6 +70,8 @@ protected:
 
     inline static vector<InvokeNode*> nodes;
     void getNewInvokeNode(InvokeNode*& ptr);
+
+    int labellistIdx;
 
 public:
     Func fn;

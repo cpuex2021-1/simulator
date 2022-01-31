@@ -10,7 +10,7 @@
 #endif
 
 Compiler::Compiler()
-: regAllocList(REGNUM+FREGNUM), memDestRd(-2)
+: regAllocList(REGNUM+FREGNUM), memDestRd(-2), labellistIdx(0)
 {
 }
 
@@ -55,7 +55,7 @@ void Compiler::bindLabel(int pc, x86::Compiler& cc){
 } 
 
 void Compiler::setUpLabel(x86::Compiler& cc){
-    *endLabel = cc.newLabel();
+    endLabel = cc.newLabel();
     ann = cc.newJumpAnnotation();
     for(uint64_t i=0; i<instructions.size(); i++){
         Label* l = new Label;
@@ -66,14 +66,13 @@ void Compiler::setUpLabel(x86::Compiler& cc){
         cc.lea(qtmpReg, x86::ptr(*l));
         cc.mov(x86::qword_ptr((uint64_t)&(pctoaddr[i])), qtmpReg);
         */
-        ann->addLabel(*l);
     }
 
-    pctolabelptr[instructions.size()] = endLabel;
+    pctolabelptr[instructions.size()] = &endLabel;
 
     //cc.lea(qtmpReg, x86::ptr(*endLabel));
     for(int i=0; i<SLIDE; i++){
-        cc.embedLabel(*endLabel);
+        cc.embedLabel(endLabel);
         //cc.mov(x86::qword_ptr((uint64_t)&(pctoaddr[i+instructions.size()])), qtmpReg);
     }
 }
@@ -147,7 +146,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             switch (funct11)
             {
             case 0:
-                preProcs(pc, memdestRd, rs1, rs2, cc);
+                preProcs(false, pc, memdestRd, rs1, rs2, cc);
                 if(rd == rs1){
                     cc.add(getRdRegGp(rd,cc), getRegGp(rs2,cc));
                 }else if(rd == rs2){
@@ -158,7 +157,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                 }
                 break;
             case 1:
-                preProcs(pc, memdestRd, rs1, rs2, cc);
+                preProcs(false, pc, memdestRd, rs1, rs2, cc);
                 if(rd == rs1){
                     cc.sub(getRdRegGp(rd,cc), getRegGp(rs2,cc));
                 }else if(rd == rs2){
@@ -175,7 +174,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 1:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.sal(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -191,7 +190,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             switch (funct11)
             {
             case 0:
-                preProcs(pc, memdestRd, rs1, rs2, cc);
+                preProcs(false, pc, memdestRd, rs1, rs2, cc);
                 if(rd == rs1){
                     cc.shr(getRdRegGp(rd,cc), getRegGp(rs2,cc));
                 }else if(rd == rs2){
@@ -204,7 +203,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                 }
                 break;
             case 1:
-                preProcs(pc, memdestRd, rs1, rs2, cc);
+                preProcs(false, pc, memdestRd, rs1, rs2, cc);
                 if(rd == rs1){
                     cc.sar(getRdRegGp(rd,cc), getRegGp(rs2,cc));
                 }else if(rd == rs2){
@@ -222,17 +221,17 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 3:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.sets(getRdRegGp(rd,cc));
             break;
         case 4:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.setb(getRdRegGp(rd,cc));
             break;
         case 5:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.xor_(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -243,7 +242,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 6:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.or_(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -254,7 +253,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 7:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.and_(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -283,7 +282,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.imul(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -294,7 +293,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 1:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.imul(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -307,7 +306,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             break;
         case 2:
             //Not supported
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.imul(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -319,7 +318,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 3:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.mul(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -331,7 +330,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 4:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.idiv(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -344,7 +343,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 5:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.div(getRdRegGp(rd,cc), getRegGp(rs2,cc));
             }else if(rd == rs2){
@@ -357,7 +356,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 6:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             cc.mov(tmpReg, getRegGp(rs1,cc));
             cc.idiv(tmpReg, getRegGp(rs2,cc));
             cc.imul(tmpReg, getRegGp(rs2,cc));
@@ -365,7 +364,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             cc.mov(getRdRegGp(rd,cc), getRegGp(rs1,cc));
             break;
         case 7:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             cc.mov(tmpReg, getRegGp(rs1,cc));
             cc.div(tmpReg, getRegGp(rs2,cc));
             cc.mul(tmpReg, getRegGp(rs2,cc));
@@ -393,53 +392,53 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.invoke(&fpuInvokeNode, FPU::fadd, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 1:
-            preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.invoke(&fpuInvokeNode, FPU::fsub, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 2:
-            preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.invoke(&fpuInvokeNode, FPU::fmul, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 3:
-            preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.invoke(&fpuInvokeNode, FPU::fdiv, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 4:
-            preProcs(pc, memdestRd, rs1+REGNUM, -1, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.invoke(&fpuInvokeNode, FPU::fsqrt, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 5:
-            preProcs(pc, memdestRd, rs1+REGNUM, -1, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.invoke(&fpuInvokeNode, FPU::fneg, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 6:
-            preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.invoke(&fpuInvokeNode, FPU::fabs, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 7:
-            preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.invoke(&fpuInvokeNode, FPU::floor, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
@@ -465,46 +464,46 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.invoke(&fpuInvokeNode, FPU::feq, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdRegGp(rd,cc));
             break;
         case 1:
-            preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.invoke(&fpuInvokeNode, FPU::flt, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdRegGp(rd,cc));
             break;
         case 2:
-            preProcs(pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, rs2+REGNUM, cc);
             cc.invoke(&fpuInvokeNode, FPU::fle, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setArg(1, getFregGp(rs2,cc));
             fpuInvokeNode->setRet(0, getRdRegGp(rd,cc));
             break;
         case 3:
-            preProcs(pc, memdestRd, rs1+REGNUM, -1, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.mov(getRdRegGp(rd,cc), getFregGp(rs1,cc));
             break;
         case 4:
-            preProcs(pc, memdestRd, rs1, -1, cc);
+            preProcs(false, pc, memdestRd, rs1, -1, cc);
             cc.mov(getRdFregGp(rd,cc), getRegGp(rs1,cc));
             break;
         case 5:            
-            preProcs(pc, memdestRd, rs1+REGNUM, -1, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.mov(getRdFregGp(rd,cc), getFregGp(rs1,cc));
             break;
         case 6:
-            preProcs(pc, memdestRd, rs1, -1, cc);
+            preProcs(false, pc, memdestRd, rs1, -1, cc);
             cc.invoke(&fpuInvokeNode, FPU::itof, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 7:
-            preProcs(pc, memdestRd, rs1+REGNUM, -1, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.invoke(&fpuInvokeNode, FPU::ftoi, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdRegGp(rd,cc));
@@ -531,7 +530,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.add(getRdRegGp(rd,cc), imm);
             }else{
@@ -540,7 +539,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 1:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.sal(getRdRegGp(rd,cc), shamt);
             }else{
@@ -550,7 +549,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             break;
         case 2:
             if(judge){
-                preProcs(pc, memdestRd, rs1, rs2, cc);
+                preProcs(false, pc, memdestRd, rs1, rs2, cc);
                 if(rd == rs1){
                     cc.sar(getRdRegGp(rd,cc), shamt);
                 }else{
@@ -558,7 +557,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
                     cc.sar(getRdRegGp(rd,cc), shamt);
                 }
             }else{
-                preProcs(pc, memdestRd, rs1, rs2, cc);
+                preProcs(false, pc, memdestRd, rs1, rs2, cc);
                 if(rd == rs1){
                     cc.shr(getRdRegGp(rd,cc), shamt);
                 }else{
@@ -568,17 +567,17 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 3:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             cc.cmp(getRegGp(rs1,cc), imm);
             cc.sets(getRdRegGp(rd,cc));
             break;
         case 4:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             cc.cmp(getRegGp(rs1,cc), imm);
             cc.setb(getRdRegGp(rd,cc));
             break;
         case 5:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.xor_(getRdRegGp(rd,cc), imm);
             }else{
@@ -587,7 +586,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 6:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.or_(getRdRegGp(rd,cc), imm);
             }else{
@@ -596,7 +595,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }
             break;
         case 7:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rd == rs1){
                 cc.and_(getRdRegGp(rd,cc), imm);
             }else{
@@ -628,7 +627,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            preProcs(pc, rd, rs1, rs2, cc);
+            preProcs(false, pc, rd, rs1, rs2, cc);
             if(rs1 == 0 && offset == 0){
                 cc.invoke(&uartInvokeNode, UART::pop, FuncSignatureT<int, void>());
                 uartInvokeNode->setRet(0, getRdRegGp(rd,cc));
@@ -641,7 +640,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }                        
             break;
         case 1:
-            preProcs(pc, rd+REGNUM, rs1, rs2, cc);
+            preProcs(false, pc, rd+REGNUM, rs1, rs2, cc);
             if(rs1 == 0 && offset == 0){
                 cc.invoke(&uartInvokeNode, UART::pop, FuncSignatureT<int, void>());
                 uartInvokeNode->setRet(0, getRdFregGp(rd,cc));
@@ -654,25 +653,25 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             }                        
             break;
         case 2:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             cc.mov(getRdRegGp(rd,cc), ((rs1 << 16) + luioffset) << 12);
             break;
 
         #ifdef STDFPU
         case 5:
-            preProcs(pc, memdestRd, rs1+REGNUM, -1, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.invoke(&fpuInvokeNode, FPU::fsin, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 6:
-            preProcs(pc, memdestRd, rs1+REGNUM, -1, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.invoke(&fpuInvokeNode, FPU::fcos, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
             break;
         case 7:
-            preProcs(pc, memdestRd, rs1+REGNUM, -1, cc);
+            preProcs(false, pc, memdestRd, rs1+REGNUM, -1, cc);
             cc.invoke(&fpuInvokeNode, FPU::atan, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getFregGp(rs1,cc));
             fpuInvokeNode->setRet(0, getRdFregGp(rd,cc));
@@ -700,7 +699,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.je(pctolabel(pc+imm));
             
@@ -711,7 +710,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             
             break;
         case 1:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.jne(pctolabel(pc+imm));
             
@@ -722,7 +721,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
 
             break;
         case 2:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.jl(pctolabel(pc+imm));
             
@@ -733,7 +732,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             
             break;
         case 3:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.jge(pctolabel(pc+imm));
             
@@ -744,7 +743,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             
             break;
         case 4:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.jb(pctolabel(pc+imm));
             
@@ -756,7 +755,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             break;
             
         case 5:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             cc.cmp(getRegGp(rs1,cc), getRegGp(rs2,cc));
             cc.jae(pctolabel(pc+imm));
             
@@ -767,7 +766,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             
             break;
         case 6:
-            preProcs(pc, memdestRd, rs1, rs2, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2, cc);
             if(rs1 == 0 && imm == 0){
                 cc.invoke(&uartInvokeNode, UART::push, FuncSignatureT<void, int>());
                 uartInvokeNode->setArg(0, getRegGp(rs2,cc));
@@ -781,7 +780,7 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
             break;
 
         case 7:
-            preProcs(pc, memdestRd, rs1, rs2+REGNUM, cc);
+            preProcs(false, pc, memdestRd, rs1, rs2+REGNUM, cc);
             if(rs1 == 0 && imm == 0){
                 cc.invoke(&uartInvokeNode, UART::push, FuncSignatureT<void, int>());
                 uartInvokeNode->setArg(0, getFregGp(rs2,cc));
@@ -813,16 +812,16 @@ void Compiler::compileSingleInstruction(int pc, x86::Compiler& cc){
         switch (funct3)
         {
         case 0:
-            preProcs(pc, memdestRd, -1, -1, cc);
+            preProcs(false, pc, memdestRd, -1, -1, cc);
             cc.jmp(pctolabel(addr));
             break;
         case 1:
-            preProcs(pc, memdestRd, -1, -1, cc);
+            preProcs(true, pc, memdestRd, -1, -1, cc);
             cc.mov(getRdRegGp(rd,cc), pc+1);
             cc.jmp(pctolabel(imm));
             break;
         case 2:
-            preProcs(pc, memdestRd, rs1, -1, cc);
+            preProcs(true, pc, memdestRd, rs1, -1, cc);
             cc.mov(getRdRegGp(rd,cc), pc+1);
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1, cc), 3, imm * 8));
             cc.jmp(qtmpReg);
@@ -844,7 +843,6 @@ void Compiler::compileAll(){
     cerr << "Started AOT Compilation..." << flush; 
     pctolabelptr = new Label*[instructions.size()+1];
     pctoaddr = new uint64_t[instructions.size()+SLIDE];
-    endLabel = new Label;
 
     JitRuntime rt;
     
@@ -896,7 +894,7 @@ void Compiler::compileAll(){
         compileSingleInstruction(i, cc);
     }
 
-    cc.jmp(*endLabel);
+    cc.jmp(endLabel);
     
     //Load register
     cc.bind(LoadLabel);
@@ -904,8 +902,8 @@ void Compiler::compileAll(){
     cc.jmp(RunLabel);
     
     //end
-    cc.bind(*endLabel);
-    ann->addLabel(*endLabel);
+    cc.bind(endLabel);
+    ann->addLabel(endLabel);
 
     //Store register
     StoreAllRegs(cc);
@@ -947,7 +945,7 @@ int Compiler::run(){
     else return -1;
 }
 
-void Compiler::preProcs(int pc, int memdestRd, int rs1, int rs2, x86::Compiler& cc){
+void Compiler::preProcs(bool usera, int pc, int memdestRd, int rs1, int rs2, x86::Compiler& cc){
     if((memDestRd == rs1 || memDestRd == rs2)){
         memDestRd = memdestRd;
         cc.inc(numDataHazardptr);
@@ -966,6 +964,19 @@ void Compiler::preProcs(int pc, int memdestRd, int rs1, int rs2, x86::Compiler& 
     cc.invoke(&printInvNode, JitBreakPoint, FuncSignatureT<void, int>());
     printInvNode->setArg(0, pc);
     */
+
+    if(hasDebuggingInfo){
+        if(usera) ann->addLabel(pctolabel(pc));
+        else if(((uint32_t)labellist[labellistIdx].pc) == pc){
+            ann->addLabel(pctolabel(pc));
+            
+            while(((uint32_t)labellist[labelIdx].pc) <= pc){
+                labelIdx++;
+            }
+        }
+    }else{
+        ann->addLabel(pctolabel(pc));
+    }
 
     cc.mov(qtmpReg, x86::qword_ptr((uint64_t) &(numExecuted[pc])));
     cc.inc(qtmpReg);
