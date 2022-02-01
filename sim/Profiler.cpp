@@ -26,7 +26,7 @@ void Profiler::initProfiler(){
         }
     }
 
-    initLabelStats();
+    if(hasDebuggingInfo) initLabelStats();
 }
 
 void Profiler::updateProfilerResult(){
@@ -56,7 +56,7 @@ void Profiler::updateProfilerResult(){
 
         numEachInstrExecuted[encoded] += numExecuted[i];
 
-        updateLabelStats(numExecuted[i], i);
+        if(hasDebuggingInfo) updateLabelStats(numExecuted[i], i);
     }
 }
 

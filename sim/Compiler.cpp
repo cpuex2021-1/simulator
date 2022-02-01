@@ -62,18 +62,12 @@ void Compiler::setUpLabel(x86::Compiler& cc){
         (*l) = cc.newLabel();
         pctolabelptr[i] = l;
         cc.embedLabel(*l, sizeof(uint64_t));
-        /*
-        cc.lea(qtmpReg, x86::ptr(*l));
-        cc.mov(x86::qword_ptr((uint64_t)&(pctoaddr[i])), qtmpReg);
-        */
     }
 
     pctolabelptr[instructions.size()] = &endLabel;
 
-    //cc.lea(qtmpReg, x86::ptr(*endLabel));
     for(int i=0; i<SLIDE; i++){
         cc.embedLabel(endLabel);
-        //cc.mov(x86::qword_ptr((uint64_t)&(pctoaddr[i+instructions.size()])), qtmpReg);
     }
 }
 
@@ -955,16 +949,6 @@ void Compiler::preProcs(bool usera, int pc, int memdestRd, int rs1, int rs2, x86
 
     bindLabel(pc, cc);
     
-    
-    //for_debugging
-    //StoreAllRegs(cc);
-    //cc.mov(x86::qword_ptr((uint64_t)&numInstruction), clkptr);
-    /*
-    InvokeNode* printInvNode;
-    cc.invoke(&printInvNode, JitBreakPoint, FuncSignatureT<void, int>());
-    printInvNode->setArg(0, pc);
-    */
-
     if(hasDebuggingInfo){
         if(labellist[labellistIdx].pc == (uint32_t)pc){
             ann->addLabel(pctolabel(pc));
