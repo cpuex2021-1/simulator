@@ -177,16 +177,19 @@ void Reader::export_debugging_info(string filename){
 }
 
 void Reader::import_debugging_info(string filename){
-    uint32_t length;
-    cin >> length;
+    fstream in;
+    in.open(filename, ios::in);
 
-    labellist = vector<pcandlabel>(0);    
+    uint32_t length;
+    in >> length;
+
+    labellist = vector<pcandlabel>();    
     labellist.reserve(length);
 
     for(uint32_t i=0; i<length; i++){
         uint32_t p;
         string l;
-        cin >> p >> l;
+        in >> p >> l;
         labellist.push_back(pcandlabel(p, l));
     }
     
