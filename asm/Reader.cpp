@@ -159,6 +159,40 @@ void Reader::write_to_file(string filename){
     output.close();
 }
 
+void Reader::export_debugging_info(string filename){    
+    if(!hasDebuggingInfo) return;
+    fstream output;
+    output.open(filename, ios::out);
+    
+    //write length of file
+    output << labellist.size() << "\n";
+
+    //write label position and name
+    for(uint32_t i=0; i<labellist.size();i++){
+        output << labellist[i].pc << " " << labellist[i].label << "\n";
+    }
+
+    output << flush;
+    output.close();
+}
+
+void Reader::import_debugging_info(string filename){
+    uint32_t length;
+    cin >> length;
+
+    labellist = vector<pcandlabel>(0);    
+    labellist.reserve(length);
+
+    for(uint32_t i=0; i<length; i++){
+        uint32_t p;
+        string l;
+        cin >> p >> l;
+        labellist.push_back(pcandlabel(p, l));
+    }
+    
+    hasDebuggingInfo = true;
+}
+
 int Reader::line_to_pc(int l){
     if(l < 0) return 0;
     else if(l >= (int)l_to_p.size()){
