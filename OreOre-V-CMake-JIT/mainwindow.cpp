@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QImage>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -19,7 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->RegTable->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->MemTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->Instructions->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->uartInputTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->RegTable->setEditTriggers(QAbstractItemView::DoubleClicked);
     ui->MemTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->Instructions->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -27,8 +27,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->Instructions->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->MemTable->horizontalHeader()->setVisible(true);
     ui->MemTable->verticalHeader()->setVisible(true);
-    ui->uartInputTable->horizontalHeader()->setVisible(false);
-    ui->uartInputTable->verticalHeader()->setVisible(false);
 
     simObj* simt = new simObj;
     simt->moveToThread(&simThread);
@@ -49,7 +47,6 @@ void MainWindow::SetTableWidth(){
     auto& RegT = ui->RegTable;
     auto& MemT = ui->MemTable;
     auto& InstT = ui->Instructions;
-    auto& UartT = ui->uartInputTable;
     for(int i=0; i<RegT->columnCount(); i++){
         if(i % 2 == 0){
             RegT->setColumnWidth(i, (RegT->width() / RegT->columnCount()) * 0.5);
@@ -69,13 +66,6 @@ void MainWindow::SetTableWidth(){
     }
     while(InstT->rowCount()*InstT->rowHeight(0) > InstT->height()){
         InstT->setRowCount(InstT->rowCount() - 1);
-    }
-
-    while(UartT->rowCount()*UartT->rowHeight(0) < UartT->height()){
-        UartT->setRowCount(UartT->rowCount() + 1);
-    }
-    while(UartT->rowCount()*UartT->rowHeight(0) > UartT->height()){
-        UartT->setRowCount(UartT->rowCount() - 1);
     }
 }
 
@@ -230,26 +220,15 @@ void MainWindow::refreshUartView(){
 
     uart_in_line = max(uart.getInbufIdx() - 5, 0);
 
-    auto& uartt = ui->uartInputTable;
-    for(int i=0; i<uartt->rowCount(); i++){
-        uartt->verticalHeader()->setVisible(false);
-        if(sobj.sim.uart_ready){
-            string si = "";
-            try{
-                si = to_string(uart.getInbuf(uart_in_line + i));
-            }catch(exception &e){}
-            if(uartt->item(i,0) == NULL){
-                uartt->setItem(i,0, new QTableWidgetItem(si.data()));
-            }else{
-                uartt->item(i,0)->setText(si.data());
-            }
-            if(uart_in_line + i == uart.getInbufIdx()){
-                uartt->item(i,0)->setBackground(QBrush(Qt::yellow));
-            }else{
-                uartt->item(i,0)->setBackground(QBrush(Qt::white));
-            }
-        }
+    auto& uartt = ui->uartInputTextBrowser;
+    stringstream ss;
+    for(uint32_t i=0; i<uart.getInbufSize(); i++){
+        if(i == uart.getInbufIdx()) ss << "----\n";
+        ss << uart.getInbuf(i) << "\n";
+        if(i == uart.getInbufIdx()) ss << "----\n";
     }
+
+    uartt->setText(ss.str().data());
 
     stringstream uout;
 

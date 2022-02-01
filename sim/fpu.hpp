@@ -8,94 +8,94 @@
 
 namespace StdFPU
 {
-inline int finv(int x);
-inline int fadd(int f1, int f2);
-inline int fsub(int f1, int f2); inline int fmul(int f1, int f2); inline int fdiv(int f1, int f2);
-inline int fsqrt(int f1);
-inline int fneg(int f1);
-inline int fabs(int f1);
-inline int floor(int f1);
-inline int feq(int f1, int f2);
-inline int flt(int f1, int f2);
-inline int fle(int f1, int f2);
-inline int itof(int f1);
-inline int ftoi(int f2);
-inline int fsin(int f1);
-inline int fcos(int f1);
-inline int atan(int f1);
+inline int32_t finv(int32_t x);
+inline int32_t fadd(int32_t f1, int32_t f2);
+inline int32_t fsub(int32_t f1, int32_t f2); inline int32_t fmul(int32_t f1, int32_t f2); inline int32_t fdiv(int32_t f1, int32_t f2);
+inline int32_t fsqrt(int32_t f1);
+inline int32_t fneg(int32_t f1);
+inline int32_t fabs(int32_t f1);
+inline int32_t floor(int32_t f1);
+inline int32_t feq(int32_t f1, int32_t f2);
+inline int32_t flt(int32_t f1, int32_t f2);
+inline int32_t fle(int32_t f1, int32_t f2);
+inline int32_t itof(int32_t f1);
+inline int32_t ftoi(int32_t f2);
+inline int32_t fsin(int32_t f1);
+inline int32_t fcos(int32_t f1);
+inline int32_t atan(int32_t f1);
 
-int fadd(int f1, int f2){
+int32_t fadd(int32_t f1, int32_t f2){
     float* f = (float*) &f1;
     float* g = (float*) &f2;
 
     *f += *g;
 
-    int* res = (int*) f;
+    int32_t* res = (int32_t*) f;
     return *res;
 }
 
-int fsub(int f1, int f2){
+int32_t fsub(int32_t f1, int32_t f2){
     float* f = (float*) &f1;
     float* g = (float*) &f2;
 
     *f -= *g;
 
-    int* res = (int*) f;
+    int32_t* res = (int32_t*) f;
     return *res;
 }
-int fmul(int f1, int f2){
+int32_t fmul(int32_t f1, int32_t f2){
     float* f = (float*) &f1;
     float* g = (float*) &f2;
 
     *f *= *g;
 
-    int* res = (int*) f;
+    int32_t* res = (int32_t*) f;
     return *res;
 }
-int fdiv(int f1, int f2){
+int32_t fdiv(int32_t f1, int32_t f2){
     float* f = (float*) &f1;
     float* g = (float*) &f2;
 
     *f /= *g;
 
-    int* res = (int*) f;
+    int32_t* res = (int32_t*) f;
     return *res;
 }
-int fsqrt(int f1){
+int32_t fsqrt(int32_t f1){
     float* f = (float*) &f1;
     float fres = sqrt(*f);
-    int *res = (int *)&fres;
+    int32_t *res = (int32_t *)&fres;
 
     return *res;
 }
-int fneg(int f1){
+int32_t fneg(int32_t f1){
     float* f = (float*) &f1;
     float fres = -(*f);
-    int *res = (int *)&fres;
+    int32_t *res = (int32_t *)&fres;
 
     return *res;
 }
-int fabs(int f1){
+int32_t fabs(int32_t f1){
     float* f = (float*) &f1;
     float fres = std::fabs(*f);
-    int* res = (int *)&fres;
+    int32_t* res = (int32_t *)&fres;
 
     return *res;
 }
 
-int floor(int f1){
+int32_t floor(int32_t f1){
     float* f = (float*) &f1;
     float fres = std::floor(*f);
-    int* res = (int *)&fres;
+    int32_t* res = (int32_t *)&fres;
     
     return *res;
 }
 
-int feq(int f1, int f2){
+int32_t feq(int32_t f1, int32_t f2){
     return (f1 == f2);
 }
 
-int flt(int f1, int f2){
+int32_t flt(int32_t f1, int32_t f2){
     float* f = (float*) &f1;
     float* g = (float*) &f2;
     if(*f < *g){
@@ -105,7 +105,7 @@ int flt(int f1, int f2){
     }
 }
 
-int fle(int f1, int f2){
+int32_t fle(int32_t f1, int32_t f2){
     float* f = (float*) &f1;
     float* g = (float*) &f2;
     if(*f <= *g){
@@ -115,38 +115,38 @@ int fle(int f1, int f2){
     }
 }
 
-int itof(int i1){
+int32_t itof(int32_t i1){
     float f = (float)i1;
-    int* res = (int *)&f;
+    int32_t* res = (int32_t *)&f;
     return *res;
 }
 
-int ftoi(int f1){
+int32_t ftoi(int32_t f1){
     float* f = (float *)&f1;
-    int res = (int)(*f);
+    int32_t res = (int32_t)(*f);
     return res;
 }
 
-int fsin(int f1){
+int32_t fsin(int32_t f1){
     float* f = (float*) &f1;
     float fres = std::sin(*f);
-    int *res = (int *)&fres;
+    int32_t *res = (int32_t *)&fres;
 
     return *res;
 }
 
-int fcos(int f1){
+int32_t fcos(int32_t f1){
     float* f = (float*) &f1;
     float fres = std::cos(*f);
-    int *res = (int *)&fres;
+    int32_t *res = (int32_t *)&fres;
 
     return *res;
 }
 
-int atan(int f1){
+int32_t atan(int32_t f1){
     float* f = (float*) &f1;
     float fres = std::atan(*f);
-    int *res = (int *)&fres;
+    int32_t *res = (int32_t *)&fres;
 
     return *res;
 }
@@ -155,98 +155,98 @@ int atan(int f1){
 
 namespace OrenoFPU
 {
-extern long long div_grad[1024];
-extern long long sqrt_grad[1024];
-inline int finv(long long x);
-inline int fadd(int f1, int f2);
-inline int fsub(int f1, int f2);
-inline int fmul(int f1, int f2);
-inline int fdiv(int f1, int f2);
-inline int fsqrt(int f1);
-inline int fneg(int f1);
-inline int fabs(int f1);
-inline int floor(int f1);
-inline int feq(int f1, int f2);
-inline int flt(int f1, int f2);
-inline int fle(int f1, int f2);
-inline int itof(int f1);
-inline int ftoi(int f2);
+extern int64_t div_grad[1024];
+extern int64_t sqrt_grad[1024];
+inline int32_t finv(int64_t x);
+inline int32_t fadd(int32_t f1, int32_t f2);
+inline int32_t fsub(int32_t f1, int32_t f2);
+inline int32_t fmul(int32_t f1, int32_t f2);
+inline int32_t fdiv(int32_t f1, int32_t f2);
+inline int32_t fsqrt(int32_t f1);
+inline int32_t fneg(int32_t f1);
+inline int32_t fabs(int32_t f1);
+inline int32_t floor(int32_t f1);
+inline int32_t feq(int32_t f1, int32_t f2);
+inline int32_t flt(int32_t f1, int32_t f2);
+inline int32_t fle(int32_t f1, int32_t f2);
+inline int32_t itof(int32_t f1);
+inline int32_t ftoi(int32_t f2);
 
-inline int fadd(int f1, int f2){
+inline int32_t fadd(int32_t f1, int32_t f2){
     float* f = (float*) &f1;
     float* g = (float*) &f2;
 
     *f += *g;
 
-    long long* res = (long long*) f;
+    int64_t* res = (int64_t*) f;
     return *res;
 }
 
-inline int fsub(int f1, int f2){
+inline int32_t fsub(int32_t f1, int32_t f2){
     float* f = (float*) &f1;
     float* g = (float*) &f2;
 
     *f -= *g;
 
-    long long* res = (long long*) f;
+    int64_t* res = (int64_t*) f;
     return *res;
 }
 
-inline int fneg(int f1){
+inline int32_t fneg(int32_t f1){
     float* f = (float*) &f1;
     float fres = -(*f);
-    long long *res = (long long *)&fres;
+    int64_t *res = (int64_t *)&fres;
 
     return *res;
 }
 
-inline int feq(int x, int y){
+inline int32_t feq(int32_t x, int32_t y){
     return x==y;
 }
 
-inline int finv(int x){
-    long key = (x >> 13) & ((1ll<<10) - 1);
-    long diff= x & ((1<<13) -1);
-    long long ae = (x >>23) & ((1<<8)-1);
-    long long as = x >> 31;
-    long long e;
+inline int32_t finv(int32_t x){
+    int64_t key = (x >> 13) & ((1ll<<10) - 1);
+    int64_t diff= x & ((1<<13) -1);
+    int64_t ae = (x >>23) & ((1<<8)-1);
+    int64_t as = x >> 31;
+    int64_t e;
     // e >= 253のときは結果が非正規化数になるので考えなくていっちゃいい
     if(ae >253 ) e = 0; else  e = 253- ae;
 
-    long a,b;
+    int64_t a,b;
     a = div_grad[key] &  ((1ll<<13)-1);
     b = (div_grad[key]>>13) << 13 ; 
-    long m_ =  b -  2 * a * diff;
-    long long m = m_ >> 13;
+    int64_t m_ =  b -  2 * a * diff;
+    int64_t m = m_ >> 13;
     x = (as<<31) | (e<<23) | m;
     return x;
 }
 
-inline int fdiv(int x, int y){
-    long long xs = x>>31;
-    long long ys = y>>31;
-    long long xe = (x>>23) & 0xff;
-    long long zero = xe == 0;
-    long long ye = (y>>23) & 0xff;
-    long long xm = (1 << 23) | (x & 0x7fffff);
-    //long key = (y>>13) & 0x3ff;
-    //long diff = y & 0x1fff;
-    //long init = (div_grad[key] & 0xfffffe000);
-    //long grad = div_grad[key] & 0x1fff;
-    //long ym_ = init - 2 * diff * grad;
-    //long ym =  (1<<23) | (ym>>13);
-    long long ym = (1l << 23) + (finv(y) & 0x7fffff);
-    long long m_ = xm * ym;
-    long long m;
-    long long e_ = xe - ye + 126;
+inline int32_t fdiv(int32_t x, int32_t y){
+    int64_t xs = x>>31;
+    int64_t ys = y>>31;
+    int64_t xe = (x>>23) & 0xff;
+    int64_t zero = xe == 0;
+    int64_t ye = (y>>23) & 0xff;
+    int64_t xm = (1 << 23) | (x & 0x7fffff);
+    //int64_t key = (y>>13) & 0x3ff;
+    //int64_t diff = y & 0x1fff;
+    //int64_t init = (div_grad[key] & 0xfffffe000);
+    //int64_t grad = div_grad[key] & 0x1fff;
+    //int64_t ym_ = init - 2 * diff * grad;
+    //int64_t ym =  (1<<23) | (ym>>13);
+    int64_t ym = (1l << 23) + (finv(y) & 0x7fffff);
+    int64_t m_ = xm * ym;
+    int64_t m;
+    int64_t e_ = xe - ye + 126;
     if (m_ >>47) {
         m = (m_ >> 24) & 0x7fffff;
         e_++;
     }else{
         m = (m_ >> 23) & 0x7fffff;
     }
-    long long e = e_ & 0xff;
-    long long s = xs ^ ys;
+    int64_t e = e_ & 0xff;
+    int64_t s = xs ^ ys;
     if(zero){
         return 0;
     }else{
@@ -254,98 +254,98 @@ inline int fdiv(int x, int y){
     }
 }
 
-inline int fsqrt(int a){
-    long long s = a>>31;
-    long long e = (a>>23 ) & 0xff;
-    long key = (a>>14) & 0x3ff;
-    long long diff = a & 0x3fff;
-    long long init = (sqrt_grad[key] >> 13) << 13;
-    long long grad = sqrt_grad[key] & 0x1fff;
+inline int32_t fsqrt(int32_t a){
+    int64_t s = a>>31;
+    int64_t e = (a>>23 ) & 0xff;
+    int64_t key = (a>>14) & 0x3ff;
+    int64_t diff = a & 0x3fff;
+    int64_t init = (sqrt_grad[key] >> 13) << 13;
+    int64_t grad = sqrt_grad[key] & 0x1fff;
     /*if(diff==1023){
-        prlong longf("key:%ld", key);
-        prlong longf("diff:%ld\n", diff);
-        prlong longf("init:%ld\n", init);
-        prlong longf("grad:%ld\n", grad);
+        print64_tf("key:%ld", key);
+        print64_tf("diff:%ld\n", diff);
+        print64_tf("init:%ld\n", init);
+        print64_tf("grad:%ld\n", grad);
     }*/
-    long long m_ = init  + grad * diff;
-    long long m = m_>>13;
-    //prlong longf("%d\n", m);
+    int64_t m_ = init  + grad * diff;
+    int64_t m = m_>>13;
+    //print64_tf("%d\n", m);
     a = (s<<31) + ((((e+127)/2) << 23)) + m;
-    //prlong longf("%d\n", a);
-    //prlong long_bit(a);
+    //print64_tf("%d\n", a);
+    //print64_t_bit(a);
     return a;
 }
 
-int fabs(int f1){
+int32_t fabs(int32_t f1){
     float* f = (float*) &f1;
     float fres = std::fabs(*f);
-    int* res = (int *)&fres;
+    int32_t* res = (int32_t *)&fres;
 
     return *res;
 }
 
-int floor(int f1){
+int32_t floor(int32_t f1){
     float* f = (float*) &f1;
     float fres = std::floor(*f);
-    int* res = (int *)&fres;
+    int32_t* res = (int32_t *)&fres;
     
     return *res;
 }
 
-inline int flt(int x, int y){
-    long long xs = (x>>31) & 1;
-    long long ys = (y>>31) & 1;
-    long long xe = (x>>23) & 0xff;
-    long long ye = (y>>23) & 0xff;
-    long long xm = x & 0x7fffff;
-    long long ym = y & 0x7fffff;
-    long long el = xe < ye;
-    long long eeq = xe == ye;
-    long long ml = xm < ym;
-    long long absl = el | (eeq & ml);
+inline int32_t flt(int32_t x, int32_t y){
+    int64_t xs = (x>>31) & 1;
+    int64_t ys = (y>>31) & 1;
+    int64_t xe = (x>>23) & 0xff;
+    int64_t ye = (y>>23) & 0xff;
+    int64_t xm = x & 0x7fffff;
+    int64_t ym = y & 0x7fffff;
+    int64_t el = xe < ye;
+    int64_t eeq = xe == ye;
+    int64_t ml = xm < ym;
+    int64_t absl = el | (eeq & ml);
 
-    long long pp = xs==0 && ys==0;
-    long long np = xs==1 && ys==0;
-    long long nn = xs==1 && ys==1;
+    int64_t pp = xs==0 && ys==0;
+    int64_t np = xs==1 && ys==0;
+    int64_t nn = xs==1 && ys==1;
 
-    long long emeq = (x & 0x7fffffff) == (y& 0x7fffffff);
-    //prlong longf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
-    //prlong longf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
-    //prlong longf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
+    int64_t emeq = (x & 0x7fffffff) == (y& 0x7fffffff);
+    //print64_tf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
+    //print64_tf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
+    //print64_tf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
     return (pp==1&&absl==1) || np || (nn==1 && absl==0 && emeq==0);
 }
 
-inline int fle(int x, int y){
-    long long xs = (x>>31) & 1;
-    long long ys = (y>>31) & 1;
-    long long xe = (x>>23) & 0xff;
-    long long ye = (y>>23) & 0xff;
-    long long xm = x & 0x7fffff;
-    long long ym = y & 0x7fffff;
-    long long el = xe < ye;
-    long long eeq = xe == ye;
-    long long ml = xm < ym;
-    long long absl = el | (eeq & ml);
+inline int32_t fle(int32_t x, int32_t y){
+    int64_t xs = (x>>31) & 1;
+    int64_t ys = (y>>31) & 1;
+    int64_t xe = (x>>23) & 0xff;
+    int64_t ye = (y>>23) & 0xff;
+    int64_t xm = x & 0x7fffff;
+    int64_t ym = y & 0x7fffff;
+    int64_t el = xe < ye;
+    int64_t eeq = xe == ye;
+    int64_t ml = xm < ym;
+    int64_t absl = el | (eeq & ml);
 
-    long long pp = xs==0 && ys==0;
-    long long np = xs==1 && ys==0;
-    long long nn = xs==1 && ys==1;
+    int64_t pp = xs==0 && ys==0;
+    int64_t np = xs==1 && ys==0;
+    int64_t nn = xs==1 && ys==1;
 
-    long long emeq = (x & 0x7fffffff) == (y& 0x7fffffff);
-    //prlong longf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
-    //prlong longf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
-    //prlong longf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
+    int64_t emeq = (x & 0x7fffffff) == (y& 0x7fffffff);
+    //print64_tf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
+    //print64_tf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
+    //print64_tf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
     return (pp==1&&absl==1) || np || (nn==1 && absl==0 && emeq==0) || x==y;
 }
 
-inline int fmul(int a, int b){
-    long long s1,s2,s;
+inline int32_t fmul(int32_t a, int32_t b){
+    int64_t s1,s2,s;
     s1 = a>>31;
     s2 = b>>31;
     s  = s1 ^ s2;
 
 
-    long long e1, e2, eadd, en,ep, e,zero;
+    int64_t e1, e2, eadd, en,ep, e,zero;
     e1 = (a>>23) & 0xff;
     e2 = (b>>23) & 0xff;
     zero = e1 == 0 || e2==0;
@@ -353,11 +353,11 @@ inline int fmul(int a, int b){
     en = eadd - 127;
     ep = eadd - 126;
 
-    long long m1,m2;
+    int64_t m1,m2;
     m1 = (a & 0x7fffff) + 0x800000;
     m2 = (b & 0x7fffff) + 0x800000;
-    long long mul = m1 * m2;
-    long long m;
+    int64_t mul = m1 * m2;
+    int64_t m;
     if(mul>>47) {
         if (((ep>>8) & 3) == 3) {
             e = 0;
@@ -384,15 +384,15 @@ inline int fmul(int a, int b){
     }
 }
 
-inline int ftoi(int f1){
+inline int32_t ftoi(int32_t f1){
     float* f = (float*) &f1;
-    long long res = (long long)round(*f);
+    int64_t res = (int64_t)round(*f);
     return res;
 }
 
-inline int itof(int f1){
+inline int32_t itof(int32_t f1){
     float f = (float) f1;
-    long long* res = (long long *) &f;
+    int64_t* res = (int64_t *) &f;
     return (*res);
 }
 }
