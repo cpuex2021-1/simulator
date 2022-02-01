@@ -11,6 +11,12 @@ typedef int (*Func)(void);
 
 class Compiler : public Simulator
 {
+private:
+    CodeHolder* initCode(CodeHolder* cd){
+        cd->init(rt.environment());
+        return cd;
+    }
+    
 protected:
     class regAlloc{
     public:
@@ -22,14 +28,19 @@ protected:
         }
     };
 
+    //compiler
+    JitRuntime rt;
+    CodeHolder code;
+    x86::Compiler cc;
+
     //simulator register <-> vReg
     vector<regAlloc> regAllocList;
 
-    x86::Gp getRegGp(int i, x86::Compiler&);
-    x86::Gp getFregGp(int i, x86::Compiler&);
-    x86::Gp getGp(int i, bool isrd, x86::Compiler&);
-    x86::Gp getRdRegGp(int i, x86::Compiler&);
-    x86::Gp getRdFregGp(int i, x86::Compiler&);
+    x86::Gp getRegGp(int i);
+    x86::Gp getFregGp(int i);
+    x86::Gp getGp(int i, bool isrd);
+    x86::Gp getRdRegGp(int i);
+    x86::Gp getRdFregGp(int i);
 
     x86::Gp tmpReg;
     x86::Gp qtmpReg;
@@ -49,16 +60,16 @@ protected:
 
     Label endLabel;
     
-    void compileSingleInstruction(int pc, x86::Compiler&);
-    void bindLabel(int pc, x86::Compiler&);
+    void compileSingleInstruction(int pc);
+    void bindLabel(int pc);
 
-    void LoadAllRegs(x86::Compiler&);
+    void LoadAllRegs();
 
-    void StoreAllRegs(x86::Compiler&);
+    void StoreAllRegs();
 
-    void setUpLabel(x86::Compiler&);
+    void setUpLabel();
 
-    void preProcs(bool usera, int pc, int memdestRd, int rs1, int rs2, x86::Compiler&);
+    void preProcs(bool usera, int pc, int memdestRd, int rs1, int rs2);
     
     int memDestRd;
 
@@ -73,8 +84,9 @@ protected:
 
     int labellistIdx;
 
-public:
     Func fn;
+
+public:
     Compiler();
     ~Compiler();
     void compileAll();
