@@ -103,6 +103,10 @@ public:
         }
     }
 
+    uint32_t getInbufSize(){
+        return inbuf.size();
+    }
+
     void revertPush(){
         if(outbufIdx > 0) outbufIdx--;
     }
