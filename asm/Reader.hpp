@@ -33,6 +33,8 @@ protected:
         {};
     };
 
+    //debugging info (label position)
+    bool hasDebuggingInfo;
     vector<pcandlabel> labellist;
 
 public:
@@ -44,9 +46,12 @@ public:
     };
     vector<uint32_t> instructions;
     inline static vector<string> str_instr;
+    Reader();
     void write_to_file(string filename);
     int read_asm(string filename);
     int eat_bin(string filename);
+    void export_debugging_info(string filename);
+    void import_debugging_info(string filename);
     int line_to_pc(int l);
     int pc_to_line(int p);
     void full_reset();

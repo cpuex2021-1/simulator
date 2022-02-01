@@ -3,7 +3,7 @@
 #include <fstream>
 
 Profiler::Profiler()
-:numEachInstrExecuted(60,0)
+:numEachInstrExecuted(60,0), labelIdx(0)
 {}
 
 void Profiler::initProfiler(){
@@ -25,6 +25,8 @@ void Profiler::initProfiler(){
             instructionTypes[i].funct11 = getBits(instr, 11, 11);
         }
     }
+
+    if(hasDebuggingInfo) initLabelStats();
 }
 
 void Profiler::updateProfilerResult(){
@@ -48,11 +50,13 @@ void Profiler::updateProfilerResult(){
             num4stall += numExecuted[i];
         }
         //assume always untaken
-        if(instructionTypes[i].op == 6 && (instructionTypes[i].funct3 <= 5)){
+        if((instructionTypes[i].op == 6 && (instructionTypes[i].funct3 <= 5)) || instructionTypes[i].op == 7){
             numFlush += numExecuted[i] - numBranchUnTaken[i];
         }
 
         numEachInstrExecuted[encoded] += numExecuted[i];
+
+        if(hasDebuggingInfo) updateLabelStats(numExecuted[i], i);
     }
 }
 
@@ -71,13 +75,20 @@ void Profiler::exportToCsv(){
         auto p = line_to_pc(i);
         if(pc_to_line(line_to_pc(i)) == (int)i){
             out << numExecuted[p] << ", ";
-            if(instructionTypes[p].op == 6 && (instructionTypes[p].funct3 >= 0 && instructionTypes[p].funct3 <= 5)){
+            if((instructionTypes[p].op == 6 && (instructionTypes[p].funct3 >= 0 && instructionTypes[p].funct3 <= 5)) || instructionTypes[i].op == 7){
                 out << (numExecuted[p] - numBranchUnTaken[p]) << ", " << numBranchUnTaken[p] << "\n";
             }else{
                 out << "N/A, N/A\n";
             }
         }else{
             out << ", ,\n";
+        }
+    }
+
+    if(hasDebuggingInfo){
+        out << ",\nLabel, Times Executed (max), Times Executed (min)\n";
+        for(uint32_t i=0; i<labelStats.size(); i++){
+            out << labellist[i].label << ", " << labelStats[i].max << ", " << labelStats[i].min << "\n";
         }
     }
 
@@ -150,6 +161,29 @@ int Profiler::checkIfForceStall(char op, char funct3){
         break;
     }
     return 1;
+}
+
+void Profiler::initLabelStats(){
+    if(hasDebuggingInfo) labelStats = vector<lstats>(labellist.size());
+}
+
+void Profiler::updateLabelStats(uint64_t numexec, uint64_t addr){
+    if(labellist[labelIdx].pc == addr){
+        while(labellist[labelIdx].pc <= addr){
+            labelIdx++;
+        }
+        if(labelIdx < labelStats.size()){
+            labelStats[labelIdx].max = numexec;
+            labelStats[labelIdx].min = numexec;
+            return;
+        }
+        return;
+    }
+    if(labelIdx < labelStats.size()){
+        if (labelStats[labelIdx].max < numexec) labelStats[labelIdx].max = numexec;
+        if (labelStats[labelIdx].min > numexec) labelStats[labelIdx].min = numexec;
+    }
+    return;
 }
 
 void Profiler::translateInstructionType(char op, char funct3, char funct11, int& encoded, string& str){
@@ -478,8 +512,8 @@ vector<string> Profiler::stringOfEachInstr = {
 "FDIV",
 "FSQRT",
 "FNEG",
-"FMIN",
-"FMAX",
+"FABS",
+"FLOOR",
 "FEQ",
 "FLT",
 "FLE",

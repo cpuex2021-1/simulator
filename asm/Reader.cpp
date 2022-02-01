@@ -1,4 +1,4 @@
-#include "Assembler.hpp"
+#include "Reader.hpp"
 #include "../lib/DisAssembler.hpp"
 #include <iostream>
 #include <sstream>
@@ -11,6 +11,10 @@ void add_to_vector(vector<T> &vec, uint64_t index, T value){
         vec.at(index) = value;
     }
 }
+
+Reader::Reader()
+:hasDebuggingInfo(false)
+{}
 
 void Reader::read_one_line(int &line_num, int &now_addr, string str){
         #ifdef DEBUG
@@ -54,6 +58,8 @@ int Reader::read_asm(string filename){
     ainput.open(filename, ios::in);
 
     cerr << "Reading " << filename <<  "..." << flush;
+
+    hasDebuggingInfo = true;
 
     string str;
     int line_num = 0;
@@ -151,6 +157,43 @@ void Reader::write_to_file(string filename){
         output.write(reinterpret_cast<char *> (&instructions[i]), sizeof(instructions[i]));
     }
     output.close();
+}
+
+void Reader::export_debugging_info(string filename){    
+    if(!hasDebuggingInfo) return;
+    fstream output;
+    output.open(filename, ios::out);
+    
+    //write length of file
+    output << labellist.size() << "\n";
+
+    //write label position and name
+    for(uint32_t i=0; i<labellist.size();i++){
+        output << labellist[i].pc << " " << labellist[i].label << "\n";
+    }
+
+    output << flush;
+    output.close();
+}
+
+void Reader::import_debugging_info(string filename){
+    fstream in;
+    in.open(filename, ios::in);
+
+    uint32_t length;
+    in >> length;
+
+    labellist = vector<pcandlabel>();    
+    labellist.reserve(length);
+
+    for(uint32_t i=0; i<length; i++){
+        uint32_t p;
+        string l;
+        in >> p >> l;
+        labellist.push_back(pcandlabel(p, l));
+    }
+    
+    hasDebuggingInfo = true;
 }
 
 int Reader::line_to_pc(int l){

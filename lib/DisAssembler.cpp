@@ -147,10 +147,10 @@ string disassemble(uint32_t instr){
             ss << "FNEG " << fregName.at(rd) << ", " << fregName.at(rs1);
             break;
         case 6:
-            ss << "FMIN " << fregName.at(rd) << ", " << fregName.at(rs1) << ", " << fregName.at(rs2); 
+            ss << "FABS " << fregName.at(rd) << ", " << fregName.at(rs1) << ", " << fregName.at(rs2); 
             break;
         case 7:
-            ss << "FMAX " << fregName.at(rd) << ", " << fregName.at(rs1) << ", " << fregName.at(rs2); 
+            ss << "FLOOR " << fregName.at(rd) << ", " << fregName.at(rs1) << ", " << fregName.at(rs2); 
             break;
         default:
             return "Unknown Instruction";

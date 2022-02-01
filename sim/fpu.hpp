@@ -13,8 +13,8 @@ inline int fadd(int f1, int f2);
 inline int fsub(int f1, int f2); inline int fmul(int f1, int f2); inline int fdiv(int f1, int f2);
 inline int fsqrt(int f1);
 inline int fneg(int f1);
-inline int fmin(int f1, int f2);
-inline int fmax(int f1, int f2);
+inline int fabs(int f1);
+inline int floor(int f1);
 inline int feq(int f1, int f2);
 inline int flt(int f1, int f2);
 inline int fle(int f1, int f2);
@@ -75,23 +75,20 @@ int fneg(int f1){
 
     return *res;
 }
-int fmin(int f1, int f2){
+int fabs(int f1){
     float* f = (float*) &f1;
-    float* g = (float*) &f2;
-    if(*f > *g){
-        return f2;
-    }else{
-        return f1;
-    }
+    float fres = std::fabs(*f);
+    int* res = (int *)&fres;
+
+    return *res;
 }
-int fmax(int f1, int f2){
+
+int floor(int f1){
     float* f = (float*) &f1;
-    float* g = (float*) &f2;
-    if(*f > *g){
-        return f1;
-    }else{
-        return f2;
-    }
+    float fres = std::floor(*f);
+    int* res = (int *)&fres;
+    
+    return *res;
 }
 
 int feq(int f1, int f2){
@@ -167,8 +164,8 @@ inline int fmul(int f1, int f2);
 inline int fdiv(int f1, int f2);
 inline int fsqrt(int f1);
 inline int fneg(int f1);
-inline int fmin(int f1, int f2);
-inline int fmax(int f1, int f2);
+inline int fabs(int f1);
+inline int floor(int f1);
 inline int feq(int f1, int f2);
 inline int flt(int f1, int f2);
 inline int fle(int f1, int f2);
@@ -279,60 +276,20 @@ inline int fsqrt(int a){
     return a;
 }
 
-inline int fmin(int x, int y){
-    long long xs = (x>>31) & 1;
-    long long ys = (y>>31) & 1;
-    long long xe = (x>>23) & 0xff;
-    long long ye = (y>>23) & 0xff;
-    long long xm = x & 0x7fffff;
-    long long ym = y & 0x7fffff;
-    long long el = xe < ye;
-    long long eeq = xe == ye;
-    long long ml = xm < ym;
-    long long absl = el | (eeq & ml);
+int fabs(int f1){
+    float* f = (float*) &f1;
+    float fres = std::fabs(*f);
+    int* res = (int *)&fres;
 
-    long long pp = xs==0 && ys==0;
-    long long np = xs==1 && ys==0;
-    long long nn = xs==1 && ys==1;
-
-    long long emeq = (x & 0x7fffffff) == (y& 0x7fffffff);
-    //prlong longf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
-    //prlong longf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
-    //prlong longf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
-    long long lt = (pp==1&&absl==1) || np || (nn==1 && absl==0 && emeq==0);
-    if(lt){
-        return x;
-    }else {
-        return y;
-    }
+    return *res;
 }
 
-inline int fmax(int x, int y){
-    long long xs = (x>>31) & 1;
-    long long ys = (y>>31) & 1;
-    long long xe = (x>>23) & 0xff;
-    long long ye = (y>>23) & 0xff;
-    long long xm = x & 0x7fffff;
-    long long ym = y & 0x7fffff;
-    long long el = xe < ye;
-    long long eeq = xe == ye;
-    long long ml = xm < ym;
-    long long absl = el | (eeq & ml);
-
-    long long pp = xs==0 && ys==0;
-    long long np = xs==1 && ys==0;
-    long long nn = xs==1 && ys==1;
-
-    long long emeq = (x & 0x7fffffff) == (y& 0x7fffffff);
-    //prlong longf("x:%d xs:%d xe:%d xm:%d\n", x,xs,xe,xm);
-    //prlong longf("y:%d ys:%d ye:%d ym:%d\n", y,ys,ye,ym);
-    //prlong longf("el:%d eeq:%d mL:%d absl:%d pp:%d np:%d nn:%d\n", el,eeq,ml,absl,pp,np,nn);
-    long long lt = (pp==1&&absl==1) || np || (nn==1 && absl==0 && emeq==0);
-    if(lt){
-        return y;
-    }else {
-        return x;
-    }
+int floor(int f1){
+    float* f = (float*) &f1;
+    float fres = std::floor(*f);
+    int* res = (int *)&fres;
+    
+    return *res;
 }
 
 inline int flt(int x, int y){

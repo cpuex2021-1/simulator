@@ -1,6 +1,6 @@
 #include "Parse.hpp"
 #include "Instructions.hpp"
-#include "Assembler.hpp"
+#include "Reader.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -21,4 +21,6 @@ int main(int argc, char* argv[]){
     }
     Asm.read_asm(argv[1]);
     Asm.write_to_file(argv[2]);
+    Asm.export_debugging_info("debuginfo.txt");
+    cerr << "Debugging information written in debuginfo.txt" << endl;
 }

@@ -1,6 +1,6 @@
 #ifndef PROFILER_H_INCLUDED
 #define PROFILER_H_INCLUDED
-#include "../asm/Assembler.hpp"
+#include "../asm/Reader.hpp"
 #include <iostream>
 #include <string>
 
@@ -26,6 +26,18 @@ protected:
 
     int checkIfForceStall(char op, char funct3);
     void translateInstructionType(char op, char funct3, char funct11, int& encoded, string& str);
+
+
+    class lstats
+    {
+    public:
+        uint64_t max;
+        uint64_t min;
+    };
+    vector<lstats> labelStats;
+    int labelIdx;
+    void initLabelStats();
+    void updateLabelStats(uint64_t numexec, uint64_t addr);
 
 public:
     Profiler();

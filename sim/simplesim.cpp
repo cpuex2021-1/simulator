@@ -3,11 +3,12 @@
 #include <algorithm>
 #include "Compiler.hpp"
 
-string usage = "Usage:\n\t-a [Assembly file name] : Execute an assembly file \
-                      \n\t-b [Binary file name]   : Execute a binary file \
-                      \n\t-f                      : Enable JIT Compilation \
-                      \n\t-u [Input file name]    : Select UART input file \
-                      \n\t-d                      : Show Result in detail";
+string usage = "Usage:\n\t-a [Assembly file name]  : Execute an assembly file \
+                      \n\t-b [Binary file name]    : Execute a binary file \
+                      \n\t-f                       : Enable JIT Compilation \
+                      \n\t-u [Input file name]     : Select UART input file \
+                      \n\t-d                       : Show Result in detail \
+                      \n\t-l [Debug info file name]: Import Debugging info [Recommended in Binary mode]";
 
 Compiler sim;
 
@@ -47,6 +48,20 @@ int main(int argc, char* argv[]){
     if(optionExists(options, "-a")){
         sim.read_asm(getOption(options, "-a"));
     }else if(optionExists(options, "-b")){
+        if(optionExists(options, "-l")){
+            sim.import_debugging_info(getOption(options, "-l"));
+        }else{
+            cerr << "No debugging information specified, do you want to continue? (y/n/help): " << flush;
+            string opt;
+            cin >> opt;
+            if(opt != "y"){
+                if(opt == "help"){
+                    cerr << "Use option \"-l [filename]\" to import debugging info written by assembler." << endl;
+                }
+                cerr << "Aborting" << endl;
+                exit(0);
+            }
+        }
         sim.eat_bin(getOption(options, "-b"));
     }else{
         cout << usage << endl;

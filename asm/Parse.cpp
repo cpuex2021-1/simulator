@@ -197,7 +197,7 @@ Parse :: Parse(string str, int now_addr)
                     0,
                     0);
                 codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "floor"){
+            }else if(match[1].str() ==  "fabs"){
                 Rtype ret(
                     2,
                     6,
@@ -206,7 +206,7 @@ Parse :: Parse(string str, int now_addr)
                     0,
                     0);
                 codes.push_back(ret.assemble());
-            }else if(match[1].str() ==  "fabs"){
+            }else if(match[1].str() ==  "floor"){
                 Rtype ret(
                     2,
                     7,
