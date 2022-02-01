@@ -1,6 +1,6 @@
 #ifndef PROFILER_H_INCLUDED
 #define PROFILER_H_INCLUDED
-#include "../asm/Assembler.hpp"
+#include "../asm/Reader.hpp"
 #include <iostream>
 #include <string>
 

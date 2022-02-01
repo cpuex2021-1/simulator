@@ -7,7 +7,7 @@
 #include <vector>
 #include "CPU.hpp"
 #include "../lib/util.hpp"
-#include "../asm/Assembler.hpp"
+#include "../asm/Reader.hpp"
 
 
 class Simulator: public CPU

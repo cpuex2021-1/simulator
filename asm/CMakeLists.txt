@@ -11,7 +11,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/../lib/CMakeLists.txt)
 
 add_library(asmlib ${CMAKE_CURRENT_LIST_DIR}/Instructions.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Parse.cpp
-${CMAKE_CURRENT_LIST_DIR}/Assembler.cpp)
+${CMAKE_CURRENT_LIST_DIR}/Reader.cpp)
 target_link_libraries(asmlib utillib)
 
 add_executable(assembler ${CMAKE_CURRENT_LIST_DIR}/main.cpp)
