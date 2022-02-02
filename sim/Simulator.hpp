@@ -27,8 +27,6 @@ protected:
 
     
     Mode mode;
-    int cont_fast();
-    int cont_acc();
 public:
 
     bool ready;
@@ -62,7 +60,6 @@ public:
     static int pc_to_line(int);
     static int line_to_pc(int);
     bool isbrk(int);
-    bool getPipelineInfoByLineNum(int, string&, bool&);
     void setMode(Mode);
     Simulator();
     ~Simulator();
