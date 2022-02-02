@@ -1,70 +1,53 @@
-#pragma once
+#ifndef INSTRUCCTIONS_H
+#define INSTRUCCTIONS_H
 #include <string>
 #include <regex>
 #include <map>
 using namespace std;
 
-class Instruction
-{
-public:
-    virtual unsigned int assemble()=0;
-};
+inline uint32_t Rtype(uint32_t op, uint32_t funct3, uint32_t rd, uint32_t rs1, uint32_t rs2, uint32_t funct10){
+    op &= ((1 << 3) - 1);
+    funct3 &= ((1 << 3) - 1);
+    rs2 &= ((1 << 5) - 1);
+    funct10 &= ((1 << 10) - 1);
+    rs1 &= ((1 << 5) - 1);
+    rd &= ((1 << 5) - 1);
+    
+    return (rs1 << 27) | (rd << 22) | (funct10 << 11) | (rs2 << 6) | (funct3 << 3) | op;
+}
 
-class Rtype : public Instruction
-{
-protected:
-    unsigned int opcode;
-    unsigned int funct3;
-    unsigned int rd;
-    unsigned int rs1;
-    unsigned int rs2;
-    unsigned int funct10;
 
-public:
-    Rtype(unsigned int op_, unsigned int funct3_, unsigned int rd_, unsigned int rs1_, unsigned int rs2_, unsigned int funct10_);
-    unsigned int assemble() override;
-};
+inline uint32_t ILtype(uint32_t op,uint32_t funct3,uint32_t rd,uint32_t rs1,int32_t imm){
+    op &= ((1 << 3) - 1);
+    funct3 &= ((1 << 3) - 1);
+    imm &= ((1 << 16) - 1);    
+    rs1 &= ((1 << 5) - 1);
+    rd &= ((1 << 5) - 1);
 
-class I_Ltype : public Instruction
-{
-protected:
-    unsigned int opcode;
-    unsigned int funct3;
-    unsigned int rd;
-    unsigned int rs1;
-    int imm;
+    return (rs1 << 27) | (rd << 22) | (imm << 6) | (funct3 << 3) | op; 
+}
 
-public:
-    I_Ltype(unsigned int op_,unsigned int funct3_,unsigned int rd_,unsigned int rs1_,int imm_);
-    unsigned int assemble() override;
-};
+inline uint32_t SBtype(uint32_t op,uint32_t funct3,uint32_t rs1,uint32_t rs2,int32_t imm){
+    op &= ((1 << 3) - 1);
+    funct3 &= ((1 << 3) - 1);
+    imm &= ((1 << 16) - 1);    
+    rs1 &= ((1 << 5) - 1);
+    rs2 &= ((1 << 5) - 1);
 
-class S_Btype : public Instruction
-{
-protected:
-    unsigned int opcode;
-    unsigned int funct3;
-    unsigned int rs1;
-    unsigned int rs2;
-    int imm;
+    return (rs1 << 27) | (imm << 11) | (rs2 << 6) | (funct3 << 3) | op;
+}
 
-public:
-    S_Btype(unsigned int op_,unsigned int funct3_,unsigned int rs1_,unsigned int rs2_,int imm_);
-    unsigned int assemble() override;
-};
+inline uint32_t Jtype(uint32_t op, uint32_t funct3, uint32_t addr){
+    op &= ((1 << 3) - 1);
+    funct3 &= ((1 << 3) - 1);
+    addr &= ((1 << 25) - 1);
 
-class Jtype : public Instruction
-{
-protected:
-    unsigned int opcode;
-    unsigned int funct3;
-    unsigned int addr;
+    return (addr << 6) | (funct3 << 3) | op;
+}
 
-public:
-    Jtype(unsigned int op_, unsigned int funct3_, unsigned int addr_);
-    unsigned int assemble() override;
-};
 
 extern map<string, unsigned int> xregs;
 extern map<string, unsigned int> fregs;
 extern map<string, unsigned int> labels;
+
+#endif
