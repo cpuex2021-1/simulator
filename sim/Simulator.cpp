@@ -115,34 +115,7 @@ int Simulator::rerun(){
     return run();
 }
 
-//currently not supported
-int Simulator::cont_fast(){
-    /*
-    if(step()){
-        while(pc < instructions.size()){
-            #ifdef DEBUG
-            cout << "PC:" << pc << endl << "Instruction:";
-            print_register();
-            #endif
-
-            if(break_pc.size() != 0 && break_pc[pc]){
-                return 1;
-            }else if(break_clk.size() != 0 && break_clk[0] <= clk){
-                clk_del_brk(break_clk[0]);
-                return 2;
-            }
-            
-            simulate_fast();
-            
-            #ifdef DEBUG
-            cout << endl;
-            #endif
-        }
-    }*/
-    return 0;
-}
-
-int Simulator::cont_acc(){
+int Simulator::cont(){
 
     #ifndef WINDOWS
     if(signal(SIGINT, handler) == SIG_ERR){
@@ -180,16 +153,9 @@ int Simulator::cont_acc(){
     return 0;
 }
 
-int Simulator::cont(){
-    if(mode == Simulator::accurate) return cont_acc();
-    else if(mode == Simulator::fast) return cont_fast();
-    else return -1;
-}
 
 int Simulator::step(){
-    if(mode == Simulator::accurate) simulate_acc();
-    else if(mode == Simulator::fast) simulate_fast();
-    
+    simulate_acc();
     update_clkcount();
     
     if(pc >= instructions.size()){
@@ -197,8 +163,8 @@ int Simulator::step(){
     }else{
         return 1;
     }
-
 }
+
 void Simulator::show_reg(){
     print_register();
 }
@@ -301,19 +267,6 @@ vector<string> stages = {
     "ALU + MA",
     "WB"
 };
-
-bool Simulator::getPipelineInfoByLineNum(int l, string& s, bool& flushed){
-    vector<pinfo> P(PIPELINE_STAGES);
-    getPipelineInfo(P);
-    for(int i=0; i<PIPELINE_STAGES; i++){
-        if(P[i].pc == line_to_pc(l) && pc_to_line(line_to_pc(l)) == l){
-            s = stages[i];
-            flushed = P[i].flushed;
-            return true;
-        }
-    }
-    return false;
-}
 
 void Simulator::setMode(Mode m){
     mode = m;

@@ -187,12 +187,6 @@ void MainWindow::refreshInstView(){
         instt->verticalHeader()->setVisible(true);
         if(sobj.sim.ready){
             string in = (i + inst_line < (int)sobj.sim.str_instr.size()) ? sobj.sim.str_instr[i + inst_line] : "";
-            string stage;
-            bool flushed = false;
-            if(sobj.sim.getPipelineInfoByLineNum(inst_line + i, stage, flushed)){
-                if(flushed) in += string("\t") + string("Flushed");
-                else in += string("\t") + stage;
-            }
             if(instt->item(i,0) == NULL){
                 instt->setItem(i, 0, new QTableWidgetItem(in.data()));
             }else{
@@ -223,9 +217,9 @@ void MainWindow::refreshUartView(){
     auto& uartt = ui->uartInputTextBrowser;
     stringstream ss;
     for(uint32_t i=0; i<uart.getInbufSize(); i++){
-        if(i == uart.getInbufIdx()) ss << "----\n";
+        if(i == (uint32_t)uart.getInbufIdx()) ss << "----\n";
         ss << uart.getInbuf(i) << "\n";
-        if(i == uart.getInbufIdx()) ss << "----\n";
+        if(i == (uint32_t)uart.getInbufIdx()) ss << "----\n";
     }
 
     uartt->setText(ss.str().data());

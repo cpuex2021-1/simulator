@@ -93,8 +93,6 @@ void CPU::revert(){
     }
 
     pc = logd.pc;
-
-    //p.revert(pc, clk);
 }
 
 void CPU::update_clkcount(){
