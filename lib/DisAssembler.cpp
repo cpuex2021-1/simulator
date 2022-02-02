@@ -22,7 +22,6 @@ string disassemble(uint32_t instr){
         rd = getBits(instr, 25, 20);
         rs1 = getBits(instr, 31, 26);
         rs2 = getBits(instr, 11, 6);
-        uint32_t funct11 = getBits(instr, 21, 11);
 
         switch (funct3)
         {

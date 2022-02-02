@@ -156,10 +156,9 @@ inline void CPU::simulate_acc()
     {
     case 0:
     {
-        rd = getBits(instr, 26, 22);
-        rs1 = getBits(instr, 31, 27);
-        rs2 = getBits(instr, 10, 6);
-        uint32_t funct11 = getBits(instr, 21, 11);
+        rd = getBits(instr, 25, 20);
+        rs1 = getBits(instr, 31, 26);
+        rs2 = getBits(instr, 11, 6);
         
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d funct11:%d\n", op, funct3, rd, rs1, rs2, funct11);
@@ -185,10 +184,10 @@ inline void CPU::simulate_acc()
     }
     case 2:
     {
-        rd = getBits(instr, 26, 22);
+        rd = getBits(instr, 25, 20);
         former_val = reg[rd];
-        rs1 = getBits(instr, 31, 27);
-        rs2 = getBits(instr, 10, 6);
+        rs1 = getBits(instr, 31, 26);
+        rs2 = getBits(instr, 11, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d\n", op, funct3, rd, rs1, rs2);
@@ -256,10 +255,10 @@ inline void CPU::simulate_acc()
     }
     case 3:
     {
-        rd = getBits(instr, 26, 22);
+        rd = getBits(instr, 25, 20);
         former_val = reg[rd];
-        rs1 = getBits(instr, 31, 27);
-        rs2 = getBits(instr, 10, 6);
+        rs1 = getBits(instr, 31, 26);
+        rs2 = getBits(instr, 11, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d\n", op, funct3, rd, rs1, rs2);
@@ -301,12 +300,11 @@ inline void CPU::simulate_acc()
     }
     case 4:
     {
-        rs1 = getBits(instr, 31, 27);
-        rd = getBits(instr, 26, 22);
+        rs1 = getBits(instr, 31, 26);
+        rd = getBits(instr, 25, 20);
         former_val = reg[rd];
-        int32_t imm = getSextBits(instr, 21, 6);
-        int32_t shamt = getSextBits(instr, 10, 6);
-        uint32_t judge = getBits(instr, 11, 11);
+        int32_t imm = getSextBits(instr, 19, 6);
+        int32_t shamt = getSextBits(instr, 11, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, imm);
@@ -331,11 +329,11 @@ inline void CPU::simulate_acc()
     }
     case 5:
     {
-        rs1 = getBits(instr, 31, 27);
-        rd = getBits(instr, 26, 22);
+        rs1 = getBits(instr, 31, 26);
+        rd = getBits(instr, 25, 20);
         former_val = reg[rd];
-        int32_t offset = getSextBits(instr, 21, 6);
-        uint32_t luioffset = getBits(instr, 21, 6);
+        int32_t offset = getSextBits(instr, 19, 6);
+        uint32_t luioffset = getBits(instr, 19, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, offset);
@@ -389,10 +387,10 @@ inline void CPU::simulate_acc()
     }
     case 6:
     {
-        rs1 = getBits(instr, 31, 27);
-        rs2 = getBits(instr, 10, 6);
-        int32_t imm = getSextBits(instr, 26, 11);
-        int32_t rs2imm = getSextBits(instr, 10, 6);
+        rs1 = getBits(instr, 31, 26);
+        rs2 = getBits(instr, 11, 6);
+        int32_t imm = getSextBits(instr, 25, 12);
+        int32_t rs2imm = getSextBits(instr, 11, 6);
         #ifdef DEBUG
         printf("op:%d funct3:%d rs1:%d rs2:%d imm:%d\n", op, funct3, rs1, rs2, imm);
         #endif
@@ -433,7 +431,7 @@ inline void CPU::simulate_acc()
             reg[0] = 0; break;
 
         case 5:
-            if((uint32_t)reg[rs1] != rs2imm){
+            if((int32_t)reg[rs1] != rs2imm){
                 pc += imm;
             }else{
                 numBranchUnTaken[pc]++;
@@ -460,9 +458,9 @@ inline void CPU::simulate_acc()
     case 7:
     {
         int32_t addr = getSextBits(instr, 30, 6);
-        rs1 = getBits(instr, 31, 27);
+        rs1 = getBits(instr, 31, 26);
         former_val = reg[rd];
-        int32_t imm = getSextBits(instr, 21, 6);
+        int32_t imm = getSextBits(instr, 19, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, imm);
