@@ -19,59 +19,19 @@ string disassemble(uint32_t instr){
     {
     case 0:
     {
-        rd = getBits(instr, 26, 22);
-        rs1 = getBits(instr, 31, 27);
-        rs2 = getBits(instr, 10, 6);
+        rd = getBits(instr, 25, 20);
+        rs1 = getBits(instr, 31, 26);
+        rs2 = getBits(instr, 11, 6);
         uint32_t funct11 = getBits(instr, 21, 11);
 
         switch (funct3)
         {
         case 0:
-            switch (funct11)
-            {
-            case 0:
-                ss << "ADD " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-                break;
-            case 1:
-                ss << "SUB " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-                break;            
-            default:
-                return "Unknown Instruction";
-                break;
-            }
+            ss << "ADD " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
             break;
         case 1:
-            ss << "SLL " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-            break;
-        case 2:
-            switch (funct11)
-            {
-            case 0:
-                ss << "SRL " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-                break;
-            case 1:
-                ss << "SRA " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-                break;
-            default:
-                return "Unknown Instruction";
-                break;
-            }
-            break;
-        case 3:
-            ss << "SLT " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-            break;
-        case 4:
-            ss << "SLTU " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-            break;
-        case 5:
-            ss << "XOR " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-            break;
-        case 6:
-            ss << "OR " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-            break;
-        case 7:
-            ss << "AND " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-            break;
+            ss << "SUB " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
+            break;            
         default:
             return "Unknown Instruction";
             break;
@@ -80,47 +40,13 @@ string disassemble(uint32_t instr){
     }
     case 1:
     {
-        rd = getBits(instr, 26, 22);
-        rs1 = getBits(instr, 31, 27);
-        rs2 = getBits(instr, 10, 6);
-
-        switch (funct3)
-        {
-        case 0:
-            ss << "MUL " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-            break;
-        case 1:
-            ss << "MULH " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-            break;
-        case 2:
-            ss << "MULHSU " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-            break;
-        case 3:
-            ss << "MULHU " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-            break;
-        case 4:
-            ss << "DIV " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-            break;
-        case 5:
-            ss << "DIVU " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-            break;
-        case 6:
-            ss << "REM " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-            break;
-        case 7:
-            ss << "REMU " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
-            break;
-        default:
-            return "Unknown Instruction";
-            break;
-        }
         break;
     }
     case 2:
     {
-        rd = getBits(instr, 26, 22);
-        rs1 = getBits(instr, 31, 27);
-        rs2 = getBits(instr, 10, 6);
+        rd = getBits(instr, 25, 20);
+        rs1 = getBits(instr, 31, 26);
+        rs2 = getBits(instr, 11, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d\n", op, funct3, rd, rs1, rs2);
@@ -160,9 +86,9 @@ string disassemble(uint32_t instr){
     }
     case 3:
     {
-        rd = getBits(instr, 26, 22);
-        rs1 = getBits(instr, 31, 27);
-        rs2 = getBits(instr, 10, 6);
+        rd = getBits(instr, 25, 20);
+        rs1 = getBits(instr, 31, 26);
+        rs2 = getBits(instr, 11, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d\n", op, funct3, rd, rs1, rs2);
@@ -179,15 +105,7 @@ string disassemble(uint32_t instr){
         case 2:
             ss << "FLE " << xregName.at(rd) << ", " << fregName.at(rs1) << ", " << fregName.at(rs2); 
             break;
-        case 3:
-            ss << "FMV.X.W " << xregName.at(rd) << ", " << fregName.at(rs1); 
-            break;            
-        case 4:
-            ss << "FMV.W.X " << fregName.at(rd) << ", " << xregName.at(rs1); 
-            break;
-        case 5:
-            ss << "FMV " << fregName.at(rd) << ", " << fregName.at(rs1); 
-            break;
+        
         case 6:
             ss << "ITOF " << xregName.at(rd) << ", " << fregName.at(rs1);
             break;
@@ -203,11 +121,10 @@ string disassemble(uint32_t instr){
     }
     case 4:
     {
-        rs1 = getBits(instr, 31, 27);
-        rd = getBits(instr, 26, 22);
-        int32_t imm = getSextBits(instr, 21, 6);
-        int32_t shamt = getSextBits(instr, 10, 6);
-        uint32_t judge = getBits(instr, 11, 11);
+        rs1 = getBits(instr, 31, 26);
+        rd = getBits(instr, 25, 20);
+        int32_t imm = getSextBits(instr, 19, 6);
+        int32_t shamt = getSextBits(instr, 11, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, imm);
@@ -222,27 +139,7 @@ string disassemble(uint32_t instr){
             ss << "SLLI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << shamt; 
             break;
         case 2:
-            if(judge){
-                ss << "SRLI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << shamt; 
-                break;
-            }else{
-                ss << "SRAI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << shamt; 
-                break;
-            }
-        case 3:
-            ss << "SLTI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << imm; 
-            break;
-        case 4:
-            ss << "SLTUI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << imm; 
-            break;
-        case 5:
-            ss << "XORI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << imm; 
-            break;
-        case 6:
-            ss << "ORI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << imm; 
-            break;
-        case 7:
-            ss << "ANDI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << imm; 
+            ss << "SRAI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << shamt; 
             break;
         default:
             return "Unknown Instruction";
@@ -252,10 +149,10 @@ string disassemble(uint32_t instr){
     }
     case 5:
     {
-        rs1 = getBits(instr, 31, 27);
-        rd = getBits(instr, 26, 22);
-        int32_t offset = getSextBits(instr, 21, 6);
-        uint32_t luioffset = getBits(instr, 21, 6);
+        rs1 = getBits(instr, 31, 26);
+        rd = getBits(instr, 25, 20);
+        int32_t offset = getSextBits(instr, 19, 6);
+        uint32_t luioffset = getBits(instr, 19, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, offset);
@@ -266,9 +163,11 @@ string disassemble(uint32_t instr){
         case 0:
             ss << "LW " << xregName.at(rd) << ", " << offset << "(" << xregName.at(rs1) << ")"; 
             break;
+        /*
         case 1:
-            ss << "FLW " << fregName.at(rd) << ", " << offset << "(" << xregName.at(rs1) << ")"; 
+            ss << "VLW " << fregName.at(rd) << ", " << offset << "(" << xregName.at(rs1) << ")"; 
             break;
+        */
         case 2:
             ss << "LUI " << xregName.at(rd) << ", " << (((rs1 << 16) + luioffset) << 12);
             break;
@@ -290,9 +189,10 @@ string disassemble(uint32_t instr){
     }
     case 6:
     {
-        rs1 = getBits(instr, 31, 27);
-        rs2 = getBits(instr, 10, 6);
-        int32_t imm = getSextBits(instr, 26, 11);
+        rs1 = getBits(instr, 31, 26);
+        rs2 = getBits(instr, 11, 6);
+        int32_t imm = getSextBits(instr, 25, 12);
+        int32_t rs2imm = getSextBits(instr, 11, 6);
         #ifdef DEBUG
         printf("op:%d funct3:%d rs1:%d rs2:%d imm:%d\n", op, funct3, rs1, rs2, imm);
         #endif
@@ -311,11 +211,9 @@ string disassemble(uint32_t instr){
         case 3:
             ss << "BGE " << xregName.at(rs1) << ", " << xregName.at(rs2) << ", " << imm; 
             break;
-        case 4:
-            ss << "BLTU " << xregName.at(rs1) << ", " << xregName.at(rs2) << ", " << imm; 
-            break;
+            
         case 5:
-            ss << "BGEU " << xregName.at(rs1) << ", " << xregName.at(rs2) << ", " << imm; 
+            ss << "BNEI " << xregName.at(rs1) << ", " << rs2imm << ", " << imm; 
             break;
         case 6:
             ss << "SW " << xregName.at(rs2) << ", " << imm << "(" << xregName.at(rs1) << ")";
@@ -332,9 +230,9 @@ string disassemble(uint32_t instr){
     case 7:
     {
         int32_t addr = getSextBits(instr, 30, 6);
-        rs1 = getBits(instr, 31, 27);
-        rd = getBits(instr, 26, 22);
-        int32_t imm = getSextBits(instr, 21, 6);
+        rs1 = getBits(instr, 31, 26);
+        rd = getBits(instr, 25, 20);
+        int32_t imm = getSextBits(instr, 19, 6);
         
         switch (funct3)
         {
@@ -342,10 +240,13 @@ string disassemble(uint32_t instr){
             ss << "JUMP " << addr;
             break;
         case 1:
-            ss << "JAL " << xregName.at(rd) << ", " << imm;
+            ss << "CALL " << addr;
             break;
         case 2:
-            ss << "JALR " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << imm;
+            ss << "CALLCLS " << xregName.at(rs1) << ", " << imm;
+            break;        
+        case 3:
+            ss << "RET ";
             break;
         default:
             return "Unknown Instruction";
