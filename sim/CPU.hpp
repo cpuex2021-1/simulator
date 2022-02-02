@@ -11,8 +11,7 @@
 #include <iomanip>
 #include <map>
 
-#define REGNUM 32
-#define FREGNUM 32
+#define REGNUM 64
 
 #define CACHEMISSSTALL 30
 #define CACHEHITSTALL 1
@@ -94,7 +93,6 @@ protected:
 
 public:
     inline static int32_t* reg;
-    inline static int32_t* freg;
 
     uint64_t pc;
 
@@ -196,56 +194,36 @@ inline void CPU::simulate_acc()
         switch (funct3)
         {
         case 0:
-            former_val = freg[rd];
-            freg[rd] = FPU::fadd(freg[rs1], freg[rs2]);
-            rd += REGNUM;
-            rs1 += REGNUM;
-            rs2 += REGNUM;
+            former_val = reg[rd];
+            reg[rd] = FPU::fadd(reg[rs1], reg[rs2]);
             pc++; reg[0] = 0; break;
         case 1:
-            former_val = freg[rd];
-            freg[rd] = FPU::fsub(freg[rs1], freg[rs2]);
-            rd += REGNUM;
-            rs1 += REGNUM;
-            rs2 += REGNUM;
+            former_val = reg[rd];
+            reg[rd] = FPU::fsub(reg[rs1], reg[rs2]);
             pc++; reg[0] = 0; break;
         case 2:
-            former_val = freg[rd];
-            freg[rd] = FPU::fmul(freg[rs1], freg[rs2]);
-            rd += REGNUM;
-            rs1 += REGNUM;
-            rs2 += REGNUM;
+            former_val = reg[rd];
+            reg[rd] = FPU::fmul(reg[rs1], reg[rs2]);
             pc++; reg[0] = 0; break;
         case 3:
-            former_val = freg[rd];
-            freg[rd] = FPU::fdiv(freg[rs1], freg[rs2]);
-            rd += REGNUM;
-            rs1 += REGNUM;
-            rs2 += REGNUM;
+            former_val = reg[rd];
+            reg[rd] = FPU::fdiv(reg[rs1], reg[rs2]);
             pc++; reg[0] = 0; break;
         case 4:
-            former_val = freg[rd];
-            freg[rd] = FPU::fsqrt(freg[rs1]);
-            rd += REGNUM;
-            rs1 += REGNUM;
+            former_val = reg[rd];
+            reg[rd] = FPU::fsqrt(reg[rs1]);
             pc++; reg[0] = 0; break;
         case 5:
-            former_val = freg[rd];
-            freg[rd] = FPU::fneg(freg[rs1]);
-            rd += REGNUM;
-            rs1 += REGNUM;
+            former_val = reg[rd];
+            reg[rd] = FPU::fneg(reg[rs1]);
             pc++; reg[0] = 0; break;
         case 6:
-            former_val = freg[rd];
-            freg[rd] = FPU::fabs(freg[rs1]);
-            rd += REGNUM;
-            rs1 += REGNUM;
+            former_val = reg[rd];
+            reg[rd] = FPU::fabs(reg[rs1]);
             pc++; reg[0] = 0; break;
         case 7:
-            former_val = freg[rd];
-            freg[rd] = FPU::floor(freg[rs1]);
-            rd += REGNUM;
-            rs1 += REGNUM;
+            former_val = reg[rd];
+            reg[rd] = FPU::floor(reg[rs1]);
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
@@ -267,29 +245,21 @@ inline void CPU::simulate_acc()
         switch (funct3)
         {
         case 0:
-            reg[rd] = FPU::feq(freg[rs1], freg[rs2]);
-            rs1 += REGNUM;
-            rs2 += REGNUM;
+            reg[rd] = FPU::feq(reg[rs1], reg[rs2]);
             pc++; reg[0] = 0; break;
         case 1:
-            reg[rd] = FPU::flt(freg[rs1], freg[rs2]);
-            rs1 += REGNUM;
-            rs2 += REGNUM;
+            reg[rd] = FPU::flt(reg[rs1], reg[rs2]);
             pc++; reg[0] = 0; break;
         case 2:
-            reg[rd] = FPU::fle(freg[rs1], freg[rs2]);
-            rs1 += REGNUM;
-            rs2 += REGNUM;
+            reg[rd] = FPU::fle(reg[rs1], reg[rs2]);
             pc++; reg[0] = 0; break;
             
         case 6:
-            former_val = freg[rd];
-            freg[rd] = FPU::itof(reg[rs1]);
-            rd += REGNUM;
+            former_val = reg[rd];
+            reg[rd] = FPU::itof(reg[rs1]);
             pc++; reg[0] = 0; break;
         case 7:
-            reg[rd] = FPU::ftoi(freg[rs1]);
-            rs1 += REGNUM;
+            reg[rd] = FPU::ftoi(reg[rs1]);
             pc++; reg[0] = 0; break;
         
         default:
@@ -348,34 +318,23 @@ inline void CPU::simulate_acc()
             reg[rd] = mem->read(memAddr);
             pc++; reg[0] = 0; break;
         case 1:
-            memAddr = (int32_t)reg[rs1] + offset;
-            former_val = freg[rd];
-            memdestRd = rd + REGNUM;
-            freg[rd] = mem->read(memAddr);
-            rd += REGNUM;
-            pc++; reg[0] = 0; break;
+            //tbd
         case 2:
             reg[rd] = (((rs1 << 16) + luioffset) & ((1 << 20) - 1)) << 12;
             pc++; reg[0] = 0; break;
 
         #ifdef STDFPU
         case 5:
-            former_val = freg[rd];
-            freg[rd] = FPU::fsin(freg[rs1]);
-            rd += REGNUM;
-            rs1 += REGNUM;
+            former_val = reg[rd];
+            reg[rd] = FPU::fsin(reg[rs1]);
             pc++; reg[0] = 0; break;
         case 6:
-            former_val = freg[rd];
-            freg[rd] = FPU::fcos(freg[rs1]);
-            rd += REGNUM;
-            rs1 += REGNUM;
+            former_val = reg[rd];
+            reg[rd] = FPU::fcos(reg[rs1]);
             pc++; reg[0] = 0; break;
         case 7:
-            former_val = freg[rd];
-            freg[rd] = FPU::atan(freg[rs1]);
-            rd += REGNUM;
-            rs1 += REGNUM;
+            former_val = reg[rd];
+            reg[rd] = FPU::atan(reg[rs1]);
             pc++; reg[0] = 0; break;
         #endif
 
@@ -444,11 +403,7 @@ inline void CPU::simulate_acc()
             mem->write((int32_t)memAddr, (int32_t)reg[rs2]);
             pc++; reg[0] = 0; break;
         case 7:
-            memAddr = reg[rs1]+imm;
-            former_val = mem->read_without_cache(memAddr);
-            mem->write((int32_t)memAddr, (int32_t)freg[rs2]);
-            rs2 += REGNUM;
-            pc++; reg[0] = 0; break;
+            //tbd
         default:
             throw_err(instr); return;
             break;

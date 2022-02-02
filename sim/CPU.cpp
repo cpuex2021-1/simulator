@@ -16,10 +16,9 @@ CPU::CPU()
     memDestRd = -2;
 
     mem = new Memory();
-    reg = new int32_t[REGNUM + FREGNUM];
-    freg = &reg[REGNUM];
+    reg = new int32_t[REGNUM];
     for(int i=0; i<REGNUM; i++){
-        reg[i] = 0; freg[i] = 0;
+        reg[i] = 0;
     }
     reg[2] = MEMSIZE - 1;
     reg[3] = MEMSIZE / 2;
@@ -36,20 +35,12 @@ void CPU::print_register(){
     if(i % 8 == 0 && i > 0) cerr << endl << " ";
         cerr << left << setw(6) << xregName[i] + ":" << right << setw(8) << reg[i] << " " << dec;
     }
-    cerr << endl << " ";
-    for(int i=0; i<FREGNUM; i++){
-        if(i % 8 == 0 && i>0) cerr << endl << " ";
-        cerr << left << setw(6) << fregName[i] + ":" << right << setw(8) << convert_to_float(freg[i]) << " " << dec;
-    }
     cerr << endl;
 }
 
 void CPU::reset(){
     for(int i=0; i<REGNUM; i++){
         reg[i] = 0;
-    }
-    for(int i=0; i<FREGNUM; i++){
-        freg[i] = 0;
     }
     reg[2] = MEMSIZE - 1;
     reg[3] = MEMSIZE / 2;

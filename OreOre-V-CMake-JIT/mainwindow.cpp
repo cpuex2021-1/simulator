@@ -82,53 +82,27 @@ void MainWindow::refreshRegView(){
     for(int i=0; i<regt->rowCount(); i++){
         for(int j=0; j<regt->columnCount();j++){
             if(j % 2 == 0){
-                if((i * regt->columnCount() + j) / 2 < 32){
-                    if(regt->item(i,j) == NULL){
-                        regt->setItem(i, j, new QTableWidgetItem(xregName[(i * regt->columnCount() + j) / 2].data()));
-                    }else{
-                        regt->item(i, j)->setText(xregName[(i * regt->columnCount() + j) / 2].data());
-                    }
-
+                if(regt->item(i,j) == NULL){
+                    regt->setItem(i, j, new QTableWidgetItem(xregName[(i * regt->columnCount() + j) / 2].data()));
                 }else{
-                    if(regt->item(i,j) == NULL){
-                        regt->setItem(i, j, new QTableWidgetItem(fregName[(i * regt->columnCount() + j) / 2 - 32].data()));
-                    }else{
-                        regt->item(i, j)->setText(fregName[(i * regt->columnCount() + j) / 2 - 32].data());
-                    }
+                    regt->item(i, j)->setText(xregName[(i * regt->columnCount() + j) / 2].data());
                 }
                 regt->item(i,j)->setTextAlignment(Qt::AlignCenter);
                 regt->item(i,j)->setBackground(QBrush(Qt::gray));
             }else{
-                if((i * regt->columnCount() + j) / 2 < 32){
-                    stringstream ss;
-                    if(isReghex){
-                        ss.fill('0');
-                        ss << hex << "0x" << setw(8) << sobj.sim.reg[(i * regt->columnCount() + j) / 2] << dec;
-                        ss.fill(' ');
-                    }else{
-                        ss << dec << sobj.sim.reg[(i * regt->columnCount() + j) / 2];
-                    }
-                    if(regt->item(i,j) == NULL){
-                        regt->setItem(i, j, new QTableWidgetItem(ss.str().data()));
-                    }else{
-                        regt->item(i, j)->setText(ss.str().data());
-                    }
+                stringstream ss;
+                if(isReghex){
+                    ss.fill('0');
+                    ss << hex << "0x" << setw(8) << sobj.sim.reg[(i * regt->columnCount() + j) / 2] << dec;
+                    ss.fill(' ');
                 }else{
-                    stringstream ss;
-                    if(isReghex){
-                        ss.fill('0');
-                        ss << hex << "0x" << setw(8) << sobj.sim.freg[(i * regt->columnCount() + j) / 2 - 32] << dec;
-                        ss.fill(' ');
-                    }else{
-                        float* f = (float*)&(sobj.sim.freg[(i * regt->columnCount() + j) / 2 - 32]);
-                        ss << (*f);
-                    }
-                    if(regt->item(i,j) == NULL){
-                        regt->setItem(i, j, new QTableWidgetItem(ss.str().data()));
-                    }else{
-                        regt->item(i, j)->setText(ss.str().data());
-                    }
+                    ss << dec << sobj.sim.reg[(i * regt->columnCount() + j) / 2];
                 }
+                if(regt->item(i,j) == NULL){
+                    regt->setItem(i, j, new QTableWidgetItem(ss.str().data()));
+                }else{
+                    regt->item(i, j)->setText(ss.str().data());
+                }                
                 regt->item(i,j)->setTextAlignment(Qt::AlignRight);
             }
         }
@@ -462,15 +436,7 @@ void MainWindow::on_RegTable_itemChanged(QTableWidgetItem *item)
 {
     if(isReghex) return;
     if(item->column() % 2 == 1){
-        if(item->row() < 8){
-            sobj.sim.reg[item->column() / 2 + item->row() * 4] = item->data(QMetaType::Int).toInt();
-        }else{
-            float f;
-            f = item->text().toFloat();
-            int* i;
-            i = (int*)&f;
-            sobj.sim.freg[item->column() / 2 + (item->row() - 8) * 4] = (*i);
-        }
+        sobj.sim.reg[item->column() / 2 + item->row() * 4] = item->data(QMetaType::Int).toInt();
     }
 }
 

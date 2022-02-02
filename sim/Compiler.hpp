@@ -37,10 +37,8 @@ protected:
     vector<regAlloc> regAllocList;
 
     x86::Gp getRegGp(int i);
-    x86::Gp getFregGp(int i);
     x86::Gp getGp(int i, bool isrd);
     x86::Gp getRdRegGp(int i);
-    x86::Gp getRdFregGp(int i);
 
     x86::Gp tmpReg;
     x86::Gp qtmpReg;
