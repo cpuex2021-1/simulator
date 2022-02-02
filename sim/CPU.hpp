@@ -176,50 +176,10 @@ inline void CPU::simulate_acc()
         switch (funct3)
         {
         case 0:
-            switch (funct11)
-            {
-            case 0:
-                reg[rd] = (int32_t)reg[rs1] + (int32_t)reg[rs2];
-                pc++; reg[0] = 0; break;
-            case 1:
-                reg[rd] = (int32_t)reg[rs1] - (int32_t)reg[rs2];
-                pc++; reg[0] = 0; break;
-            default:
-                throw_err(instr); return;
-                break;
-            }
-            break;
+            reg[rd] = (int32_t)reg[rs1] + (int32_t)reg[rs2];
+            pc++; reg[0] = 0; break;
         case 1:
-            reg[rd] = (int32_t)reg[rs1] << (int32_t)reg[rs2];
-            pc++; reg[0] = 0; break;
-        case 2:
-            switch (funct11)
-            {
-            case 0:
-                reg[rd] = ((uint32_t)reg[rs1]) >> ((uint32_t)reg[rs2]);
-                pc++; reg[0] = 0; break;
-            case 1:
-                reg[rd] = ((int32_t)reg[rs1]) >> ((int32_t)reg[rs2]);
-                pc++; reg[0] = 0; break;
-            default:
-                throw_err(instr); return;
-                break;
-            }
-            break;
-        case 3:
-            reg[rd] = ((int32_t)reg[rs1] < (int32_t)reg[rs2])? 1 : 0;
-            pc++; reg[0] = 0; break;
-        case 4:
-            reg[rd] = ((uint32_t)reg[rs1] < (uint32_t)reg[rs2])? 1 : 0;
-            pc++; reg[0] = 0; break;
-        case 5:
-            reg[rd] = (int32_t)reg[rs1] ^ (int32_t)reg[rs2];
-            pc++; reg[0] = 0; break;
-        case 6:
-            reg[rd] = (int32_t)reg[rs1] | (int32_t)reg[rs2];
-            pc++; reg[0] = 0; break;
-        case 7:
-            reg[rd] = (int32_t)reg[rs1] & (int32_t)reg[rs2];
+            reg[rd] = (int32_t)reg[rs1] - (int32_t)reg[rs2];
             pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
@@ -229,45 +189,6 @@ inline void CPU::simulate_acc()
     }
     case 1:
     {
-        rd = getBits(instr, 26, 22);
-        former_val = reg[rd];
-        rs1 = getBits(instr, 31, 27);
-        rs2 = getBits(instr, 10, 6);
-
-        #ifdef DEBUG
-        printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d\n", op, funct3, rd, rs1, rs2);
-        #endif
-
-        switch (funct3)
-        {
-        case 0:
-            reg[rd] = (int32_t)reg[rs1] * (int32_t)reg[rs2];
-            pc++; reg[0] = 0; break;
-        case 1:
-            reg[rd] = (int64_t)((int64_t)reg[rs1] * (int64_t)reg[rs2]) >> 32;
-            pc++; reg[0] = 0; break;
-        case 2:
-            reg[rd] = (int64_t)((int64_t)reg[rs1] * (uint64_t)reg[rs2]) >> 32;
-            pc++; reg[0] = 0; break;
-        case 3:
-            reg[rd] = (uint64_t)((uint64_t)reg[rs1] * (uint64_t)reg[rs2]) >> 32;
-            pc++; reg[0] = 0; break;
-        case 4:
-            reg[rd] = (int32_t)reg[rs1] / (int32_t)reg[rs2];
-            pc++; reg[0] = 0; break;
-        case 5:
-            reg[rd] = (uint32_t)reg[rs1] / (uint32_t)reg[rs2];
-            pc++; reg[0] = 0; break;
-        case 6:
-            reg[rd] = (int32_t)reg[rs1] % (int32_t)reg[rs2];
-            pc++; reg[0] = 0; break;
-        case 7:
-            reg[rd] = (uint32_t)reg[rs1] % (uint32_t)reg[rs2];
-            pc++; reg[0] = 0; break;
-        default:
-            throw_err(instr); return;
-            break;
-        }
         break;
     }
     case 2:
@@ -369,21 +290,7 @@ inline void CPU::simulate_acc()
             rs1 += REGNUM;
             rs2 += REGNUM;
             pc++; reg[0] = 0; break;
-        case 3:
-            reg[rd] = freg[rs1];
-            rs1 += REGNUM;
-            pc++; reg[0] = 0; break;
-        case 4:
-            former_val = freg[rd];
-            freg[rd] = (int32_t)reg[rs1];
-            rd += REGNUM;
-            pc++; reg[0] = 0; break;
-        case 5:
-            former_val = freg[rd];
-            freg[rd] = freg[rs1];
-            rd += REGNUM;
-            rs1 += REGNUM;
-            pc++; reg[0] = 0; break;
+            
         case 6:
             former_val = freg[rd];
             freg[rd] = FPU::itof(reg[rs1]);
@@ -419,30 +326,11 @@ inline void CPU::simulate_acc()
             reg[rd] = (int32_t)reg[rs1] + imm;
             pc++; reg[0] = 0; break;
         case 1:
-            reg[rd] = (int32_t)reg[rs1] << shamt;
+            reg[rd] = (uint32_t)reg[rs1] << shamt;
             pc++; reg[0] = 0; break;
         case 2:
-            if(judge){
-                reg[rd] = (int32_t)reg[rs1] >> shamt;
-            }else{
-                reg[rd] = (uint32_t)reg[rs1] >> shamt;
-            }
-            pc++; reg[0] = 0; break;
-        case 3:
-            reg[rd] = ((int32_t)reg[rs1] < imm)? 1 : 0;
-            pc++; reg[0] = 0; break;
-        case 4:
-            reg[rd] = ((uint32_t)reg[rs1] < (uint32_t)imm)? 1 : 0;
-            pc++; reg[0] = 0; break;
-        case 5:
-            reg[rd] = (int32_t)reg[rs1] ^ imm;
-            pc++; reg[0] = 0; break;
-        case 6:
-            reg[rd] = (int32_t)reg[rs1] | imm;
-            pc++; reg[0] = 0; break;
-        case 7:
-            reg[rd] = (int32_t)reg[rs1] & imm;
-            pc++; reg[0] = 0; break;
+            reg[rd] = (int32_t)reg[rs1] >> shamt;
+        
         default:
             throw_err(instr); return;
             break;
@@ -512,6 +400,7 @@ inline void CPU::simulate_acc()
         rs1 = getBits(instr, 31, 27);
         rs2 = getBits(instr, 10, 6);
         int32_t imm = getSextBits(instr, 26, 11);
+        int32_t rs2imm = getSextBits(instr, 10, 6);
         #ifdef DEBUG
         printf("op:%d funct3:%d rs1:%d rs2:%d imm:%d\n", op, funct3, rs1, rs2, imm);
         #endif
@@ -550,16 +439,9 @@ inline void CPU::simulate_acc()
                 pc++;
             }
             reg[0] = 0; break;
-        case 4:
-            if((uint32_t)reg[rs1] < (uint32_t)reg[rs2]){
-                pc += imm;
-            }else{
-                numBranchUnTaken[pc]++;
-                pc++;
-            }
-            reg[0] = 0; break;
+
         case 5:
-            if((uint32_t)reg[rs1] >= (uint32_t)reg[rs2]){
+            if((uint32_t)reg[rs1] != rs2imm){
                 pc += imm;
             }else{
                 numBranchUnTaken[pc]++;
@@ -587,7 +469,6 @@ inline void CPU::simulate_acc()
     {
         int32_t addr = getSextBits(instr, 30, 6);
         rs1 = getBits(instr, 31, 27);
-        rd = getBits(instr, 26, 22);
         former_val = reg[rd];
         int32_t imm = getSextBits(instr, 21, 6);
 
@@ -599,18 +480,19 @@ inline void CPU::simulate_acc()
         {
         case 0:
             pc = addr;
-            //numFlush++;
             reg[0] = 0; break;
         case 1:
             reg[rd] = pc + 1;
-            //numFlush++;
-            pc = imm;
+            pc = addr;
             reg[0] = 0; break;
         case 2:
             reg[rd] = pc + 1;
             pc = reg[rs1] + imm;
             //numFlush++;
             reg[0] = 0; break;
+        case 3:
+            reg[rd] = pc + 1;
+            pc = reg[rs1] + imm;
         default:
             throw_err(instr); return;
             break;
