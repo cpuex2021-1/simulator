@@ -46,6 +46,8 @@ protected:
     x86::Gp qtmpReg;
     x86::Gp zero;
     x86::Gp jumpBase;
+    x86::Gp rastackBase;
+    x86::Gp rastackIdxReg;
 
     //stats
     x86::Gp numDataHazardptr;

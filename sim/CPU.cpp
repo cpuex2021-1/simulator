@@ -3,7 +3,7 @@
 using namespace std;
 
 CPU::CPU()
-: memDestRd(-2), mem()
+: Profiler(), memDestRd(-2), rastackIdx(0), mem()
 {
     pc = 0;
     clk = 0;
@@ -14,12 +14,16 @@ CPU::CPU()
     numFlush = 0;
     numDataHazard = 0;
 
+    //setup register
     reg = new int32_t[REGNUM];
     for(int i=0; i<REGNUM; i++){
         reg[i] = 0;
     }
     reg[2] = MEMSIZE - 1;
     reg[3] = MEMSIZE / 2;
+
+    //setup rastack
+    rastack = new uint32_t[RASTACKSIZE];
 }
 
 CPU::~CPU(){

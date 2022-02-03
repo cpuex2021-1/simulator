@@ -9,6 +9,7 @@
 #define THREE_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s+([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*"
 #define TWO_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s+([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\w|\\.|\\-|\\d]+)\\s*"
 #define ONE_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s+([\\w|\\.|\\-|\\d]+)\\s*" 
+#define NO_ARGS_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s*"
 #define SW_LIKE_EXPR "\\s*([\\w|\\.|\\-|\\d]+)\\s+([\\w|\\.|\\-|\\d]+)\\s*,\\s*([\\-]*\\d+)\\(([\\w|\\.|\\-|\\d]+)\\)\\s*"
 
 using namespace std;
@@ -52,7 +53,7 @@ void Debug_parse(string str){
         cout << "none" << endl;
     } else if(regex_match(str, match, regex(LABEL_EXPR))){
         cout << "label" << endl;
-    } else if(regex_match(str, match, regex(THREE_ARGS_EXPR)) || regex_match(str, match, regex(TWO_ARGS_EXPR)) || regex_match(str, match, regex(SW_LIKE_EXPR)) || regex_match(str, match, regex(ONE_ARGS_EXPR))){
+    } else if(regex_match(str, match, regex(THREE_ARGS_EXPR)) || regex_match(str, match, regex(TWO_ARGS_EXPR)) || regex_match(str, match, regex(SW_LIKE_EXPR)) || regex_match(str, match, regex(ONE_ARGS_EXPR)) || regex_match(str, match, regex(NO_ARGS_EXPR))){
         cout << "instruction" << endl;
     } else if(regex_match(str, match, regex("\\s*"))){
         cout << "none" << endl;
@@ -75,7 +76,7 @@ Parse :: Parse(string str, int now_addr)
     } else if(regex_match(str, match, regex(LABEL_EXPR))){
         type = label;
         labl = match[1].str();
-    } else if(regex_match(str, match, regex(THREE_ARGS_EXPR)) || regex_match(str, match, regex(TWO_ARGS_EXPR)) || regex_match(str, match, regex(SW_LIKE_EXPR)) || regex_match(str, match, regex(ONE_ARGS_EXPR))){
+    } else if(regex_match(str, match, regex(THREE_ARGS_EXPR)) || regex_match(str, match, regex(TWO_ARGS_EXPR)) || regex_match(str, match, regex(SW_LIKE_EXPR)) || regex_match(str, match, regex(ONE_ARGS_EXPR)) || regex_match(str, match, regex(NO_ARGS_EXPR))){
         type = instruction;
         if(match[1].str() == "fli"){
             size = 3;
@@ -370,7 +371,7 @@ Parse :: Parse(string str, int now_addr)
                     6,
                     5,
                     regname_to_addr(match[2].str()),
-                    regname_to_addr(match[3].str()),
+                    stoi(match[3].str()),
                     label_to_addr(match[4].str(), now_addr)
                 ));
                 

@@ -500,7 +500,6 @@ void Compiler::compileSingleInstruction(int pc){
         int addr = getSextBits(instr, 30, 6);
         rs1 = getBits(instr, 31, 26);
         rd = getBits(instr, 25, 20);
-        int imm = getSextBits(instr, 19, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, imm);
@@ -514,18 +513,25 @@ void Compiler::compileSingleInstruction(int pc){
             break;
         case 1:
             preProcs(true, pc, memdestRd, -1, -1);
-            cc.mov(getRdRegGp(rd), pc+1);
-            cc.jmp(pctolabel(imm));
+            cc.mov(x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0), pc+1);
+            cc.inc(rastackIdxReg);
+            cc.jmp(pctolabel(addr));
             break;
         case 2:
             preProcs(true, pc, memdestRd, rs1, -1);
-            cc.mov(getRdRegGp(rd), pc+1);
-            cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1), 3, imm * 8));
-            cc.jmp(qtmpReg, ann);
+            cc.mov(x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0), pc+1);
+            cc.inc(rastackIdxReg);
+            cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1), 3));
+            cc.jmp(qtmpReg);
             break;
         case 3:
-            //tbd
-        
+            preProcs(true, pc, memdestRd, -1, -1);
+            cc.dec(rastackIdxReg);
+            cc.mov(tmpReg, x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0));
+            cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1), 3));
+            cc.jmp(qtmpReg);
+            break;
+
         default:
             throw_err(instr); return;
             break;
@@ -582,6 +588,12 @@ void Compiler::compileAll(){
     //jump table setup
     jumpBase = cc.newGpq();
     cc.lea(jumpBase, x86::ptr(jTableLabel));
+
+    //rastack setup;
+    rastackIdxReg = cc.newGpd();
+    cc.mov(rastackIdxReg, x86::dword_ptr((uint64_t)&rastackIdx));
+    rastackBase = cc.newGpq();
+    cc.mov(rastackBase, ((uint64_t)rastack));
 
     for(size_t i=0; i<instructions.size(); i++){
         compileSingleInstruction(i);
@@ -653,7 +665,7 @@ void Compiler::preProcs(bool usera, int pc, int memdestRd, int rs1, int rs2){
 
     bindLabel(pc);
     
-    if(hasDebuggingInfo){
+    if(false&&hasDebuggingInfo){
         if(labellist[labellistIdx].pc == (uint32_t)pc){
             ann->addLabel(pctolabel(pc));
             while(labellist[labellistIdx].pc == (uint32_t)pc){
@@ -664,6 +676,14 @@ void Compiler::preProcs(bool usera, int pc, int memdestRd, int rs1, int rs2){
     }else{
         ann->addLabel(pctolabel(pc));
     }
+
+    /*
+    InvokeNode* printinvnode;
+
+    cc.invoke(&printinvnode, JitBreakPoint, FuncSignatureT<void, int>());
+    cc.mov(tmpReg, pc);
+    printinvnode->setArg(0, tmpReg);
+    */
 
     cc.mov(qtmpReg, x86::qword_ptr((uint64_t) &(numExecuted[pc])));
     cc.inc(qtmpReg);
