@@ -169,10 +169,10 @@ void Simulator::show_reg(){
     print_register();
 }
 void Simulator::dump(string filename){
-    mem->print_memory(filename);
+    mem.print_memory(filename);
 }
 void Simulator::show_mem(int index){
-    mem->read_without_cache(index);
+    mem.read_without_cache(index);
 }
 void Simulator::show_pc(){
     cout << "PC " << pc << endl;
@@ -193,7 +193,7 @@ string Simulator::get_string_instruction_by_line(int l){
 }
 
 void Simulator::show_cache(){
-    mem->print_cache_summary();
+    mem.print_cache_summary();
 }
 
 void Simulator::show_result(){
@@ -206,10 +206,10 @@ void Simulator::show_result(){
             << "\tNumber of 3 cycle stalls (non-memory-access):\t" << num4stall << "\n" \
             << "\tNumber of data hazards:                      \t" << numDataHazard << "\n" \
             << "\tNumber of branch prediction miss:            \t" << numFlush << "\n" \
-            << "\tNumber of cache miss:                        \t" << mem->totalstall() << "\n";
-    ssstats << "\tCache valid rate:                            \t" << mem->getValidRate() << "\n" \
-            << "\tCache hit rate:                              \t" << mem->getHitRate()  << "\n" \
-            << "\tCache replace rate:                          \t" << mem->getReplaceRate() << endl;
+            << "\tNumber of cache miss:                        \t" << mem.totalstall() << "\n";
+    ssstats << "\tCache valid rate:                            \t" << mem.getValidRate() << "\n" \
+            << "\tCache hit rate:                              \t" << mem.getHitRate()  << "\n" \
+            << "\tCache replace rate:                          \t" << mem.getReplaceRate() << endl;
     /* << "Time: " << (end_time - start_time) << endl << */
 
     cerr << ssstats.str() << endl;
@@ -282,8 +282,8 @@ int Simulator::getNewFuncId(){
 }
 
 void Simulator::show_uart_output(){
-    for(int i=0; i<mem->uart.getOutbufIdx(); i++){
-        cout << (char)mem->uart.getOutbuf(i);
+    for(int i=0; i<mem.uart.getOutbufIdx(); i++){
+        cout << (char)mem.uart.getOutbuf(i);
     }
     cout << endl;
 }

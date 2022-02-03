@@ -153,10 +153,10 @@ void MainWindow::refreshMemView(){
             if (index < MEMSIZE){
                 if(isReghex){
                     ss.fill('0');
-                    ss << "0x" << hex << sobj.sim.mem->read_without_cache(index) << dec;
+                    ss << "0x" << hex << sobj.sim.mem.read_without_cache(index) << dec;
                     ss.fill(' ');
                 }else{
-                    ss << sobj.sim.mem->read_without_cache(index);
+                    ss << sobj.sim.mem.read_without_cache(index);
                 }
             }
             if(memt->item(i, j) == NULL){
@@ -210,7 +210,7 @@ void MainWindow::refreshInstView(){
 }
 
 void MainWindow::refreshUartView(){
-    auto& uart = sobj.sim.mem->uart;
+    auto& uart = sobj.sim.mem.uart;
 
     uart_in_line = max(uart.getInbufIdx() - 5, 0);
 
@@ -300,11 +300,11 @@ void MainWindow::refreshAll(){
             << "Number of 3 cycle stalls (non-memory-access):\n" << sobj.sim.num4stall << "\n\n" \
             << "Number of data hazards:\n" << sobj.sim.numDataHazard << "\n\n" \
             << "Number of branch prediction miss:\n" << sobj.sim.numFlush << "\n\n" \
-            << "Number of cache miss:\n" << sobj.sim.mem->totalstall() << "\n" << endl;
+            << "Number of cache miss:\n" << sobj.sim.mem.totalstall() << "\n" << endl;
     auto& memtmp = sobj.sim.mem;
-    ssstats << "Cache valid rate:\n" << memtmp->getValidRate() \
-            << "\n\nCache hit rate:\n" << memtmp->getHitRate() \
-            << "\n\nCache replace rate:\n" << memtmp->getReplaceRate() << endl;
+    ssstats << "Cache valid rate:\n" << memtmp.getValidRate() \
+            << "\n\nCache hit rate:\n" << memtmp.getHitRate() \
+            << "\n\nCache replace rate:\n" << memtmp.getReplaceRate() << endl;
     ui->statsTextBrowser->setText(ssstats.str().data());
 
     if(sobj.sim.ready && (running)){
@@ -453,7 +453,7 @@ void MainWindow::on_uartInputButton_released()
 {
     auto filename = QFileDialog::getOpenFileName(this, tr("Open Binary"), "", tr("Binary Files (*)"));
     sobj.uartinfilename = filename.toStdString();
-    sobj.sim.mem->setup_uart(sobj.uartinfilename);
+    sobj.sim.mem.setup_uart(sobj.uartinfilename);
     sobj.sim.uart_ready = true;
     refreshAll();
 }
@@ -479,7 +479,7 @@ void MainWindow::on_uartInputTable_itemChanged(QTableWidgetItem *item)
 {
     if(isReghex) return;
     try{
-        sobj.sim.mem->uart.setInbuf(uart_in_line + item->row(), item->data(QMetaType::Int).toInt());
+        sobj.sim.mem.uart.setInbuf(uart_in_line + item->row(), item->data(QMetaType::Int).toInt());
     }catch(exception &e){
     }
 }
@@ -533,7 +533,7 @@ void MainWindow::on_instDownButton_released()
 void MainWindow::on_latestWriteButton_released()
 {
     if(sobj.sim.ready){
-        mem_addr = sobj.sim.mem->getLatestWriteIndex();
+        mem_addr = sobj.sim.mem.getLatestWriteIndex();
         ui->address->setValue(mem_addr);
     }
 }
@@ -542,7 +542,7 @@ void MainWindow::on_latestWriteButton_released()
 void MainWindow::on_latestReadButton_released()
 {
     if(sobj.sim.ready){
-        mem_addr = sobj.sim.mem->getLatestReadIndex();
+        mem_addr = sobj.sim.mem.getLatestReadIndex();
         ui->address->setValue(mem_addr);
     }
 }

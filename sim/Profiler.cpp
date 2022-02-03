@@ -172,14 +172,14 @@ void Profiler::updateLabelStats(uint64_t numexec, uint64_t addr){
         while(labellist[labelIdx].pc <= addr){
             labelIdx++;
         }
-        if(labelIdx < labelStats.size()){
+        if((uint64_t)labelIdx < labelStats.size()){
             labelStats[labelIdx].max = numexec;
             labelStats[labelIdx].min = numexec;
             return;
         }
         return;
     }
-    if(labelIdx < labelStats.size()){
+    if((uint64_t)labelIdx < labelStats.size()){
         if (labelStats[labelIdx].max < numexec) labelStats[labelIdx].max = numexec;
         if (labelStats[labelIdx].min > numexec) labelStats[labelIdx].min = numexec;
     }

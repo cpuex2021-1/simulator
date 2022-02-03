@@ -98,7 +98,7 @@ public:
 
     uint64_t pc;
 
-    Memory* mem;
+    Memory mem;
     CPU();
     ~CPU();
     inline void simulate_acc();
@@ -459,13 +459,13 @@ inline void CPU::simulate_acc()
             memAddr = (int32_t)reg[rs1] + offset;
             former_val = reg[rd];
             memdestRd = rd;
-            reg[rd] = mem->read(memAddr);
+            reg[rd] = mem.read(memAddr);
             pc++; reg[0] = 0; break;
         case 1:
             memAddr = (int32_t)reg[rs1] + offset;
             former_val = freg[rd];
             memdestRd = rd + REGNUM;
-            freg[rd] = mem->read(memAddr);
+            freg[rd] = mem.read(memAddr);
             rd += REGNUM;
             pc++; reg[0] = 0; break;
         case 2:
@@ -560,13 +560,13 @@ inline void CPU::simulate_acc()
             reg[0] = 0; break;
         case 6:
             memAddr = reg[rs1]+imm;
-            former_val = mem->read_without_cache(memAddr);
-            mem->write((int32_t)memAddr, (int32_t)reg[rs2]);
+            former_val = mem.read_without_cache(memAddr);
+            mem.write((int32_t)memAddr, (int32_t)reg[rs2]);
             pc++; reg[0] = 0; break;
         case 7:
             memAddr = reg[rs1]+imm;
-            former_val = mem->read_without_cache(memAddr);
-            mem->write((int32_t)memAddr, (int32_t)freg[rs2]);
+            former_val = mem.read_without_cache(memAddr);
+            mem.write((int32_t)memAddr, (int32_t)freg[rs2]);
             rs2 += REGNUM;
             pc++; reg[0] = 0; break;
         default:
