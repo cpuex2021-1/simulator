@@ -15,7 +15,7 @@ Compiler::Compiler()
 }
 
 Compiler::~Compiler(){
-    for(unsigned int i=0; i<nodes.size(); i++){
+    for(size_t i=0; i<nodes.size(); i++){
         free(nodes[i]);
     }
     rt.release(fn);
@@ -65,7 +65,7 @@ void Compiler::setUpLabel(){
 }
 
 void Compiler::LoadAllRegs(){
-    for(unsigned int i=0; i<regAllocList.size(); i++){
+    for(size_t i=0; i<regAllocList.size(); i++){
         if(regAllocList[i].valid){
             cc.mov(regAllocList[i].gp, x86::dword_ptr((uint64_t)&reg[i]));
         }        
@@ -73,7 +73,7 @@ void Compiler::LoadAllRegs(){
 }
 
 void Compiler::StoreAllRegs(){
-    for(unsigned int i=0; i<regAllocList.size(); i++){
+    for(size_t i=0; i<regAllocList.size(); i++){
         if(regAllocList[i].valid){
             cc.mov(x86::dword_ptr((uint64_t)&reg[i]), regAllocList[i].gp);
         }       

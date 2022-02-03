@@ -44,8 +44,7 @@ inline uint32_t Jtype(uint32_t op, uint32_t funct3, uint32_t addr){
     return (addr << 6) | (funct3 << 3) | op;
 }
 
-extern map<string, uint32_t> xregs;
-extern map<string, uint32_t> fregs;
+extern map<string, uint32_t> regs;
 extern map<string, uint32_t> labels;
 
 #endif

@@ -26,10 +26,10 @@ string disassemble(uint32_t instr){
         switch (funct3)
         {
         case 0:
-            ss << "ADD " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
+            ss << "ADD " << regName.at(rd) << ", " << regName.at(rs1) << ", " << regName.at(rs2); 
             break;
         case 1:
-            ss << "SUB " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << xregName.at(rs2); 
+            ss << "SUB " << regName.at(rd) << ", " << regName.at(rs1) << ", " << regName.at(rs2); 
             break;            
         default:
             return "Unknown Instruction";
@@ -54,28 +54,28 @@ string disassemble(uint32_t instr){
         switch (funct3)
         {
         case 0:
-            ss << "FADD " << fregName.at(rd) << ", " << fregName.at(rs1) << ", " << fregName.at(rs2); 
+            ss << "FADD " << regName.at(rd) << ", " << regName.at(rs1) << ", " << regName.at(rs2); 
             break;
         case 1:
-            ss << "FSUB " << fregName.at(rd) << ", " << fregName.at(rs1) << ", " << fregName.at(rs2); 
+            ss << "FSUB " << regName.at(rd) << ", " << regName.at(rs1) << ", " << regName.at(rs2); 
             break;
         case 2:
-            ss << "FMUL " << fregName.at(rd) << ", " << fregName.at(rs1) << ", " << fregName.at(rs2); 
+            ss << "FMUL " << regName.at(rd) << ", " << regName.at(rs1) << ", " << regName.at(rs2); 
             break;
         case 3:
-            ss << "FDIV " << fregName.at(rd) << ", " << fregName.at(rs1) << ", " << fregName.at(rs2); 
+            ss << "FDIV " << regName.at(rd) << ", " << regName.at(rs1) << ", " << regName.at(rs2); 
             break;
         case 4:
-            ss << "FSQRT " << fregName.at(rd) << ", " << fregName.at(rs1);
+            ss << "FSQRT " << regName.at(rd) << ", " << regName.at(rs1);
             break;
         case 5:
-            ss << "FNEG " << fregName.at(rd) << ", " << fregName.at(rs1);
+            ss << "FNEG " << regName.at(rd) << ", " << regName.at(rs1);
             break;
         case 6:
-            ss << "FABS " << fregName.at(rd) << ", " << fregName.at(rs1) << ", " << fregName.at(rs2); 
+            ss << "FABS " << regName.at(rd) << ", " << regName.at(rs1) << ", " << regName.at(rs2); 
             break;
         case 7:
-            ss << "FLOOR " << fregName.at(rd) << ", " << fregName.at(rs1) << ", " << fregName.at(rs2); 
+            ss << "FLOOR " << regName.at(rd) << ", " << regName.at(rs1) << ", " << regName.at(rs2); 
             break;
         default:
             return "Unknown Instruction";
@@ -96,20 +96,20 @@ string disassemble(uint32_t instr){
         switch (funct3)
         {
         case 0:
-            ss << "FEQ " << xregName.at(rd) << ", " << fregName.at(rs1) << ", " << fregName.at(rs2); 
+            ss << "FEQ " << regName.at(rd) << ", " << regName.at(rs1) << ", " << regName.at(rs2); 
             break;
         case 1:
-            ss << "FLT " << xregName.at(rd) << ", " << fregName.at(rs1) << ", " << fregName.at(rs2); 
+            ss << "FLT " << regName.at(rd) << ", " << regName.at(rs1) << ", " << regName.at(rs2); 
             break;
         case 2:
-            ss << "FLE " << xregName.at(rd) << ", " << fregName.at(rs1) << ", " << fregName.at(rs2); 
+            ss << "FLE " << regName.at(rd) << ", " << regName.at(rs1) << ", " << regName.at(rs2); 
             break;
         
         case 6:
-            ss << "ITOF " << xregName.at(rd) << ", " << fregName.at(rs1);
+            ss << "ITOF " << regName.at(rd) << ", " << regName.at(rs1);
             break;
         case 7:
-            ss << "FTOI " << fregName.at(rd) << ", " << xregName.at(rs1);
+            ss << "FTOI " << regName.at(rd) << ", " << regName.at(rs1);
             break;
         
         default:
@@ -132,13 +132,13 @@ string disassemble(uint32_t instr){
         switch (funct3)
         {
         case 0:
-            ss << "ADDI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << imm; 
+            ss << "ADDI " << regName.at(rd) << ", " << regName.at(rs1) << ", " << imm; 
             break;
         case 1:
-            ss << "SLLI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << shamt; 
+            ss << "SLLI " << regName.at(rd) << ", " << regName.at(rs1) << ", " << shamt; 
             break;
         case 2:
-            ss << "SRAI " << xregName.at(rd) << ", " << xregName.at(rs1) << ", " << shamt; 
+            ss << "SRAI " << regName.at(rd) << ", " << regName.at(rs1) << ", " << shamt; 
             break;
         default:
             return "Unknown Instruction";
@@ -160,25 +160,25 @@ string disassemble(uint32_t instr){
         switch (funct3)
         {
         case 0:
-            ss << "LW " << xregName.at(rd) << ", " << offset << "(" << xregName.at(rs1) << ")"; 
+            ss << "LW " << regName.at(rd) << ", " << offset << "(" << regName.at(rs1) << ")"; 
             break;
         /*
         case 1:
-            ss << "VLW " << fregName.at(rd) << ", " << offset << "(" << xregName.at(rs1) << ")"; 
+            ss << "VLW " << regName.at(rd) << ", " << offset << "(" << regName.at(rs1) << ")"; 
             break;
         */
         case 2:
-            ss << "LUI " << xregName.at(rd) << ", " << (((rs1 << 16) + luioffset) << 12);
+            ss << "LUI " << regName.at(rd) << ", " << (((rs1 << 16) + luioffset) << 12);
             break;
 
         case 5:
-            ss << "FSIN " << xregName.at(rd) << ", " << xregName.at(rs1); 
+            ss << "FSIN " << regName.at(rd) << ", " << regName.at(rs1); 
             break;
         case 6:
-            ss << "FCOS " << fregName.at(rd) << ", " << xregName.at(rs1);
+            ss << "FCOS " << regName.at(rd) << ", " << regName.at(rs1);
             break;
         case 7:
-            ss << "ATAN " << xregName.at(rd) << ", " << xregName.at(rs1);
+            ss << "ATAN " << regName.at(rd) << ", " << regName.at(rs1);
             break;
         default:
             return "Unknown Instruction";
@@ -199,26 +199,26 @@ string disassemble(uint32_t instr){
         switch (funct3)
         {
         case 0:
-            ss << "BEQ " << xregName.at(rs1) << ", " << xregName.at(rs2) << ", " << imm; 
+            ss << "BEQ " << regName.at(rs1) << ", " << regName.at(rs2) << ", " << imm; 
             break;
         case 1:
-            ss << "BNE " << xregName.at(rs1) << ", " << xregName.at(rs2) << ", " << imm; 
+            ss << "BNE " << regName.at(rs1) << ", " << regName.at(rs2) << ", " << imm; 
             break;
         case 2:
-            ss << "BLT " << xregName.at(rs1) << ", " << xregName.at(rs2) << ", " << imm; 
+            ss << "BLT " << regName.at(rs1) << ", " << regName.at(rs2) << ", " << imm; 
             break;
         case 3:
-            ss << "BGE " << xregName.at(rs1) << ", " << xregName.at(rs2) << ", " << imm; 
+            ss << "BGE " << regName.at(rs1) << ", " << regName.at(rs2) << ", " << imm; 
             break;
             
         case 5:
-            ss << "BNEI " << xregName.at(rs1) << ", " << rs2imm << ", " << imm; 
+            ss << "BNEI " << regName.at(rs1) << ", " << rs2imm << ", " << imm; 
             break;
         case 6:
-            ss << "SW " << xregName.at(rs2) << ", " << imm << "(" << xregName.at(rs1) << ")";
+            ss << "SW " << regName.at(rs2) << ", " << imm << "(" << regName.at(rs1) << ")";
             break;
         case 7:
-            ss << "FSW " << fregName.at(rs2) << ", " << imm << "(" << xregName.at(rs1) << ")";
+            ss << "FSW " << regName.at(rs2) << ", " << imm << "(" << regName.at(rs1) << ")";
             break;
         default:
             return "Unknown Instruction";
@@ -242,7 +242,7 @@ string disassemble(uint32_t instr){
             ss << "CALL " << addr;
             break;
         case 2:
-            ss << "CALLCLS " << xregName.at(rs1) << ", " << imm;
+            ss << "CALLCLS " << regName.at(rs1) << ", " << imm;
             break;        
         case 3:
             ss << "RET ";
@@ -261,7 +261,7 @@ string disassemble(uint32_t instr){
 }
 
 
-map<int, string> xregName{
+map<int, string> regName{
     {0, "zero"},
     {1, "ra"},
     {2, "sp"},
@@ -293,40 +293,37 @@ map<int, string> xregName{
     {28, "a22"},
     {29, "r0"},
     {30, "r1"},
-    {31, "r2"}
-};
-
-map<int, string> fregName {
-    {0, "fzero"},
-    {1, "fsw"},
-    {2, "f0"},
-    {3, "f1"},
-    {4, "f2"},
-    {5, "f3"},
-    {6, "f4"},
-    {7, "f5"},
-    {8, "f6"},
-    {9, "f7"},
-    {10, "f8"},
-    {11, "f9"},
-    {12, "f10"},
-    {13, "f11"},
-    {14, "f12"},
-    {15, "f13"},
-    {16, "f14"},
-    {17, "f15"},
-    {18, "f16"},
-    {19, "f17"},
-    {20, "f18"},
-    {21, "f19"},
-    {22, "f20"},
-    {23, "f21"},
-    {24, "f22"},
-    {25, "f23"},
-    {26, "f24"},
-    {27, "f25"},
-    {28, "f26"},
-    {29, "fr0"},
-    {30, "fr1"},
-    {31, "fr2"}
+    {31, "r2"},
+    {32, "fzero"},
+    {33, "fsw"},
+    {34, "f0"},
+    {35, "f1"},
+    {36, "f2"},
+    {37, "f3"},
+    {38, "f4"},
+    {39, "f5"},
+    {40, "f6"},
+    {41, "f7"},
+    {42, "f8"},
+    {43, "f9"},
+    {44, "f10"},
+    {45, "f11"},
+    {46, "f12"},
+    {47, "f13"},
+    {48, "f14"},
+    {49, "f15"},
+    {50, "f16"},
+    {51, "f17"},
+    {52, "f18"},
+    {53, "f19"},
+    {54, "f20"},
+    {55, "f21"},
+    {56, "f22"},
+    {57, "f23"},
+    {58, "f24"},
+    {59, "f25"},
+    {60, "f26"},
+    {61, "fr0"},
+    {62, "fr1"},
+    {63, "fr2"}
 };
