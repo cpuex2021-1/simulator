@@ -474,17 +474,6 @@ void MainWindow::on_RegTable_itemChanged(QTableWidgetItem *item)
     }
 }
 
-
-void MainWindow::on_uartInputTable_itemChanged(QTableWidgetItem *item)
-{
-    if(isReghex) return;
-    try{
-        sobj.sim.mem.uart.setInbuf(uart_in_line + item->row(), item->data(QMetaType::Int).toInt());
-    }catch(exception &e){
-    }
-}
-
-
 void MainWindow::on_BinaryButton_released()
 {
     sobj.sim.isasm=false;

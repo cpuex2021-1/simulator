@@ -16,6 +16,7 @@ private:
         cd->init(rt.environment());
         return cd;
     }
+    bool compiled;
     
 protected:
     class regAlloc{
@@ -27,6 +28,7 @@ protected:
         {
         }
     };
+
 
     //compiler
     JitRuntime rt;

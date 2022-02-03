@@ -42,6 +42,7 @@ void CPU::print_register(){
 }
 
 void CPU::reset(){
+    Profiler::reset();
     for(int i=0; i<REGNUM; i++){
         reg[i] = 0;
     }

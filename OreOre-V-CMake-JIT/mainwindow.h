@@ -57,7 +57,6 @@ private Q_SLOTS:
     void on_uartInputButton_released();
 
     void on_RegTable_itemChanged(QTableWidgetItem *item);
-    void on_uartInputTable_itemChanged(QTableWidgetItem *item);
 
     void on_BinaryButton_released();
 

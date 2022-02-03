@@ -10,7 +10,7 @@
 #endif
 
 Compiler::Compiler()
-: rt(), code(), cc(initCode(&code)), regAllocList(REGNUM+FREGNUM), memDestRd(-2), labellistIdx(0)
+: compiled(false), rt(), code(), cc(initCode(&code)), regAllocList(REGNUM+FREGNUM), memDestRd(-2), labellistIdx(0)
 {
 }
 
@@ -18,6 +18,7 @@ Compiler::~Compiler(){
     for(unsigned int i=0; i<nodes.size(); i++){
         free(nodes[i]);
     }
+    rt.release(fn);
 }
 
 x86::Gp Compiler::getRegGp(int i){
@@ -905,17 +906,13 @@ void Compiler::compileAll(){
     Error err = rt.add(&fn, &code);
 
     if (err) {
-        printf("\nAsmJit failed: %s\n", DebugUtils::errorAsString(err));
+        fprintf(stderr, "\nAsmJit failed: %s\n", DebugUtils::errorAsString(err));
         exit(1);
     }
 
-    cerr << " complete!\nRunning" << endl;
+    compiled = true;
     
-    fn();
-    rt.release(fn);
-
-    updateProfilerResult();
-    update_clkcount();
+    cerr << " complete!" << endl;
 }
 
 void Compiler::getNewInvokeNode(InvokeNode*& ptr){
@@ -927,7 +924,14 @@ int Compiler::run(){
     initProfiler();
     if(mode == accurate) return Simulator::run();
     else if(mode == fast){
-        compileAll();
+        if(!compiled){
+            compileAll();
+        }
+        cerr << "Running..." << flush;
+        fn();
+        cerr << " complete!" << endl;
+        updateProfilerResult();
+        update_clkcount();
         return 0;
     }
     else return -1;
