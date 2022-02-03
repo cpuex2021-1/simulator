@@ -180,6 +180,7 @@ void Profiler::initLabelStats(){
 }
 
 void Profiler::updateLabelStats(uint64_t numexec, uint64_t addr){
+    if(labellist.size() == 0) return;
     if(labellist[labelIdx].pc == addr){
         while(labellist[labelIdx].pc <= addr){
             labelIdx++;

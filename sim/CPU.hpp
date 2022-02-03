@@ -20,6 +20,8 @@
 #define PIPELINE_STAGES 4
 #define LOG_SIZE 1000
 
+#define RASTACKSIZE 1024
+
 using std::exception;
 using std::cout;
 using std::cerr;
@@ -90,6 +92,10 @@ protected:
     void throw_err(int32_t instr);
     Log log;
     int32_t memDestRd;
+
+
+    uint32_t* rastack;
+    uint32_t rastackIdx;
 
 public:
     inline static int32_t* reg;
@@ -415,7 +421,6 @@ inline void CPU::simulate_acc()
         int32_t addr = getSextBits(instr, 30, 6);
         rs1 = getBits(instr, 31, 26);
         former_val = reg[rd];
-        int32_t imm = getSextBits(instr, 19, 6);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, imm);
@@ -425,19 +430,18 @@ inline void CPU::simulate_acc()
         {
         case 0:
             pc = addr;
-            reg[0] = 0; break;
+            break;
         case 1:
-            reg[rd] = pc + 1;
+            rastack[rastackIdx++] = pc + 1;
             pc = addr;
-            reg[0] = 0; break;
+            break;
         case 2:
-            reg[rd] = pc + 1;
-            pc = reg[rs1] + imm;
-            //numFlush++;
-            reg[0] = 0; break;
+            rastack[rastackIdx++] = pc + 1;
+            pc = reg[rs1];
+            break;
         case 3:
-            reg[rd] = pc + 1;
-            pc = reg[rs1] + imm;
+            pc = rastack[--rastackIdx];
+            break;
         default:
             throw_err(instr); return;
             break;
