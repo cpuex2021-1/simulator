@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(OreOre-V-Utillib CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED 17)
-set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -Wall")
+set(CMAKE_CXX_FLAGS "-std=c++17 -g -Wall")
 
 add_library(utillib ${CMAKE_CURRENT_LIST_DIR}/DisAssembler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/util.cpp)

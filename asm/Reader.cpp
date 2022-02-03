@@ -13,7 +13,7 @@ void add_to_vector(vector<T> &vec, uint64_t index, T value){
 }
 
 Reader::Reader()
-:hasDebuggingInfo(false)
+:hasDebuggingInfo(false), labellist(0)
 {}
 
 void Reader::read_one_line(int &line_num, int &now_addr, string str){

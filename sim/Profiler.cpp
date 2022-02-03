@@ -68,7 +68,7 @@ void Profiler::updateProfilerResult(){
 
         numEachInstrExecuted[encoded] += numExecuted[i];
 
-        if(hasDebuggingInfo) updateLabelStats(numExecuted[i], i);
+        if(hasDebuggingInfo&&labellist.size()) updateLabelStats(numExecuted[i], i);
     }
 }
 
