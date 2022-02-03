@@ -22,7 +22,7 @@ void Profiler::initProfiler(){
     numCacheMiss = vector<uint64_t> (instructions.size(), 0);
     instructionTypes = vector<InstInfo> (instructions.size());
 
-    for(uint32_t i=0; i<instructions.size(); i++){
+    for(size_t i=0; i<instructions.size(); i++){
         uint32_t instr = instructions[i];
         char op = getBits(instr, 2, 0);
         char funct3 = getBits(instr, 5, 3);
@@ -47,7 +47,7 @@ void Profiler::updateProfilerResult(){
     num3stall = 0;
     num4stall = 0;
     numFlush = 0;
-    for(uint32_t i=0; i<instructions.size(); i++){
+    for(size_t i=0; i<instructions.size(); i++){
         int encoded = 0;
         string str;
         translateInstructionType(instructionTypes[i].op, instructionTypes[i].funct3, instructionTypes[i].funct11, encoded, str);
@@ -82,7 +82,7 @@ void Profiler::exportToCsv(){
     }
 
     out << ",\nAddress, Instruction, Times Executed, Branch Taken Times, Branch Untaken Times\n";
-    for(uint32_t i=0; i<str_instr.size(); i++){
+    for(size_t i=0; i<str_instr.size(); i++){
         out << i << ", \"" << str_instr[i] << "\", ";
         auto p = line_to_pc(i);
         if(pc_to_line(line_to_pc(i)) == (int)i){
@@ -99,7 +99,7 @@ void Profiler::exportToCsv(){
 
     if(hasDebuggingInfo){
         out << ",\nLabel, Times Executed (max), Times Executed (min)\n";
-        for(uint32_t i=0; i<labelStats.size(); i++){
+        for(size_t i=0; i<labelStats.size(); i++){
             out << labellist[i].label << ", " << labelStats[i].max << ", " << labelStats[i].min << "\n";
         }
     }
