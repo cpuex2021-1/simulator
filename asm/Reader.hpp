@@ -28,6 +28,9 @@ protected:
     public:
         uint32_t pc;
         string label;
+        pcandlabel()
+        :pc(0), label("")
+        {}
         pcandlabel(uint32_t p, string l)
         :pc(p), label(l)
         {};

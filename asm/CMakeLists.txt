@@ -3,7 +3,8 @@ project(OreOre-V-Asmlib CXX)
 
 #include_directories(${CMAKE_CURRENT_LIST_DIR}/../include/asmjit/src)
 
-set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -Wall")
+set(CMAKE_CXX_STANDARD_REQUIRED 17)
+set(CMAKE_CXX_FLAGS "-std=c++17 -g -Wall")
 include(${CMAKE_CURRENT_LIST_DIR}/../lib/CMakeLists.txt)
 
 #add_definitions(-DDEBUG)
