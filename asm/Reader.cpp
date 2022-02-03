@@ -65,10 +65,12 @@ int Reader::read_asm(string filename){
     int line_num = 0;
     int now_addr = 0;
     
+    /*
     string nop = "addi zero, zero, 0";
 
     read_one_line(line_num, now_addr, nop);
     read_one_line(line_num, now_addr, nop);
+    */
   
     while(getline(ainput, str)){
         try{  
@@ -103,6 +105,7 @@ int Reader::read_asm(string filename){
         return -1;
     }
 
+    /*
     stringstream luistr;
     luistr << "\tlui ra, " << ((instructions.size()) >> 12) << " #initialize ra (added by assembler)";
     line_num = 0; now_addr = 0;
@@ -111,6 +114,7 @@ int Reader::read_asm(string filename){
     stringstream addistr;
     addistr << "\taddi ra, ra, " << ((instructions.size()) & ((1 << 12) - 1)) << " #initialize ra (added by assembler)";
     read_one_line(line_num, now_addr, addistr.str());
+    */
     
     cerr << " complete!" << endl;
     return 0;

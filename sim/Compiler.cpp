@@ -368,6 +368,7 @@ void Compiler::compileSingleInstruction(int pc){
             break;
         case 1:
             //tbd
+            break;
         case 2:
             preProcs(false, pc, memdestRd, rs1, rs2);
             cc.mov(getRdRegGp(rd), ((rs1 << 16) + luioffset) << 12);
@@ -463,7 +464,7 @@ void Compiler::compileSingleInstruction(int pc){
         case 5:
             preProcs(false, pc, memdestRd, rs1, rs2);
             cc.cmp(getRegGp(rs1), rs2imm);
-            cc.jae(pctolabel(pc+imm));
+            cc.jne(pctolabel(pc+imm));
             
             //postproc for branch
             cc.mov(qtmpReg, x86::qword_ptr((uint64_t)&(numBranchUnTaken[pc])));
@@ -672,15 +673,16 @@ void Compiler::preProcs(bool usera, int pc, int memdestRd, int rs1, int rs2){
     }else{
         ann->addLabel(pctolabel(pc));
     }
-
     
+    /*
     InvokeNode* printinvnode;
 
-    cc.invoke(&printinvnode, JitBreakPoint, FuncSignatureT<void, int>());
     cc.mov(tmpReg, pc);
+    cc.invoke(&printinvnode, JitBreakPoint, FuncSignatureT<void, int>());
     printinvnode->setArg(0, tmpReg);
-    
-
+    */
+   
+    //incriment counter
     cc.mov(qtmpReg, x86::qword_ptr((uint64_t) &(numExecuted[pc])));
     cc.inc(qtmpReg);
     cc.mov(x86::qword_ptr((uint64_t) &(numExecuted[pc])), qtmpReg);
