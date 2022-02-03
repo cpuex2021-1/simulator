@@ -10,7 +10,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -Wall")
+set(CMAKE_CXX_FLAGS "-std=c++17 -g -Wall")
 
 if(WIN32)
     add_definitions(-DWINDOWS)

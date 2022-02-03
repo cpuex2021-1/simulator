@@ -485,7 +485,6 @@ void Compiler::compileSingleInstruction(int pc){
                 cacheInvokeNode->setArg(1, getRegGp(rs2));
             }
             break;
-
         case 7:
             //tbd            
             break;
@@ -499,7 +498,6 @@ void Compiler::compileSingleInstruction(int pc){
     {
         int addr = getSextBits(instr, 30, 6);
         rs1 = getBits(instr, 31, 26);
-        rd = getBits(instr, 25, 20);
 
         #ifdef DEBUG
         printf("op:%d funct3:%d rd:%d rs1:%d imm:%d\n", op, funct3, rd, rs1, imm);
@@ -528,7 +526,7 @@ void Compiler::compileSingleInstruction(int pc){
             preProcs(true, pc, memdestRd, -1, -1);
             cc.dec(rastackIdxReg);
             cc.mov(tmpReg, x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0));
-            cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1), 3));
+            cc.mov(qtmpReg, x86::qword_ptr(jumpBase, tmpReg, 3));
             cc.jmp(qtmpReg);
             break;
 
@@ -550,10 +548,8 @@ void Compiler::compileAll(){
     pctolabelptr = new Label*[instructions.size()+1];
     pctoaddr = new uint64_t[instructions.size()+SLIDE];
 
-    #ifdef JITDEBUG 
     FileLogger logger(stderr);
-    code->setLogger(&logger);
-    #endif
+    code.setLogger(&logger);
 
     cc.addFunc(FuncSignatureT<void>());
     
@@ -677,13 +673,13 @@ void Compiler::preProcs(bool usera, int pc, int memdestRd, int rs1, int rs2){
         ann->addLabel(pctolabel(pc));
     }
 
-    /*
+    
     InvokeNode* printinvnode;
 
     cc.invoke(&printinvnode, JitBreakPoint, FuncSignatureT<void, int>());
     cc.mov(tmpReg, pc);
     printinvnode->setArg(0, tmpReg);
-    */
+    
 
     cc.mov(qtmpReg, x86::qword_ptr((uint64_t) &(numExecuted[pc])));
     cc.inc(qtmpReg);
