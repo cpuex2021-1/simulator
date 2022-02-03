@@ -30,7 +30,7 @@ void CPU::print_register(){
     cerr << " ";
     for(int i=0; i<REGNUM; i++){
     if(i % 8 == 0 && i > 0) cerr << endl << " ";
-        cerr << left << setw(6) << regName[i] + ":" << right << setw(8) << reg[i] << " " << dec;
+        cerr << left << setw(6) << xregName[i] + ":" << right << setw(8) << reg[i] << " " << dec;
     }
     cerr << endl;
 }

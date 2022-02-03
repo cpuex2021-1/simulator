@@ -15,7 +15,7 @@ Compiler::Compiler()
 }
 
 Compiler::~Compiler(){
-    for(size_t i=0; i<nodes.size(); i++){
+    for(unsigned int i=0; i<nodes.size(); i++){
         free(nodes[i]);
     }
     rt.release(fn);
@@ -65,7 +65,7 @@ void Compiler::setUpLabel(){
 }
 
 void Compiler::LoadAllRegs(){
-    for(size_t i=0; i<regAllocList.size(); i++){
+    for(unsigned int i=0; i<regAllocList.size(); i++){
         if(regAllocList[i].valid){
             cc.mov(regAllocList[i].gp, x86::dword_ptr((uint64_t)&reg[i]));
         }        
@@ -73,7 +73,7 @@ void Compiler::LoadAllRegs(){
 }
 
 void Compiler::StoreAllRegs(){
-    for(size_t i=0; i<regAllocList.size(); i++){
+    for(unsigned int i=0; i<regAllocList.size(); i++){
         if(regAllocList[i].valid){
             cc.mov(x86::dword_ptr((uint64_t)&reg[i]), regAllocList[i].gp);
         }       
@@ -583,7 +583,7 @@ void Compiler::compileAll(){
     jumpBase = cc.newGpq();
     cc.lea(jumpBase, x86::ptr(jTableLabel));
 
-    for(size_t i=0; i<instructions.size(); i++){
+    for(unsigned int i=0; i<instructions.size(); i++){
         compileSingleInstruction(i);
     }
 

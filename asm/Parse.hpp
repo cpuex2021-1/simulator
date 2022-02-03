@@ -12,8 +12,9 @@ void Debug_parse(string);
 class Parse
 {
 private:
-    int32_t label_to_addr(string str, int32_t now_addr);
-    uint32_t regname_to_addr(string str);
+    int label_to_addr(string str, int now_addr);
+    int xregname_to_addr(string str);
+    int fregname_to_addr(string str);
 
     //label exception
     class label_not_found : public invalid_argument{
@@ -24,11 +25,11 @@ private:
     };
 public:
     typedef enum {label, instruction, unresolved, none, error} LineTypes;
-    Parse(string, int32_t now_addr);
-    int32_t type;
+    Parse(string, int now_addr);
+    int type;
     vector<uint32_t> codes;
     string labl;
-    int32_t size;
+    int size;
 
     void print_instr();
 };

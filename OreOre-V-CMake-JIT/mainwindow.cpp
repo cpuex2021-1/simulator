@@ -83,9 +83,9 @@ void MainWindow::refreshRegView(){
         for(int j=0; j<regt->columnCount();j++){
             if(j % 2 == 0){
                 if(regt->item(i,j) == NULL){
-                    regt->setItem(i, j, new QTableWidgetItem(regName[(i * regt->columnCount() + j) / 2].data()));
+                    regt->setItem(i, j, new QTableWidgetItem(xregName[(i * regt->columnCount() + j) / 2].data()));
                 }else{
-                    regt->item(i, j)->setText(regName[(i * regt->columnCount() + j) / 2].data());
+                    regt->item(i, j)->setText(xregName[(i * regt->columnCount() + j) / 2].data());
                 }
                 regt->item(i,j)->setTextAlignment(Qt::AlignCenter);
                 regt->item(i,j)->setBackground(QBrush(Qt::gray));

@@ -94,16 +94,16 @@ void MainWindow::refreshRegView(){
             if(j % 2 == 0){
                 if((i * regt->columnCount() + j) / 2 < 32){
                     if(regt->item(i,j) == NULL){
-                        regt->setItem(i, j, new QTableWidgetItem(regName[(i * regt->columnCount() + j) / 2].data()));
+                        regt->setItem(i, j, new QTableWidgetItem(xregName[(i * regt->columnCount() + j) / 2].data()));
                     }else{
-                        regt->item(i, j)->setText(regName[(i * regt->columnCount() + j) / 2].data());
+                        regt->item(i, j)->setText(xregName[(i * regt->columnCount() + j) / 2].data());
                     }
 
                 }else{
                     if(regt->item(i,j) == NULL){
-                        regt->setItem(i, j, new QTableWidgetItem(regName[(i * regt->columnCount() + j) / 2 - 32].data()));
+                        regt->setItem(i, j, new QTableWidgetItem(fregName[(i * regt->columnCount() + j) / 2 - 32].data()));
                     }else{
-                        regt->item(i, j)->setText(regName[(i * regt->columnCount() + j) / 2 - 32].data());
+                        regt->item(i, j)->setText(fregName[(i * regt->columnCount() + j) / 2 - 32].data());
                     }
                 }
                 regt->item(i,j)->setTextAlignment(Qt::AlignCenter);

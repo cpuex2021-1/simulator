@@ -26,7 +26,7 @@ void Reader::read_one_line(int &line_num, int &now_addr, string str){
         add_to_vector(l_to_p, line_num, now_addr);
         Parse pres(str, now_addr);
         if(pres.type == Parse::instruction){
-            for(size_t i=0; i < pres.codes.size(); i++){
+            for(unsigned int i=0; i < pres.codes.size(); i++){
                 add_to_vector<uint32_t>(instructions, now_addr, pres.codes[i]);
                 add_to_vector(p_to_l, now_addr, line_num);
                 now_addr += 1;
@@ -87,7 +87,7 @@ int Reader::read_asm(string filename){
             #ifdef DEBUG
             pres.print_instr();
             #endif
-            for(size_t i=0; i < pres.codes.size(); i++){
+            for(unsigned int i=0; i < pres.codes.size(); i++){
                 instructions.at(unr.addr+i) = pres.codes[i];
             }
         }else{
@@ -153,7 +153,7 @@ int Reader::eat_bin(string filename){
 void Reader::write_to_file(string filename){
     fstream output;
     output.open(filename, ios::binary | ios::out);
-    for(size_t i=0; i<instructions.size(); i++){
+    for(uint32_t i=0; i<instructions.size(); i++){
         output.write(reinterpret_cast<char *> (&instructions[i]), sizeof(instructions[i]));
     }
     output.close();
@@ -168,7 +168,7 @@ void Reader::export_debugging_info(string filename){
     output << labellist.size() << "\n";
 
     //write label position and name
-    for(size_t i=0; i<labellist.size();i++){
+    for(uint32_t i=0; i<labellist.size();i++){
         output << labellist[i].pc << " " << labellist[i].label << "\n";
     }
 
