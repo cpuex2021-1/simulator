@@ -313,6 +313,7 @@ void MainWindow::refreshAll(){
         running = false;
     }
 
+
     if(!sobj.sim.ready){
         ui->pushButton->setDisabled(true);
         ui->pushButton_2->setDisabled(true);
@@ -385,9 +386,6 @@ void MainWindow::on_InstLinespinBox_valueChanged(int arg1)
         ui->InstLinespinBox->setValue(inst_line);
     }
     else inst_line = arg1;
-    if(inst_line != (int)sobj.sim.str_instr.size() * ui->verticalScrollBar->value() / 99){
-        ui->verticalScrollBar->setValue(inst_line * 99 / sobj.sim.str_instr.size());
-    }
     refreshAll();
 }
 
