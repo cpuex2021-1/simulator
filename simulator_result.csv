@@ -1,0 +1,93 @@
+Instruction, Times Executed
+ADD, 6
+SUB, 0
+SLL, 0
+SRL, 0
+SRA, 0
+SLT, 0
+SLTU, 0
+XOR, 0
+OR, 0
+AND, 0
+MUL, 0
+MULH, 0
+MULHSU, 0
+MULHU, 0
+DIV, 0
+DIVU, 0
+REM, 0
+REMU, 0
+FADD, 5
+FSUB, 0
+FMUL, 0
+FDIV, 0
+FSQRT, 0
+FNEG, 0
+FABS, 0
+FLOOR, 0
+FEQ, 0
+FLT, 0
+FLE, 0
+FMV.X.W, 0
+FMV.W.X, 0
+FMV, 0
+ITOF, 10
+FTOI, 5
+ADDI, 10
+SLLI, 0
+SRLI, 0
+SRAI, 0
+SLTI, 0
+SLTUI, 0
+XORI, 0
+ORI, 0
+ANDI, 0
+LW, 10
+FLW, 0
+LUI, 2
+BEQ, 0
+BNE, 0
+BLT, 0
+BGE, 0
+BLTU, 0
+BGEU, 5
+SW, 7
+FSW, 0
+JUMP, 1
+JAL, 5
+JALR, 1
+(FSIN), 0
+(FCOS), 0
+(ATAN), 0
+,
+Address, Instruction, Times Executed, Branch Taken Times, Branch Untaken Times
+0, "	lui ra, 0 #initialize ra (added by assembler)", 1, N/A, N/A
+1, "	addi ra, ra, 23 #initialize ra (added by assembler)", 1, N/A, N/A
+2, "    li a0, 0", 1, N/A, N/A
+3, "    li a1, 1", 1, N/A, N/A
+4, "    li a3, 10", 1, N/A, N/A
+5, "    sw a0, 0(a3)", 1, N/A, N/A
+6, "    sw a1, 1(a3)", 1, N/A, N/A
+7, "    la a5, fib", 1, N/A, N/A
+8, "    callcls a5", 1, N/A, N/A
+9, "    jump end", 1, 1, 0
+10, "add:", , ,
+11, "    itof a0, a0", 5, N/A, N/A
+12, "    itof a1, a1", 5, N/A, N/A
+13, "    fadd a2, a0, a1", 5, N/A, N/A
+14, "    ftoi a2, a2", 5, N/A, N/A
+15, "    ret", 5, 5, 0
+16, "fib:", , ,
+17, "    lw a0, 0(a3)", 5, N/A, N/A
+18, "    lw a1, 1(a3)", 5, 5, 0
+19, "    call add", 5, N/A, N/A
+20, "    sw a2, 2(a3)", 5, N/A, N/A
+21, "    addi a3, a3, 1", 5, N/A, N/A
+22, "    bnei a3, 15, fib", 5, 4, 1
+23, "    ret", 1, N/A, N/A
+24, "end:", , ,
+,
+Label, Times Executed (max), Times Executed (min)
+add, 1, 0
+fib, 5, 5
+end, 5, 1

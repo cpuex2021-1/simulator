@@ -1,0 +1,40 @@
+{
+    // IntelliSense を使用して利用可能な属性を学べます。
+    // 既存の属性の説明をホバーして表示します。
+    // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) 起動",
+            "type": "cppdbg",
+            "preLaunchTask": "make",
+            "request": "launch",
+            "program": "${workspaceFolder}/simple-simulator",
+            "args": [
+                "-a",
+                "output.s",
+                "-u",
+                "sld/contest.bin",
+                "-f"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "gdb の再フォーマットを有効にする",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "逆アセンブリ フレーバーを Intel に設定",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "visualizerFile": "/home/naga/.vscode-server/data/User/workspaceStorage/df802cdcf5e7d90b125ada33834328f1/tonka3000.qtvsctools/qt.natvis.xml"
+        }
+    ]
+}

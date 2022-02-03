@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "future": "cpp",
+        "system_error": "cpp",
+        "regex": "cpp",
+        "*.tcc": "cpp",
+        "ostream": "cpp",
+        "*.ipp": "cpp",
+        "iostream": "cpp",
+        "iosfwd": "cpp",
+        "bitset": "cpp",
+        "stdexcept": "cpp",
+        "array": "cpp",
+        "string_view": "cpp"
+    }
+}
