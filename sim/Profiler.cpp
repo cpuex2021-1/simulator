@@ -3,10 +3,20 @@
 #include <fstream>
 
 Profiler::Profiler()
-:numEachInstrExecuted(60,0), labelIdx(0)
+:profready(false), numEachInstrExecuted(60,0), labelIdx(0)
 {}
 
+void Profiler::reset(){
+    for(size_t i=0; i<instructions.size(); i++){
+        numExecuted[i] = 0;
+        numBranchUnTaken[i] = 0;
+        numCacheMiss[i] = 0;
+    }
+}
+
 void Profiler::initProfiler(){
+    if(profready) return;
+
     numExecuted = vector<uint64_t> (instructions.size(), 0);
     numBranchUnTaken = vector<uint64_t> (instructions.size(), 0);
     numCacheMiss = vector<uint64_t> (instructions.size(), 0);
@@ -27,6 +37,8 @@ void Profiler::initProfiler(){
     }
 
     if(hasDebuggingInfo) initLabelStats();
+
+    profready = true;
 }
 
 void Profiler::updateProfilerResult(){
@@ -172,14 +184,14 @@ void Profiler::updateLabelStats(uint64_t numexec, uint64_t addr){
         while(labellist[labelIdx].pc <= addr){
             labelIdx++;
         }
-        if(labelIdx < labelStats.size()){
+        if((uint64_t)labelIdx < labelStats.size()){
             labelStats[labelIdx].max = numexec;
             labelStats[labelIdx].min = numexec;
             return;
         }
         return;
     }
-    if(labelIdx < labelStats.size()){
+    if((uint64_t)labelIdx < labelStats.size()){
         if (labelStats[labelIdx].max < numexec) labelStats[labelIdx].max = numexec;
         if (labelStats[labelIdx].min > numexec) labelStats[labelIdx].min = numexec;
     }

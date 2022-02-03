@@ -447,8 +447,7 @@ Parse :: Parse(string str, int now_addr)
                     7,
                     3,
                     0
-                ));
-                
+                ));                
             }
             
             //psuedo instructions
@@ -472,7 +471,6 @@ Parse :: Parse(string str, int now_addr)
                     xregname_to_addr("a21"),
                     addiimm
                 ));
-
                 codes.push_back(Rtype(
                     3,
                     4,
@@ -480,7 +478,6 @@ Parse :: Parse(string str, int now_addr)
                     xregname_to_addr("a21"),
                     0,
                     0));
-
             }else if(match[1].str() == "li"){
                 uint32_t imm = (uint32_t)stoi(match[3].str());
 
@@ -503,7 +500,6 @@ Parse :: Parse(string str, int now_addr)
                         xregname_to_addr(match[2].str()),
                         addiimm
                     ));
-
                 }else{
                     codes.push_back(ILtype(
                         4,
@@ -536,7 +532,6 @@ Parse :: Parse(string str, int now_addr)
                     xregname_to_addr(match[2].str()),
                     addiimm
                 ));
-
             }
             
             else{

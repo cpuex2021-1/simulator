@@ -1,4 +1,5 @@
-#pragma once
+#ifndef INSTRUCTIONS_H
+#define INSTRUCTIONS_H
 #include <string>
 #include <regex>
 #include <map>
@@ -46,3 +47,5 @@ inline uint32_t Jtype(uint32_t op, uint32_t funct3, uint32_t addr){
 extern map<string, uint32_t> xregs;
 extern map<string, uint32_t> fregs;
 extern map<string, uint32_t> labels;
+
+#endif

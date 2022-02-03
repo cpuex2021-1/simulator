@@ -69,7 +69,7 @@ int main(int argc, char* argv[]){
     }
 
     if(optionExists(options, "-u")){
-        sim.mem->setup_uart(getOption(options, "-u"));
+        sim.mem.setup_uart(getOption(options, "-u"));
     }
 
     try{

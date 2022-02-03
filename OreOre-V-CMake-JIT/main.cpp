@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
         }
 
         if(optionExists(options, "-u")){
-            w.sobj.sim.mem->setup_uart(getOption(options, "-u"));
+            w.sobj.sim.mem.setup_uart(getOption(options, "-u"));
         }
 
     }

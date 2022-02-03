@@ -1,7 +1,7 @@
 #include "Instructions.hpp"
 using namespace std;
 
-map<string, unsigned int> xregs = {
+map<string, uint32_t> xregs = {
     {"zero", 0},
     {"ra", 1},
     {"sp", 2},
@@ -36,7 +36,7 @@ map<string, unsigned int> xregs = {
     {"r2", 31}
 };
 
-map<string, unsigned int> fregs = {
+map<string, uint32_t> fregs = {
     {"fzero", 0},
     {"fsw", 1},
     {"f0", 2},
@@ -70,4 +70,4 @@ map<string, unsigned int> fregs = {
     {"fr1", 30},
     {"fr2", 31}    
 };
-map<string, unsigned int> labels;
+map<string, uint32_t> labels;

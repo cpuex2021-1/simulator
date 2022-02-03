@@ -3,6 +3,7 @@
 using namespace std;
 
 CPU::CPU()
+: memDestRd(-2), mem()
 {
     pc = 0;
     clk = 0;
@@ -13,9 +14,6 @@ CPU::CPU()
     numFlush = 0;
     numDataHazard = 0;
 
-    memDestRd = -2;
-
-    mem = new Memory();
     reg = new int32_t[REGNUM];
     for(int i=0; i<REGNUM; i++){
         reg[i] = 0;
@@ -25,7 +23,6 @@ CPU::CPU()
 }
 
 CPU::~CPU(){
-    delete mem;
     delete reg;
 }
 
@@ -39,6 +36,7 @@ void CPU::print_register(){
 }
 
 void CPU::reset(){
+    Profiler::reset();
     for(int i=0; i<REGNUM; i++){
         reg[i] = 0;
     }
@@ -54,7 +52,7 @@ void CPU::reset(){
     numDataHazard = 0;
     memDestRd = -2;
 
-    mem->reset();
+    mem.reset();
     log.reset();
 }
 
@@ -72,14 +70,14 @@ void CPU::revert(){
     if(logd.rd > 0){
         reg[logd.rd] = logd.former_val;
         if(logd.memAddr == 0){
-            mem->uart.revertPop();
+            mem.uart.revertPop();
         }
     }else{
         if(logd.memAddr > 0){
-            mem->write_without_cache(logd.memAddr, logd.former_val);
+            mem.write_without_cache(logd.memAddr, logd.former_val);
         }
         else if(logd.memAddr == 0){
-            mem->uart.revertPush();
+            mem.uart.revertPush();
         }
     }
 
@@ -94,5 +92,5 @@ void CPU::update_clkcount(){
     clk += 3 * num4stall;
     clk += numDataHazard;
     clk += 2 * numFlush;
-    clk += 35 * mem->totalstall();
+    clk += 35 * mem.totalstall();
 }

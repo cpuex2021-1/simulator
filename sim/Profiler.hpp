@@ -6,6 +6,8 @@
 
 class Profiler : public Reader
 {
+private:
+    bool profready;
 protected:
     vector<uint64_t> numExecuted;
     vector<uint64_t> numBranchUnTaken;
@@ -39,12 +41,14 @@ protected:
     void initLabelStats();
     void updateLabelStats(uint64_t numexec, uint64_t addr);
 
+
 public:
     Profiler();
     void initProfiler();
     void updateProfilerResult();
 
     void exportToCsv();
+    void reset();
 
     //statistics
     inline static uint64_t clk;
