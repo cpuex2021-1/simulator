@@ -49,7 +49,8 @@ void Compiler::bindLabel(int pc){
 
 void Compiler::setUpLabel(){
     endLabel = cc.newLabel();
-    ann = cc.newJumpAnnotation();
+    callann = cc.newJumpAnnotation();
+    retann = cc.newJumpAnnotation();
     for(uint64_t i=0; i<instructions.size(); i++){
         Label* l = new Label;
         (*l) = cc.newLabel();
@@ -521,14 +522,14 @@ void Compiler::compileSingleInstruction(int pc){
             cc.mov(x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0), pc+1);
             cc.inc(rastackIdxReg);
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1), 3));
-            cc.jmp(qtmpReg);
+            cc.jmp(qtmpReg, callann);
             break;
         case 3:
             preProcs(true, pc, memdestRd, -1, -1);
             cc.dec(rastackIdxReg);
             cc.mov(tmpReg, x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0));
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, tmpReg, 3));
-            cc.jmp(qtmpReg);
+            cc.jmp(qtmpReg, retann);
             break;
 
         default:
@@ -549,8 +550,11 @@ void Compiler::compileAll(){
     pctolabelptr = new Label*[instructions.size()+1];
     pctoaddr = new uint64_t[instructions.size()+SLIDE];
 
+    /*
+    //Logging
     FileLogger logger(stderr);
     code.setLogger(&logger);
+    */
 
     cc.addFunc(FuncSignatureT<void>());
     
@@ -605,7 +609,6 @@ void Compiler::compileAll(){
     
     //end
     cc.bind(endLabel);
-    ann->addLabel(endLabel);
 
     //Store register
     StoreAllRegs();
@@ -662,16 +665,17 @@ void Compiler::preProcs(bool usera, int pc, int memdestRd, int rs1, int rs2){
 
     bindLabel(pc);
     
-    if(false&&hasDebuggingInfo){
+    if(hasDebuggingInfo){
         if(labellist[labellistIdx].pc == (uint32_t)pc){
-            ann->addLabel(pctolabel(pc));
+            callann->addLabel(pctolabel(pc));
             while(labellist[labellistIdx].pc == (uint32_t)pc){
                 labellistIdx++;
             }
         }
-        else if(usera) ann->addLabel(pctolabel(pc+1));
+        if(usera) retann->addLabel(pctolabel(pc+1));
     }else{
-        ann->addLabel(pctolabel(pc));
+        callann->addLabel(pctolabel(pc));
+        retann->addLabel(pctolabel(pc));
     }
     
     /*

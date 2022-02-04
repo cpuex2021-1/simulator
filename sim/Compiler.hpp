@@ -75,7 +75,8 @@ protected:
     
     int memDestRd;
 
-    JumpAnnotation* ann;
+    JumpAnnotation* callann;
+    JumpAnnotation* retann;
 
     Label RunLabel, LoadLabel;
 
