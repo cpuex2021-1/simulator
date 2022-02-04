@@ -189,6 +189,7 @@ private:
         if(index <= GLOBALSMEMSIZE){
             access++;
             hitnum++;
+            return;
         }
         unsigned int tag = getBits(index, MEMADDR_BITS - 1, MEMADDR_BITS - CACHETAG_BITS);
         unsigned int cindex = getBits(index, MEMADDR_BITS - CACHETAG_BITS - 1, MEMADDR_BITS - CACHETAG_BITS - CACHEINDEX_BITS);
