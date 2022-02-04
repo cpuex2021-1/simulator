@@ -512,19 +512,24 @@ void Compiler::compileSingleInstruction(int pc){
             cc.jmp(pctolabel(addr));
             break;
         case 1:
+            preProcs(true, pc, memdestRd, rs1, -1);
+            cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1), 3));
+            cc.jmp(qtmpReg, callann);
+            break;
+        case 2:
             preProcs(true, pc, memdestRd, -1, -1);
             cc.mov(x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0), pc+1);
             cc.inc(rastackIdxReg);
             cc.jmp(pctolabel(addr));
             break;
-        case 2:
+        case 3:
             preProcs(true, pc, memdestRd, rs1, -1);
             cc.mov(x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0), pc+1);
             cc.inc(rastackIdxReg);
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1), 3));
             cc.jmp(qtmpReg, callann);
             break;
-        case 3:
+        case 4:
             preProcs(true, pc, memdestRd, -1, -1);
             cc.dec(rastackIdxReg);
             cc.mov(tmpReg, x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0));

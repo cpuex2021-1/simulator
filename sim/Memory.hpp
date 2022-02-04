@@ -13,7 +13,8 @@
 #define CACHETAG_BITS 11
 
 #define GLOBALSMEMSIZE 512
-#define MEMSIZE ((1 << MEMADDR_BITS) + 512)
+#define MEMSIZE ((1 << MEMADDR_BITS) + GLOBALSMEMSIZE)
+#define MAXMEMINDEX (MEMSIZE - GLOBALSMEMSIZE)
 #define CACHESIZE (1 << CACHEINDEX_BITS)
 
 using namespace std;
@@ -220,7 +221,7 @@ inline void Memory::write(int32_t index, int32_t data){
     index += GLOBALSMEMSIZE;
     if(index >= MEMSIZE){
         stringstream ss;
-        ss << "Memory index out of range (write): " << index;
+        ss << "Memory index out of range (write): " << (index - GLOBALSMEMSIZE);
         throw std::out_of_range(ss.str());
     }
     cachehit = false;
@@ -238,7 +239,7 @@ inline int32_t Memory::read(int32_t index){
     index += GLOBALSMEMSIZE;
     if(index >= MEMSIZE){
         stringstream ss;
-        ss << "Memory index out of range (read): " << index;
+        ss << "Memory index out of range (read): " << (index - GLOBALSMEMSIZE);
         throw std::out_of_range(ss.str());
     }
     cachehit = false;

@@ -430,17 +430,23 @@ inline void CPU::simulate_acc()
         {
         case 0:
             pc = addr;
+            rs1 = -1;
             break;
         case 1:
-            rastack[rastackIdx++] = pc + 1;
-            pc = addr;
+            pc = reg[rs1];
             break;
         case 2:
             rastack[rastackIdx++] = pc + 1;
-            pc = reg[rs1];
+            rs1 = -1;
+            pc = addr;
             break;
         case 3:
+            rastack[rastackIdx++] = pc + 1;
+            pc = reg[rs1];
+            break;
+        case 4:
             pc = rastack[--rastackIdx];
+            rs1 = -1;
             break;
         default:
             throw_err(instr); return;
