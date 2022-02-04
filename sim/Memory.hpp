@@ -12,7 +12,8 @@
 #define CACHEINDEX_BITS 12
 #define CACHETAG_BITS 11
 
-#define MEMSIZE (1 << MEMADDR_BITS)
+#define GLOBALSMEMSIZE 512
+#define MEMSIZE ((1 << MEMADDR_BITS) + 512)
 #define CACHESIZE (1 << CACHEINDEX_BITS)
 
 using namespace std;
@@ -132,24 +133,24 @@ private:
     inline static bool cachehit;
     bool pushed;
     bool popped;
-    uint32_t latest_write_index;
-    uint32_t latest_read_index;
+    int32_t latest_write_index;
+    int32_t latest_read_index;
 public:
     inline static int32_t *memory;
     Memory();
     ~Memory();
     UART uart;
-    inline void write(uint32_t index, int32_t data);
-    inline int32_t read(uint32_t index);
-    static inline void writeJit(uint32_t index, int32_t data);
-    static inline int32_t readJit(uint32_t index);
+    inline void write(int32_t index, int32_t data);
+    inline int32_t read(int32_t index);
+    static inline void writeJit(int32_t index, int32_t data);
+    static inline int32_t readJit(int32_t index);
 
     void setup_uart(string);
     void print_memory(string filename);
     void print_cache_summary();
     uint64_t totalstall();
-    int read_without_cache(unsigned int index);
-    void write_without_cache(unsigned int index, int data);
+    int read_without_cache(int index);
+    void write_without_cache(int index, int data);
     void reset();
     double getValidRate();
     double getHitRate();
@@ -158,7 +159,8 @@ public:
         return cachehit;
     }
 
-    inline static uint64_t getMemAddr(uint32_t index){
+    inline static uint64_t getMemAddr(int32_t index){
+        index += GLOBALSMEMSIZE;
         return (uint64_t)&memory[index];
     }
 
@@ -166,11 +168,11 @@ public:
         return sizeof(memory[0]);
     }
 
-    uint32_t getLatestReadIndex(){
+    int32_t getLatestReadIndex(){
         return latest_read_index;
     }
 
-    uint32_t getLatestWriteIndex(){
+    int32_t getLatestWriteIndex(){
         return latest_write_index;
     }
 
@@ -184,6 +186,10 @@ public:
 
 private:
     inline static void update_cache(uint32_t index){
+        if(index <= GLOBALSMEMSIZE){
+            access++;
+            hitnum++;
+        }
         unsigned int tag = getBits(index, MEMADDR_BITS - 1, MEMADDR_BITS - CACHETAG_BITS);
         unsigned int cindex = getBits(index, MEMADDR_BITS - CACHETAG_BITS - 1, MEMADDR_BITS - CACHETAG_BITS - CACHEINDEX_BITS);
         access++;
@@ -204,16 +210,17 @@ private:
 };
 
 
-inline void Memory::write(uint32_t index, int32_t data){
+inline void Memory::write(int32_t index, int32_t data){
     pushed = false;
+    if(index == 0){
+        pushed = true;
+        return uart.push(data);
+    }
+    index += GLOBALSMEMSIZE;
     if(index >= MEMSIZE){
         stringstream ss;
         ss << "Memory index out of range (write): " << index;
         throw std::out_of_range(ss.str());
-    }
-    if(index == 0){
-        pushed = true;
-        return uart.push(data);
     }
     cachehit = false;
     update_cache(index);
@@ -221,16 +228,17 @@ inline void Memory::write(uint32_t index, int32_t data){
     memory[index] = data;
 }
 
-inline int32_t Memory::read(uint32_t index){
+inline int32_t Memory::read(int32_t index){
     popped = false;
+    if(index == 0){
+        popped = true;
+        return uart.pop();        
+    }
+    index += GLOBALSMEMSIZE;
     if(index >= MEMSIZE){
         stringstream ss;
         ss << "Memory index out of range (read): " << index;
         throw std::out_of_range(ss.str());
-    }
-    if(index == 0){
-        popped = true;
-        return uart.pop();        
     }
     cachehit = false;
     update_cache(index);
@@ -238,12 +246,14 @@ inline int32_t Memory::read(uint32_t index){
     return memory[index];
 }
 
-inline void Memory::writeJit(uint32_t index, int32_t data){
+inline void Memory::writeJit(int32_t index, int32_t data){
+    index += GLOBALSMEMSIZE;
     update_cache(index);
     memory[index] = data;    
 }
 
-inline int32_t Memory::readJit(uint32_t index){
+inline int32_t Memory::readJit(int32_t index){
+    index += GLOBALSMEMSIZE;
     update_cache(index);
     return memory[index];
 }
