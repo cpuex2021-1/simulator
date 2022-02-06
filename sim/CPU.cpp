@@ -19,8 +19,8 @@ CPU::CPU()
     for(int i=0; i<REGNUM; i++){
         reg[i] = 0;
     }
-    reg[2] = MEMSIZE - 1;
-    reg[3] = MEMSIZE / 2;
+    reg[2] = MAXMEMINDEX - 1;
+    reg[3] = MAXMEMINDEX / 2;
 
     //setup rastack
     rastack = new uint32_t[RASTACKSIZE];
@@ -44,8 +44,8 @@ void CPU::reset(){
     for(int i=0; i<REGNUM; i++){
         reg[i] = 0;
     }
-    reg[2] = MEMSIZE - 1;
-    reg[3] = MEMSIZE / 2;
+    reg[2] = MAXMEMINDEX - 1;
+    reg[3] = MAXMEMINDEX / 2;
     pc = 0;
     clk = 0;
     numInstruction = 0;

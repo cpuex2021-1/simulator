@@ -230,8 +230,6 @@ string disassemble(uint32_t instr){
     {
         int32_t addr = getSextBits(instr, 30, 6);
         rs1 = getBits(instr, 31, 26);
-        rd = getBits(instr, 25, 20);
-        int32_t imm = getSextBits(instr, 19, 6);
         
         switch (funct3)
         {
@@ -239,12 +237,15 @@ string disassemble(uint32_t instr){
             ss << "JUMP " << addr;
             break;
         case 1:
-            ss << "CALL " << addr;
+            ss << "JUMPR " << regName.at(rs1);
             break;
         case 2:
-            ss << "CALLCLS " << regName.at(rs1) << ", " << imm;
-            break;        
+            ss << "CALL " << addr;
+            break;
         case 3:
+            ss << "CALLR " << regName.at(rs1);
+            break;        
+        case 4:
             ss << "RET ";
             break;
         default:

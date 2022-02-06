@@ -10,7 +10,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , mem_addr(0)
+    , mem_addr(-GLOBALSMEMSIZE)
     , inst_line(0)
     , uart_in_line(0)
     , isReghex(false)
@@ -124,7 +124,7 @@ void MainWindow::refreshMemView(){
         for(int j=0; j<memt->columnCount(); j++){
             stringstream ss;
             int index = i * memt->columnCount() + j + mem_addr;
-            if (index < MEMSIZE){
+            if (index < MEMSIZE-GLOBALSMEMSIZE){
                 if(isReghex){
                     ss.fill('0');
                     ss << "0x" << hex << sobj.sim.mem.read_without_cache(index) << dec;
@@ -244,8 +244,7 @@ void MainWindow::on_pushButton_9_released()
 void MainWindow::on_address_valueChanged(int value)
 {
     mem_addr = value;
-    if(mem_addr < 0 || mem_addr > MEMSIZE) mem_addr = 0;
-    mem_addr -= min(mem_addr, 16);
+    if(mem_addr < -GLOBALSMEMSIZE || mem_addr > MEMSIZE - GLOBALSMEMSIZE) mem_addr = -GLOBALSMEMSIZE;
     mem_addr -= mem_addr % 8;
     refreshMemView();
 }
@@ -379,9 +378,9 @@ void MainWindow::on_verticalScrollBar_valueChanged(int value)
 void MainWindow::on_MemScrollBar_valueChanged(int value)
 {
     if(sobj.sim.ready){
-        mem_addr = (int)(((long long) MEMSIZE * (long long)value) / 99);
-        if(mem_addr >= MEMSIZE){
-            mem_addr = std::max(0, MEMSIZE-1);
+        mem_addr = (int)(((long long) MEMSIZE * (long long)value) / 99) - GLOBALSMEMSIZE;
+        if(mem_addr >= MEMSIZE - GLOBALSMEMSIZE){
+            mem_addr = MEMSIZE - GLOBALSMEMSIZE;
         }
         mem_addr -= mem_addr % 8;
         ui->address->setValue(mem_addr);
@@ -391,13 +390,13 @@ void MainWindow::on_MemScrollBar_valueChanged(int value)
 
 void MainWindow::on_memUpButton_released()
 {
-    ui->address->setValue(ui->address->value() - (ui->MemTable->columnCount() * ui->MemTable->rowCount() / 3));
+    ui->address->setValue((unsigned int)(ui->address->value() - (ui->MemTable->columnCount() * ui->MemTable->rowCount() / 3)));
 }
 
 
 void MainWindow::on_memDownButton_released()
 {
-    ui->address->setValue(max(ui->address->value() + (ui->MemTable->columnCount() * ui->MemTable->rowCount() / 3), 0));
+    ui->address->setValue(std::min(ui->address->value() + (ui->MemTable->columnCount() * ui->MemTable->rowCount() / 3), MEMSIZE-GLOBALSMEMSIZE));
 }
 
 

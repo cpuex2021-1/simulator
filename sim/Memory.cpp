@@ -68,12 +68,12 @@ double Memory::getReplaceRate(){
     return (double)replacenum / (double)access;
 }
 
-int Memory::read_without_cache(unsigned int index){
-    return memory[index];
+int Memory::read_without_cache(int index){
+    return memory[index + GLOBALSMEMSIZE];
 }
 
-void Memory::write_without_cache(unsigned int index, int data){
-    memory[index] = data;
+void Memory::write_without_cache(int index, int data){
+    memory[index + GLOBALSMEMSIZE] = data;
 }
 
 void Memory::reset(){

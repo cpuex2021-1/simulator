@@ -20,8 +20,8 @@ protected:
         tobeAssembled(int a, string s):addr(a), str(s){}
     };
     queue<tobeAssembled> unresolved;
-    inline static vector<int> l_to_p;
-    inline static vector<int> p_to_l;
+    static vector<int> l_to_p;
+    static vector<int> p_to_l;
     void read_one_line(int &line_num, int &now_addr, string str);
 
     class pcandlabel{
@@ -48,7 +48,7 @@ public:
         {}
     };
     vector<uint32_t> instructions;
-    inline static vector<string> str_instr;
+    static vector<string> str_instr;
     Reader();
     void write_to_file(string filename);
     int read_asm(string filename);
