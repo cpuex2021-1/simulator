@@ -445,7 +445,10 @@ inline void CPU::simulate_acc()
             pc = reg[rs1];
             break;
         case 4:
-            pc = rastack[--rastackIdx];
+            if(--rastackIdx < 0){
+                throw out_of_range("Nothing to pop from ra stack");
+            }
+            pc = rastack[rastackIdx];
             rs1 = -1;
             break;
         default:
