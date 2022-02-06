@@ -480,16 +480,6 @@ Parse :: Parse(string str, int now_addr)
                     regname_to_addr(match[2].str()),
                     addiimm
                 ));
-            }else if(match[1].str() == "li"){
-                uint32_t imm = (uint32_t)stoi(match[3].str());
-
-                codes.push_back(ILtype(
-                    4,
-                    0,
-                    regname_to_addr(match[2].str()),
-                    regname_to_addr("zero"),
-                    imm
-                ));
             }
             
             else{
