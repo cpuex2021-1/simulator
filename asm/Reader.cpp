@@ -12,6 +12,11 @@ void add_to_vector(vector<T> &vec, uint64_t index, T value){
     }
 }
 
+vector<int> Reader::l_to_p;
+vector<int> Reader::p_to_l;
+vector<string> Reader::str_instr;
+
+
 Reader::Reader()
 :hasDebuggingInfo(false), labellist(0)
 {}
