@@ -47,19 +47,23 @@ public:
         int32_t rd;
         int32_t memAddr;
         int32_t former_val;
+        bool dorapush;
+        int32_t dorapop;
         
         LogData()
-        :pc(0), rd(-1), memAddr(-1), former_val(0) 
+        :pc(0), rd(-1), memAddr(-1), former_val(0), dorapush(false), dorapop(-1)
         {};
     };
     LogData log[LOG_SIZE];
     uint32_t logHead;
     uint64_t logSize;
-    inline void push(int32_t pc, int32_t rd, int32_t memAddr, int32_t former_val){
+    inline void push(int32_t pc, int32_t rd, int32_t memAddr, int32_t former_val, bool rapush, int32_t rapop){
         log[logHead].pc = pc;
         log[logHead].rd = rd;
         log[logHead].memAddr = memAddr;
         log[logHead].former_val = former_val;
+        log[logHead].dorapop = rapop;
+        log[logHead].dorapush = rapush;
         logHead++; logHead %= LOG_SIZE;
         logSize += (logSize > LOG_SIZE)? 0 : 1;
     }
@@ -164,6 +168,9 @@ inline void CPU::simulate_one_acc(uint32_t instr, int8_t pcinc)
 
     int32_t memdestRd = -2;
     numExecuted[pc]++;
+
+    bool dorapush = false;
+    int32_t dorapop = -1;
 
     switch (op)
     {
@@ -449,6 +456,7 @@ inline void CPU::simulate_one_acc(uint32_t instr, int8_t pcinc)
                 throw out_of_range("ra stack overflow");
             }
             rastack[rastackIdx++] = pc + 1;
+            dorapush = true;
             rs1 = -1;
             pc = addr;
             break;
@@ -457,13 +465,15 @@ inline void CPU::simulate_one_acc(uint32_t instr, int8_t pcinc)
                 throw out_of_range("ra stack overflow");
             }
             rastack[rastackIdx++] = pc + 1;
+            dorapush = true;
             pc = reg[rs1];
             break;
         case 4:
-            if(--rastackIdx <= 0){
+            if(--rastackIdx < 0){
                 throw out_of_range("Nothing to pop from ra stack");
             }
-            pc = rastack[rastackIdx];
+            dorapop = rastack[rastackIdx];
+            pc = dorapop;
             rs1 = -1;
             break;
         default:
@@ -477,7 +487,7 @@ inline void CPU::simulate_one_acc(uint32_t instr, int8_t pcinc)
         break;
     }
 
-    log.push(former_pc, rd, memAddr, former_val);
+    log.push(former_pc, rd, memAddr, former_val, dorapush, dorapop);
     numDataHazard += checkDataHazard(memdestRd, rs1, rs2);
 
     return;
