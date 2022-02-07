@@ -125,7 +125,7 @@ int Simulator::cont(){
     #endif
 
     if(step()){
-        while(pc < instructions.size()){
+        while(pc < instructions.size() / VLIW_SIZE){
             #ifdef DEBUG
             cout << "PC:" << pc << endl << "Instruction:";
             print_register();
