@@ -19,7 +19,12 @@ int main(int argc, char* argv[]){
         cout << "Usage: assembler [input file] [output file]" << endl;
         exit(1);
     }
-    Asm.read_asm(argv[1]);
+    try{
+        Asm.read_asm(argv[1]);
+    }catch(exception &e){
+        cerr << e.what() << endl;
+        exit(0);
+    }
     Asm.write_to_file(argv[2]);
     Asm.export_debugging_info("debuginfo.txt");
     cerr << "[INFO] Debugging information written in debuginfo.txt" << endl;

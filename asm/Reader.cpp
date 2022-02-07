@@ -114,7 +114,7 @@ int Reader::read_asm(string filename){
             read_one_line(line_num, now_addr, str, slot);
         }catch(exception &e){
             stringstream err;
-            err << "[ERROR] Parsing Error at line " << (line_num) << ": " << str << "\n\t" << e.what() << endl;
+            err << "[ERROR] Parsing Error at line " << (line_num) << ": " << str << "\n" << e.what();
             throw parsing_error(err.str());
         }
     }

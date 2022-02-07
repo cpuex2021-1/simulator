@@ -46,7 +46,12 @@ int main(int argc, char* argv[]){
     }
 
     if(optionExists(options, "-a")){
-        sim.read_asm(getOption(options, "-a"));
+        try{
+            sim.read_asm(getOption(options, "-a"));
+        }catch(exception &e){
+            cerr << e.what() << endl;
+            exit(0);
+        }
     }else if(optionExists(options, "-b")){
         if(optionExists(options, "-l")){
             sim.import_debugging_info(getOption(options, "-l"));
