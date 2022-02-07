@@ -9,7 +9,7 @@ int main(int argc, char* argv[]){
     std::ifstream test(filename); 
     if (!test)
     {
-        std::cout << "The file \"" << filename << "\" doesn't exist" << std::endl;
+        std::cout << "[ERROR] The file \"" << filename << "\" doesn't exist" << std::endl;
         return -1;
     }
 

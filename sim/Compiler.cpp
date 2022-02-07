@@ -551,7 +551,7 @@ void Compiler::compileSingleInstruction(int pc){
 }
 
 void Compiler::compileAll(){
-    cerr << "Started AOT Compilation..." << flush; 
+    cerr << "[INFO] Started AOT compilation..." << endl; 
     pctolabelptr = new Label*[instructions.size()+1];
     pctoaddr = new uint64_t[instructions.size()+SLIDE];
 
@@ -627,13 +627,13 @@ void Compiler::compileAll(){
     Error err = rt.add(&fn, &code);
 
     if (err) {
-        fprintf(stderr, "\nAsmJit failed: %s\n", DebugUtils::errorAsString(err));
+        fprintf(stderr, "\n[ERROR] AsmJit failed: %s\n", DebugUtils::errorAsString(err));
         exit(1);
     }
 
     compiled = true;
     
-    cerr << " complete!" << endl;
+    cerr << "[INFO] AOT compilation complete!" << endl;
 }
 
 void Compiler::getNewInvokeNode(InvokeNode*& ptr){
@@ -648,9 +648,9 @@ int Compiler::run(){
         if(!compiled){
             compileAll();
         }
-        cerr << "Running..." << flush;
+        cerr << "[INFO] Running..." << endl;
         fn();
-        cerr << " complete!" << endl;
+        cerr << "[INFO] Program finished" << endl;
         updateProfilerResult();
         update_clkcount();
         return 0;

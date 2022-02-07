@@ -57,6 +57,7 @@ private:
         {}
     };
 
+    vector<int8_t> wrt;
     vector<vector<int8_t>> writetoRegs; 
 
 protected:

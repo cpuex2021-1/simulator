@@ -22,7 +22,7 @@ int32_t Parse::label_to_addr(string str, int now_addr){
            return stoi(str);
         }catch(invalid_argument &e){
             stringstream err;
-            err << "Unknown label: " << str;
+            err << "[ERROR] Unknown label: " << str;
             throw label_not_found(err.str());
         }
     }
@@ -34,7 +34,7 @@ uint32_t Parse::regname_to_addr(string str){
         return regs.at(str);
     } catch (exception &e){
         stringstream err;
-        err << "Unknown register: " << str;
+        err << "[ERROR] Unknown register: " << str;
         throw invalid_argument(err.str());
     }
 }
@@ -528,7 +528,7 @@ Parse :: Parse(string str, int now_addr)
             
             else{
                 stringstream err;
-                err << "Unknown Opecode: " << match[1].str() << endl;
+                err << "[ERROR] Unknown Opecode: " << match[1].str() << endl;
                 code = (0);
                 throw invalid_instruction(err.str());
             }

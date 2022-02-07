@@ -192,7 +192,7 @@ void CLI(bool joke){
                 cout << "You must make ☆彡OreOre-V CPU☆彡 \"read\" assembly or \"eat\" binary!" << endl;
                 continue;
             }
-            cerr << "Invalid command:" << comm << endl;
+            cerr << "[ERROR] Invalid command:" << comm << endl;
             continue;
         }
     } 

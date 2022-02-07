@@ -63,7 +63,7 @@ void CPU::reset(){
 
 void CPU::throw_err(int instr){
     stringstream sserr;
-    sserr << "Invalid_instruction: " << disassemble(instr);
+    sserr << "[ERROR] Invalid_instruction: " << disassemble(instr);
     throw invalid_argument(sserr.str());
 }
 

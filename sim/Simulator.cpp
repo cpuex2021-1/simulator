@@ -68,7 +68,7 @@ int Simulator::set_brk(string bp){
         }
         catch(std::out_of_range& e)
         {
-            cerr << "Label not found : " << bp << endl;
+            cerr << "[ERROR] Label not found : " << bp << endl;
             return -1;
         }                
     }
@@ -89,7 +89,7 @@ int Simulator::del_brk(string bp){
         }
         catch(std::out_of_range& e)
         {
-            cerr << "Label not found : " << bp << endl;
+            cerr << "[ERROR] Label not found : " << bp << endl;
             return -1;
         }                
     }
@@ -119,7 +119,7 @@ int Simulator::cont(){
 
     #ifndef WINDOWS
     if(signal(SIGINT, handler) == SIG_ERR){
-        cerr << "signal init error" << endl;
+        cerr << "[ERROR] signal init error" << endl;
         exit(1);
     }
     #endif

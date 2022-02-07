@@ -51,7 +51,7 @@ int main(int argc, char* argv[]){
         if(optionExists(options, "-l")){
             sim.import_debugging_info(getOption(options, "-l"));
         }else{
-            cerr << "No debugging information specified, do you want to continue? (y/n/help): " << flush;
+            cerr << "[WARNING] No debugging information specified, do you want to continue? (y/n/help): " << flush;
             string opt;
             cin >> opt;
             if(opt != "y"){
@@ -80,8 +80,8 @@ int main(int argc, char* argv[]){
         sim.show_line();
         sim.show_instruction();
         sim.show_result();
-        cerr << "Error: " << e.what() << endl;
-        cerr << "Aborting" << endl;
+        cerr << "[ERROR] Error: " << e.what() << endl;
+        cerr << "[ERROR] Aborting" << endl;
         exit(0);
     }
     

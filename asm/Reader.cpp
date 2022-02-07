@@ -33,15 +33,26 @@ void Reader::read_one_line(int32_t &line_num, int32_t &now_addr, string str, int
         if(pres.type == Parse::instruction){
             if(!checkSlotPolicy(slot, pres.codetype)){
                 stringstream err;
-                err << "VLIW slot policy violation: ";
+                err << "[ERROR] VLIW slot policy violation: ";
                 err << slotTypeName[pres.codetype] << " instruction is not allowed to fit in slot " << (slot + 1);
                 throw vliw_slot_policy_violation(err.str());
             }
             add_to_vector<uint32_t>(instructions, now_addr*VLIW_SIZE+slot, pres.code);
+            wrt[slot] = pres.writetoreg;
+
+            for(int i=0; i<slot; i++){
+                if(wrt[i] == pres.writetoreg && pres.writetoreg != pres.reg_dfl){
+                    cerr << "[WARNING] Line: " << (line_num+1) << " Same destination register " << regName.at(pres.writetoreg) << \
+                     " used in slot " << (i+1) << " and slot " << (slot + 1) << endl; 
+                }
+            }
+
             if(slot == 0){
                 add_to_vector(p_to_l, now_addr, line_num);
             }
             if(slot == VLIW_SIZE - 1){
+                writetoRegs.push_back(wrt);
+                wrt = vector<int8_t>(4, -1);
                 now_addr++;
             }
             slot = (slot + 1) % VLIW_SIZE;
@@ -53,13 +64,15 @@ void Reader::read_one_line(int32_t &line_num, int32_t &now_addr, string str, int
                 add_to_vector(p_to_l, now_addr, line_num);
             }
             if(slot == VLIW_SIZE - 1){
+                writetoRegs.push_back(wrt);
+                wrt = vector<int8_t>(4, -1);
                 now_addr++;
             }
             slot = (slot + 1) % VLIW_SIZE;
         }else if(pres.type == Parse::label){
             if(slot > 0){
                 stringstream err;
-                err << "Instructions not aligned properly for VLIW";
+                err << "[ERROR] Instructions not aligned properly for VLIW";
                 throw vliw_not_alingned(err.str());
             }
             labels[pres.labl] = now_addr;
@@ -67,7 +80,7 @@ void Reader::read_one_line(int32_t &line_num, int32_t &now_addr, string str, int
             labellist.push_back(linfo);
         }else if(pres.type == Parse::error){
             stringstream err;
-            err << "Parsing Error at line " << (line_num) << ": " << str << endl;
+            err << "[ERROR] Parsing Error at line " << (line_num) << ": " << str << endl;
             throw parsing_error(err.str());
         }
         add_to_vector(str_instr, line_num, str);
@@ -75,10 +88,18 @@ void Reader::read_one_line(int32_t &line_num, int32_t &now_addr, string str, int
 }
 
 int Reader::read_asm(string filename){
+
+    std::ifstream test(filename); 
+    if (!test)
+    {
+        std::cout << "[ERROR] The file \"" << filename << "\" doesn't exist" << std::endl;
+        return -1;
+    }
+
     fstream ainput;
     ainput.open(filename, ios::in);
 
-    cerr << "Reading " << filename <<  "..." << flush;
+    cerr << "[INFO] Reading " << filename <<  "... " << endl;
 
     hasDebuggingInfo = true;
 
@@ -86,13 +107,14 @@ int Reader::read_asm(string filename){
     int32_t line_num = 0;
     int32_t now_addr = 0;
     int8_t slot = 0;
+    wrt = vector<int8_t>(4, -1);
     
     while(getline(ainput, str)){
-        try{  
+        try{
             read_one_line(line_num, now_addr, str, slot);
         }catch(exception &e){
             stringstream err;
-            err << "Parsing Error at line " << (line_num) << ": " << str << "\n\t" << e.what() << endl;
+            err << "[ERROR] Parsing Error at line " << (line_num) << ": " << str << "\n\t" << e.what() << endl;
             throw parsing_error(err.str());
         }
     }
@@ -104,10 +126,17 @@ int Reader::read_asm(string filename){
             #ifdef DEBUG
             pres.print_instr();
             #endif
+            for(int i=0; i<VLIW_SIZE; i++){
+                if(unr.slot != i && writetoRegs[unr.addr][i] == pres.writetoreg && pres.writetoreg != pres.reg_dfl){
+                    cerr << "[WARNING] Line: " << (pc_to_line(unr.addr)+1) << " Same destination register " << regName.at(pres.writetoreg) << \
+                     " used in slot " << (i+1) << " and slot " << (unr.slot + 1) << endl; 
+                }
+            }
+            writetoRegs[unr.addr][unr.slot] = pres.writetoreg;
             instructions.at(unr.addr*VLIW_SIZE + unr.slot) = pres.code;
         }else{
             stringstream err;
-            err << "Label resolution Failed at line " << pc_to_line(unr.addr) << ":\n" << unr.str << endl;
+            err << "[ERROR] Label resolution Failed at line " << pc_to_line(unr.addr) << ":\n" << unr.str << endl;
             throw parsing_error(err.str());
         }
 
@@ -118,7 +147,7 @@ int Reader::read_asm(string filename){
         return -1;
     }
 
-    cerr << " complete!" << endl;
+    cerr << "[INFO] Reading complete!" << endl;
     return 0;
     ainput.close();
 }
@@ -127,10 +156,10 @@ int Reader::eat_bin(string filename){
     std::ifstream test(filename); 
     if (!test)
     {
-        std::cout << "The file \"" << filename << "\" doesn't exist" << std::endl;
+        std::cout << "[ERROR] The file \"" << filename << "\" doesn't exist" << std::endl;
         return -1;
     }
-    cerr << "Eating " << filename << "...";
+    cerr << "[INFO] Eating " << filename << "..." << endl;
     
     fstream binput;
 
@@ -160,7 +189,7 @@ int Reader::eat_bin(string filename){
     if(instructions.size() <= 0){
         return -1;
     }
-    cerr << " complete!" << endl;
+    cerr << "[INFO] Eating complete!" << endl;
     return 0;
 }
 
