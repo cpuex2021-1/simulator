@@ -67,7 +67,6 @@ void Debug_parse(string str){
 
 
 Parse :: Parse(string str, int now_addr)
-:size(1)
 {
     remove_comment(str);
     smatch match;
@@ -78,209 +77,219 @@ Parse :: Parse(string str, int now_addr)
         labl = match[1].str();
     } else if(regex_match(str, match, regex(THREE_ARGS_EXPR)) || regex_match(str, match, regex(TWO_ARGS_EXPR)) || regex_match(str, match, regex(SW_LIKE_EXPR)) || regex_match(str, match, regex(ONE_ARGS_EXPR)) || regex_match(str, match, regex(NO_ARGS_EXPR))){
         type = instruction;
-        if(match[1].str() == "fli"){
-            size = 3;
-        }else if(match[1].str() == "li"){
-            int imm = stoi(match[3].str());
-
-            if(imm >= (1 << 16)){
-                size = 2;
-            }else{
-                size = 1;
-            }
-            
-        }
     } else if(regex_match(str, match, regex("\\s*"))){
         type = none;
     } else {
         type = error;
     }
 
-    codes = vector<uint32_t>();
-
     try{
         if(type == instruction){
             if(match[1].str() ==  "add"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     0,
                     0,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     regname_to_addr(match[4].str()),
                     0));
-                
+                codetype = alu;
+                writetoreg = regname_to_addr(match[2].str());
             }else if(match[1].str() ==  "sub"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     0,
                     1,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     regname_to_addr(match[4].str()),
                     0));
-                
+                codetype = alu;
+                writetoreg = regname_to_addr(match[2].str());
             }
             
             else if(match[1].str() ==  "fadd"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     2,
                     0,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     regname_to_addr(match[4].str()),
                     0));
-                
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());                
             }else if(match[1].str() ==  "fsub"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     2,
                     1,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     regname_to_addr(match[4].str()),
                     0));
-                
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());                
             }else if(match[1].str() ==  "fmul"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     2,
                     2,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     regname_to_addr(match[4].str()),
                     0));
-                
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());                
             }else if(match[1].str() ==  "fdiv"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     2,
                     3,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     regname_to_addr(match[4].str()),
                     0));
-                
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());                
             }else if(match[1].str() ==  "fsqrt"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     2,
                     4,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     0,
                     0));
-                
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());                
             }else if(match[1].str() ==  "fneg"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     2,
                     5,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     0,
                     0));
-                
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());                
             }else if(match[1].str() ==  "fabs"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     2,
                     6,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     0,
                     0));
-                
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());                
             }else if(match[1].str() ==  "floor"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     2,
                     7,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     0,
                     0));
-                
-            }
-            
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());
+            }            
             else if(match[1].str() ==  "feq"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     3,
                     0,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     regname_to_addr(match[4].str()),
                     0));
-                
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());                
             }else if(match[1].str() ==  "flt"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     3,
                     1,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     regname_to_addr(match[4].str()),
                     0));
-                
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());                
             }else if(match[1].str() ==  "fle"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     3,
                     2,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     regname_to_addr(match[4].str()),
                     0));
-                
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());                
             }else if(match[1].str() ==  "itof"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     3,
                     6,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     0,
                     0));
-                
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());                
             }else if(match[1].str() ==  "ftoi"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     3,
                     7,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     0,
                     0));
-                
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());                
             }
 
             else if(match[1].str() ==  "addi"){
-                codes.push_back(ILtype(
+                code = (ILtype(
                     4,
                     0,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     stoi(match[4].str())
                 ));
-                
+                codetype = alu;
+                writetoreg = regname_to_addr(match[2].str());                
             }else if(match[1].str() ==  "slli"){
-                codes.push_back(ILtype(
+                code = (ILtype(
                     4,
                     1,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     stoi(match[4].str()) & 0b11111
                 ));
-                
+                codetype = alu;
+                writetoreg = regname_to_addr(match[2].str());                
             }else if(match[1].str() ==  "srai"){
-                codes.push_back(ILtype(
+                code = (ILtype(
                     4,
                     2,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     stoi(match[4].str()) & 0b11111
                 ));
-                
+                codetype = alu;
+                writetoreg = regname_to_addr(match[2].str());                
             }
             
             else if(match[1].str() ==  "lw"){
-                codes.push_back(ILtype(
+                code = (ILtype(
                     5,
                     0,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[4].str()),
                     stoi(match[3].str())
                 ));
-                
+                if(match[4].str() == "zero" && stoi(match[3].str()) == 0){
+                    codetype = uart;
+                    writetoreg = regname_to_addr(match[2].str());           
+                }else{
+                    codetype = ma;
+                    writetoreg = regname_to_addr(match[2].str());
+                }
             }else if(match[1].str() ==  "vlw"){
-                codes.push_back(ILtype(
+                //tbd
+                code = (ILtype(
                     5,
                     1,
                     regname_to_addr(match[2].str()),
@@ -290,102 +299,119 @@ Parse :: Parse(string str, int now_addr)
                 
             }else if(match[1].str() ==  "lui"){
                 int imm = stoi(match[3].str());
-                codes.push_back(ILtype(
+                code = (ILtype(
                     5,
                     2,
                     regname_to_addr(match[2].str()),
                     ((uint32_t)imm >> 16),
                     imm & ((1 << 16) -1)
                 ));
-                
+                codetype = alu;
+                writetoreg = regname_to_addr(match[2].str());                                
             }
 
             //only on simulator
             else if(match[1].str() ==  "fsin"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     5,
                     5,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     0,
                     0));
-                
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());
             }else if(match[1].str() ==  "fcos"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     5,
                     6,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     0,
                     0));
-                
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());                                
             }else if(match[1].str() ==  "atan"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     5,
                     7,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     0,
-                    0));
-                
+                    0));                    
+                codetype = fpu;
+                writetoreg = regname_to_addr(match[2].str());                                
             }
 
             else if(match[1].str() ==  "beq"){
-                codes.push_back(SBtype(
+                code = (SBtype(
                     6,
                     0,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     label_to_addr(match[4].str(), now_addr)
                 ));
-                
+                codetype = b_j;
+                writetoreg = reg_dfl;                                
             }else if(match[1].str() ==  "bne"){
-                codes.push_back(SBtype(
+                code = (SBtype(
                     6,
                     1,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     label_to_addr(match[4].str(), now_addr)
                 ));
-                
+                codetype = b_j;
+                writetoreg = reg_dfl;                
             }else if(match[1].str() ==  "blt"){
-                codes.push_back(SBtype(
+                code = (SBtype(
                     6,
                     2,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     label_to_addr(match[4].str(), now_addr)
                 ));
-                
+                codetype = b_j;
+                writetoreg = reg_dfl;                
             }else if(match[1].str() ==  "bge"){
-                codes.push_back(SBtype(
+                code = (SBtype(
                     6,
                     3,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
                     label_to_addr(match[4].str(), now_addr)
                 ));
-                
+                codetype = b_j;
+                writetoreg = reg_dfl;                
             }else if(match[1].str() ==  "bnei"){
-                codes.push_back(SBtype(
+                code = (SBtype(
                     6,
                     5,
                     regname_to_addr(match[2].str()),
                     stoi(match[3].str()),
                     label_to_addr(match[4].str(), now_addr)
                 ));
-                
+                codetype = b_j;
+                writetoreg = reg_dfl;                
             }else if(match[1].str() ==  "sw"){
-                codes.push_back(SBtype(
+                code = (SBtype(
                     6,
                     6,
                     regname_to_addr(match[4].str()),
                     regname_to_addr(match[2].str()),
                     stoi(match[3].str())
                 ));
+                if(match[4].str() == "zero" && stoi(match[3].str()) == 0){
+                    codetype = uart;
+                    writetoreg = reg_dfl;
+                }else{
+                    codetype = ma;
+                    writetoreg = reg_dfl;
+                }
                 
             }else if(match[1].str() ==  "vsw"){
-                codes.push_back(SBtype(
+                //tbd
+                code = (SBtype(
                     6,
                     7,
                     regname_to_addr(match[4].str()),
@@ -397,42 +423,48 @@ Parse :: Parse(string str, int now_addr)
 
             else if(match[1].str() ==  "jump"){
                 int addr = label_to_addr(match[2].str(), 0);
-                codes.push_back(Jtype(
+                code = (Jtype(
                     7,
                     0,
                     addr & ((1 << 25) - 1)
                 ));
-                
+                codetype = b_j;
+                writetoreg = reg_dfl;                
             }else if(match[1].str() ==  "jumpr"){
                 int rs1 = regname_to_addr(match[2].str()) & 0b11111;
-                codes.push_back(Jtype(
+                code = (Jtype(
                     7,
                     1,
                     (rs1 << 20)
                 ));
-                
+                codetype = b_j;
+                writetoreg = reg_dfl;                
             }else if(match[1].str() ==  "call"){
                 int addr = label_to_addr(match[2].str(), 0);
-                codes.push_back(Jtype(
+                code = (Jtype(
                     7,
                     2,
                     addr & ((1 << 25) - 1)
                 ));
-                
+                codetype = b_j;
+                writetoreg = reg_dfl;                
             }else if(match[1].str() ==  "callr"){
                 int rs1 = regname_to_addr(match[2].str()) & 0b11111;
-                codes.push_back(Jtype(
+                code = (Jtype(
                     7,
                     3,
                     (rs1 << 20)
                 ));
-                
+                codetype = b_j;
+                writetoreg = reg_dfl;                
             }else if(match[1].str() ==  "ret"){
-                codes.push_back(Jtype(
+                code = (Jtype(
                     7,
                     4,
                     0
-                ));                
+                ));               
+                codetype = b_j;
+                writetoreg = reg_dfl;
             }
             
             //psuedo instructions
@@ -440,52 +472,60 @@ Parse :: Parse(string str, int now_addr)
                 float imm = stof(match[3].str());
                 uint32_t* immint = (uint32_t *)&imm;
                 uint32_t luiimm = (*immint) >> 12;
-                codes.push_back(ILtype(
+                code = (ILtype(
                     5,
                     2,
                     regname_to_addr(match[2].str()),
                     ((uint32_t)luiimm >> 16),
                     luiimm & ((1 << 16) -1)
                 ));
+                codetype = alu;
+                writetoreg = regname_to_addr(match[2].str()); 
             }else if(match[1].str() == "addi.float"){
                 float imm = stof(match[3].str());
                 uint32_t* immint = (uint32_t *)&imm;
                 uint32_t addiimm = (*immint) & ((1 << 12) - 1);
-                codes.push_back(ILtype(
+                code = (ILtype(
                     4,
                     0,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[2].str()),
                     addiimm
                 ));
+                codetype = alu;
+                writetoreg = regname_to_addr(match[2].str()); 
             }else if(match[1].str() == "lui.label"){
                 int imm = label_to_addr(match[3].str(), 0);
                 int luiimm = imm >> 12;
                 
-                codes.push_back(ILtype(
+                code = (ILtype(
                     5,
                     2,
                     regname_to_addr(match[2].str()),
                     ((uint32_t)luiimm >> 16),
                     luiimm & ((1 << 16) -1)
                 ));
+                codetype = alu;
+                writetoreg = regname_to_addr(match[2].str()); 
             }else if(match[1].str() == "addi.label"){
                 int imm = label_to_addr(match[3].str(), 0);
                 int addiimm = imm & ((1 << 12) - 1);
                 
-                codes.push_back(ILtype(
+                code = (ILtype(
                     4,
                     0,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[2].str()),
                     addiimm
                 ));
+                codetype = alu;
+                writetoreg = regname_to_addr(match[2].str()); 
             }
             
             else{
                 cerr << "Unknown Opecode: " << match[1].str() << endl;
                 exit(1);
-                codes.push_back(0);
+                code = (0);
             }
         }
     }catch(label_not_found &e){
@@ -494,10 +534,8 @@ Parse :: Parse(string str, int now_addr)
 }
 
 void Parse::print_instr(){
-    for(size_t j=0; j<codes.size(); j++){
-        for(int i=31; i>=0; i--){
-            cout << (codes[j] >> i & 1);
-        }
-        cout << endl;
+    for(int i=31; i>=0; i--){
+        cout << (code >> i & 1);
     }
+    cout << endl;
 }

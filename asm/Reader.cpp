@@ -31,20 +31,15 @@ void Reader::read_one_line(int &line_num, int &now_addr, string str){
         add_to_vector(l_to_p, line_num, now_addr);
         Parse pres(str, now_addr);
         if(pres.type == Parse::instruction){
-            for(size_t i=0; i < pres.codes.size(); i++){
-                add_to_vector<uint32_t>(instructions, now_addr, pres.codes[i]);
-                add_to_vector(p_to_l, now_addr, line_num);
-                now_addr += 1;
-            }
+            add_to_vector<uint32_t>(instructions, now_addr, pres.code);
+            add_to_vector(p_to_l, now_addr, line_num);
+            now_addr += 1;
         }else if(pres.type == Parse::none){
         }else if(pres.type == Parse::unresolved){
             unresolved.push(tobeAssembled(now_addr, str));
-            for(int i=0; i<pres.size; i++){
-                add_to_vector<uint32_t>(instructions, now_addr, 0);
-                add_to_vector(p_to_l, now_addr, line_num);
-                now_addr += 1;
-            }
-            
+            add_to_vector<uint32_t>(instructions, now_addr, 0);
+            add_to_vector(p_to_l, now_addr, line_num);
+            now_addr += 1;
         }else if(pres.type == Parse::label){
             labels[pres.labl] = now_addr;
             pcandlabel linfo(now_addr, pres.labl);
@@ -94,9 +89,7 @@ int Reader::read_asm(string filename){
             #ifdef DEBUG
             pres.print_instr();
             #endif
-            for(size_t i=0; i < pres.codes.size(); i++){
-                instructions.at(unr.addr+i) = pres.codes[i];
-            }
+            instructions.at(unr.addr) = pres.code;
         }else{
             stringstream err;
             err << "Label resolution Failed at line " << pc_to_line(unr.addr) << ":\n" << unr.str << endl;

@@ -22,13 +22,26 @@ private:
         : invalid_argument(_Message)
         {}
     };
+
 public:
-    typedef enum {label, instruction, unresolved, none, error} LineTypes;
+    //instruction types
+    enum {b_j, alu, fpu, uart, ma};
+
+    //parsing results
+    enum {label, instruction, unresolved, none, error};
+
     Parse(string, int32_t now_addr);
+
+    //parsing result type
     int32_t type;
-    vector<uint32_t> codes;
+    
     string labl;
-    int32_t size;
+
+    uint32_t code;
+    int8_t codetype;
+
+    const int8_t reg_dfl = -1;
+    int8_t writetoreg;
 
     void print_instr();
 };
