@@ -447,6 +447,8 @@ inline void CPU::simulate_acc()
         case 4:
             if(--rastackIdx <= 0){
                 throw out_of_range("Nothing to pop from ra stack");
+            }else if(rastackIdx >= RASTACKSIZE){
+                throw out_of_range("ra stack overflow");
             }
             pc = rastack[rastackIdx];
             rs1 = -1;
