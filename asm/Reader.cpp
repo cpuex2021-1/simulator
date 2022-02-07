@@ -21,7 +21,7 @@ Reader::Reader()
 :hasDebuggingInfo(false), labellist(0)
 {}
 
-void Reader::read_one_line(int &line_num, int &now_addr, string str){
+void Reader::read_one_line(int32_t &line_num, int32_t &now_addr, string str, int8_t &slot){
         #ifdef DEBUG
         cout << "PC:" << now_addr << endl;
         cout << "line:" << line_num << " ";
@@ -31,16 +31,37 @@ void Reader::read_one_line(int &line_num, int &now_addr, string str){
         add_to_vector(l_to_p, line_num, now_addr);
         Parse pres(str, now_addr);
         if(pres.type == Parse::instruction){
+            if(!checkSlotPolicy(slot, pres.codetype)){
+                stringstream err;
+                err << "VLIW slot policy violation: ";
+                err << slotTypeName[pres.codetype] << " instruction is not allowed to fit in slot " << (slot + 1);
+                throw vliw_slot_policy_violation(err.str());
+            }
             add_to_vector<uint32_t>(instructions, now_addr, pres.code);
-            add_to_vector(p_to_l, now_addr, line_num);
-            now_addr += 1;
+            if(slot == 0){
+                add_to_vector(p_to_l, now_addr, line_num);
+            }
+            if(slot == VLIW_SIZE - 1){
+                now_addr++;
+            }
+            slot = (slot + 1) % VLIW_SIZE;
         }else if(pres.type == Parse::none){
         }else if(pres.type == Parse::unresolved){
-            unresolved.push(tobeAssembled(now_addr, str));
+            unresolved.push(tobeAssembled(now_addr, str, slot));
             add_to_vector<uint32_t>(instructions, now_addr, 0);
-            add_to_vector(p_to_l, now_addr, line_num);
-            now_addr += 1;
+            if(slot == 0){
+                add_to_vector(p_to_l, now_addr, line_num);
+            }
+            if(slot == VLIW_SIZE - 1){
+                now_addr++;
+            }
+            slot = (slot + 1) % VLIW_SIZE;
         }else if(pres.type == Parse::label){
+            if(slot > 0){
+                stringstream err;
+                err << "Instructions not aligned properly for VLIW";
+                throw vliw_not_alingned(err.str());
+            }
             labels[pres.labl] = now_addr;
             pcandlabel linfo(now_addr, pres.labl);
             labellist.push_back(linfo);
@@ -62,19 +83,13 @@ int Reader::read_asm(string filename){
     hasDebuggingInfo = true;
 
     string str;
-    int line_num = 0;
-    int now_addr = 0;
+    int32_t line_num = 0;
+    int32_t now_addr = 0;
+    int8_t slot = 0;
     
-    /*
-    string nop = "addi zero, zero, 0";
-
-    read_one_line(line_num, now_addr, nop);
-    read_one_line(line_num, now_addr, nop);
-    */
-  
     while(getline(ainput, str)){
         try{  
-            read_one_line(line_num, now_addr, str);
+            read_one_line(line_num, now_addr, str, slot);
         }catch(exception &e){
             stringstream err;
             err << "Parsing Error at line " << (line_num) << ": " << str << "\n\t" << e.what() << endl;
@@ -89,7 +104,7 @@ int Reader::read_asm(string filename){
             #ifdef DEBUG
             pres.print_instr();
             #endif
-            instructions.at(unr.addr) = pres.code;
+            instructions.at(unr.addr + unr.slot) = pres.code;
         }else{
             stringstream err;
             err << "Label resolution Failed at line " << pc_to_line(unr.addr) << ":\n" << unr.str << endl;
@@ -103,17 +118,6 @@ int Reader::read_asm(string filename){
         return -1;
     }
 
-    /*
-    stringstream luistr;
-    luistr << "\tlui ra, " << ((instructions.size()) >> 12) << " #initialize ra (added by assembler)";
-    line_num = 0; now_addr = 0;
-    read_one_line(line_num, now_addr, luistr.str());
-
-    stringstream addistr;
-    addistr << "\taddi ra, ra, " << ((instructions.size()) & ((1 << 12) - 1)) << " #initialize ra (added by assembler)";
-    read_one_line(line_num, now_addr, addistr.str());
-    */
-    
     cerr << " complete!" << endl;
     return 0;
     ainput.close();
@@ -133,14 +137,22 @@ int Reader::eat_bin(string filename){
     binput.open(filename);
 
     uint32_t code = 0;
-    int now_addr = 0;
+    int32_t now_addr = 0;
+    int32_t line_num = 0;
+
+    int8_t packingidx = 0;
 
     while(binput.read((char *) &code, sizeof(uint32_t))){
         add_to_vector(instructions, now_addr, code);
         add_to_vector(str_instr, now_addr, disassemble(code));
-        add_to_vector(p_to_l, now_addr, now_addr);
-        add_to_vector(l_to_p, now_addr, now_addr);
-        now_addr++;
+        add_to_vector(l_to_p, now_addr, line_num);
+
+        line_num++;
+        packingidx = (packingidx + 1) % VLIW_SIZE;
+        if(packingidx == 0){
+            add_to_vector(p_to_l, now_addr, line_num-VLIW_SIZE);
+            now_addr++;
+        }
     }
 
     binput.close();

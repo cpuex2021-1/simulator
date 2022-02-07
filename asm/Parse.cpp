@@ -520,12 +520,17 @@ Parse :: Parse(string str, int now_addr)
                 ));
                 codetype = alu;
                 writetoreg = regname_to_addr(match[2].str()); 
+            }else if(match[1].str() == "nop"){
+                code = 0;
+                codetype = nop;
+                writetoreg = reg_dfl;
             }
             
             else{
-                cerr << "Unknown Opecode: " << match[1].str() << endl;
-                exit(1);
+                stringstream err;
+                err << "Unknown Opecode: " << match[1].str() << endl;
                 code = (0);
+                throw invalid_instruction(err.str());
             }
         }
     }catch(label_not_found &e){

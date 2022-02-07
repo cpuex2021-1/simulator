@@ -22,10 +22,17 @@ private:
         : invalid_argument(_Message)
         {}
     };
+    
+    class invalid_instruction : public invalid_argument{
+    public:
+        invalid_instruction(string _Message)
+        : invalid_argument(_Message)
+        {}
+    };    
 
 public:
     //instruction types
-    enum {b_j, alu, fpu, uart, ma};
+    enum {b_j, alu, fpu, uart, ma, nop};
 
     //parsing results
     enum {label, instruction, unresolved, none, error};
