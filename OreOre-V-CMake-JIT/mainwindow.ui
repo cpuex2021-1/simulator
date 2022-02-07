@@ -22,7 +22,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_6">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="3,5,1,1,1">
+     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="4,8,2,1,2">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
@@ -554,10 +554,6 @@
         <item>
          <widget class="QTextBrowser" name="uartInputTextBrowser"/>
         </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <widget class="QLabel" name="uartOutputLabel">
           <property name="text">
@@ -567,6 +563,20 @@
         </item>
         <item>
          <widget class="QTextBrowser" name="uartOutputTextBrowser"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QLabel" name="raStackLabel">
+          <property name="text">
+           <string>RA Stack</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextBrowser" name="raStackViewer"/>
         </item>
        </layout>
       </item>

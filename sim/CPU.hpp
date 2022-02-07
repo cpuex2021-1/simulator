@@ -94,10 +94,12 @@ protected:
     int32_t memDestRd;
 
 
-    uint32_t* rastack;
-    uint32_t rastackIdx;
+    inline void simulate_one_acc(uint32_t instr, int8_t pcinc);
+    void revert_one();
 
 public:
+    uint32_t* rastack;
+    uint32_t rastackIdx;
     inline static int32_t* reg;
 
     uint64_t pc;
@@ -116,7 +118,15 @@ public:
     void update_clkcount();
 };
 
-inline void CPU::simulate_acc()
+inline void CPU::simulate_acc(){
+    auto addr = pc * VLIW_SIZE;
+    simulate_one_acc(instructions[addr+3], 0);
+    simulate_one_acc(instructions[addr+2], 0);
+    simulate_one_acc(instructions[addr+1], 0);
+    simulate_one_acc(instructions[addr+0], 1);
+   }
+
+inline void CPU::simulate_one_acc(uint32_t instr, int8_t pcinc)
 {
     /*
     // for jit compiler debugging
@@ -136,7 +146,6 @@ inline void CPU::simulate_acc()
         exit(0);
     }*/
     
-    uint32_t instr = instructions[pc];
     uint32_t op = getBits(instr, 2, 0);
     uint32_t funct3 = getBits(instr, 5, 3);
 
@@ -172,10 +181,10 @@ inline void CPU::simulate_acc()
         {
         case 0:
             reg[rd] = (int32_t)reg[rs1] + (int32_t)reg[rs2];
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 1:
             reg[rd] = (int32_t)reg[rs1] - (int32_t)reg[rs2];
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         default:
             throw_err(instr); return;
             break;
@@ -202,35 +211,35 @@ inline void CPU::simulate_acc()
         case 0:
             former_val = reg[rd];
             reg[rd] = FPU::fadd(reg[rs1], reg[rs2]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 1:
             former_val = reg[rd];
             reg[rd] = FPU::fsub(reg[rs1], reg[rs2]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 2:
             former_val = reg[rd];
             reg[rd] = FPU::fmul(reg[rs1], reg[rs2]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 3:
             former_val = reg[rd];
             reg[rd] = FPU::fdiv(reg[rs1], reg[rs2]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 4:
             former_val = reg[rd];
             reg[rd] = FPU::fsqrt(reg[rs1]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 5:
             former_val = reg[rd];
             reg[rd] = FPU::fneg(reg[rs1]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 6:
             former_val = reg[rd];
             reg[rd] = FPU::fabs(reg[rs1]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 7:
             former_val = reg[rd];
             reg[rd] = FPU::floor(reg[rs1]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         default:
             throw_err(instr); return;
             break;
@@ -252,21 +261,21 @@ inline void CPU::simulate_acc()
         {
         case 0:
             reg[rd] = FPU::feq(reg[rs1], reg[rs2]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 1:
             reg[rd] = FPU::flt(reg[rs1], reg[rs2]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 2:
             reg[rd] = FPU::fle(reg[rs1], reg[rs2]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
             
         case 6:
             former_val = reg[rd];
             reg[rd] = FPU::itof(reg[rs1]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 7:
             reg[rd] = FPU::ftoi(reg[rs1]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         
         default:
             throw_err(instr); return;
@@ -290,10 +299,10 @@ inline void CPU::simulate_acc()
         {
         case 0:
             reg[rd] = (int32_t)reg[rs1] + imm;
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 1:
             reg[rd] = (uint32_t)reg[rs1] << shamt;
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 2:
             reg[rd] = (int32_t)reg[rs1] >> shamt;
         
@@ -322,26 +331,26 @@ inline void CPU::simulate_acc()
             former_val = reg[rd];
             memdestRd = rd;
             reg[rd] = mem.read(memAddr);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 1:
             //tbd
         case 2:
             reg[rd] = (((rs1 << 16) + luioffset) & ((1 << 20) - 1)) << 12;
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
 
         #ifdef STDFPU
         case 5:
             former_val = reg[rd];
             reg[rd] = FPU::fsin(reg[rs1]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 6:
             former_val = reg[rd];
             reg[rd] = FPU::fcos(reg[rs1]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 7:
             former_val = reg[rd];
             reg[rd] = FPU::atan(reg[rs1]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         #endif
 
         default:
@@ -367,7 +376,7 @@ inline void CPU::simulate_acc()
                 pc += imm;
             }else{
                 numBranchUnTaken[pc]++;
-                pc++;
+                pc += pcinc;
             }
             reg[0] = 0; break;
         case 1:
@@ -375,7 +384,7 @@ inline void CPU::simulate_acc()
                 pc += imm;
             }else{
                 numBranchUnTaken[pc]++;
-                pc++;
+                pc += pcinc;
             }
             reg[0] = 0; break;
         case 2:
@@ -383,7 +392,7 @@ inline void CPU::simulate_acc()
                 pc += imm;
             }else{
                 numBranchUnTaken[pc]++;
-                pc++;
+                pc += pcinc;
             }
             reg[0] = 0; break;
         case 3:
@@ -391,7 +400,7 @@ inline void CPU::simulate_acc()
                 pc += imm;
             }else{
                 numBranchUnTaken[pc]++;
-                pc++;
+                pc += pcinc;
             }
             reg[0] = 0; break;
 
@@ -400,14 +409,14 @@ inline void CPU::simulate_acc()
                 pc += imm;
             }else{
                 numBranchUnTaken[pc]++;
-                pc++;
+                pc += pcinc;
             }
             reg[0] = 0; break;
         case 6:
             memAddr = reg[rs1]+imm;
             former_val = mem.read_without_cache(memAddr);
             mem.write((int32_t)memAddr, (int32_t)reg[rs2]);
-            pc++; reg[0] = 0; break;
+            pc += pcinc; reg[0] = 0; break;
         case 7:
             //tbd
         default:

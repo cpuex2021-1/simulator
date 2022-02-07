@@ -170,8 +170,11 @@ void MainWindow::refreshInstView(){
         }
     }
     if(sobj.sim.ready){
-        int highlight_line = sobj.sim.pc_to_line(sobj.sim.get_pc()) - inst_line;
-        if(highlight_line >= 0 && highlight_line < instt->rowCount()) instt->item(highlight_line,0)->setBackground(QBrush(Qt::yellow));
+        int highlight_line_base = sobj.sim.pc_to_line(sobj.sim.get_pc()) - inst_line;
+        for(int i=0; i<VLIW_SIZE; i++){
+            auto highlight_line = highlight_line_base + i;
+            if(highlight_line >= 0 && highlight_line < instt->rowCount()) instt->item(highlight_line,0)->setBackground(QBrush(Qt::yellow));
+        }
         for(int i=0; i<instt->rowCount(); i++){
             if(sobj.sim.isbrk(sobj.sim.line_to_pc(i + inst_line)) && sobj.sim.pc_to_line(sobj.sim.line_to_pc(i + inst_line)) == i + inst_line){
                 ui->Instructions->item(i, 0)->setForeground(QBrush(Qt::red));
@@ -211,6 +214,16 @@ void MainWindow::refreshUartView(){
     uout << flush;
 
     ui->uartOutputTextBrowser->setText(uout.str().data());
+}
+
+void MainWindow::refreshRAStackView(){
+    auto& ras = sobj.sim.rastack;
+    stringstream rasss;
+    for(uint32_t i=0; i<sobj.sim.rastackIdx; i++){
+        rasss << ras[i] << "\n";
+    }
+    rasss << flush;
+    ui->raStackViewer->setText(rasss.str().data());
 }
 
 void MainWindow::on_pushButton_7_released()
@@ -309,6 +322,7 @@ void MainWindow::refreshAll(){
     refreshMemView();
     refreshRegView();
     refreshUartView();
+    refreshRAStackView();
 }
 
 void MainWindow::on_pushButton_released()

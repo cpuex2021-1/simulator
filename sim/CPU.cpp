@@ -68,7 +68,7 @@ void CPU::throw_err(int instr){
 }
 
 
-void CPU::revert(){
+void CPU::revert_one(){
     if(log.logSize <= 0) return;
     auto logd = log.pop();
     if(logd.rd > 0){
@@ -86,6 +86,12 @@ void CPU::revert(){
     }
 
     pc = logd.pc;
+}
+
+void CPU::revert(){
+    for(int i=0; i<VLIW_SIZE; i++){
+        revert_one();
+    }
 }
 
 void CPU::update_clkcount(){

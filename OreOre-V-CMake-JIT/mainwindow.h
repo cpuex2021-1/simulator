@@ -81,6 +81,7 @@ private:
     void refreshMemView();
     void refreshInstView();
     void refreshUartView();
+    void refreshRAStackView();
     int mem_addr;
     int inst_line;
     int uart_in_line;
