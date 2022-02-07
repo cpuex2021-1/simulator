@@ -19,11 +19,14 @@ int main(int argc, char* argv[]){
 
     int code;
     int now_addr = 0;
+    int slot = 0;
 
     while(input.read((char*) &code, sizeof(int)))
     {
-        cout << (now_addr++) << ": ";
+        cout << (now_addr) << ": ";
         cout << disassemble(code) << endl;
+        if(slot == 3) now_addr++;
+        slot = (slot + 1) % 4;
     }
 
     input.close();

@@ -37,7 +37,7 @@ void Reader::read_one_line(int32_t &line_num, int32_t &now_addr, string str, int
                 err << slotTypeName[pres.codetype] << " instruction is not allowed to fit in slot " << (slot + 1);
                 throw vliw_slot_policy_violation(err.str());
             }
-            add_to_vector<uint32_t>(instructions, now_addr, pres.code);
+            add_to_vector<uint32_t>(instructions, now_addr*VLIW_SIZE+slot, pres.code);
             if(slot == 0){
                 add_to_vector(p_to_l, now_addr, line_num);
             }
@@ -48,7 +48,7 @@ void Reader::read_one_line(int32_t &line_num, int32_t &now_addr, string str, int
         }else if(pres.type == Parse::none){
         }else if(pres.type == Parse::unresolved){
             unresolved.push(tobeAssembled(now_addr, str, slot));
-            add_to_vector<uint32_t>(instructions, now_addr, 0);
+            add_to_vector<uint32_t>(instructions, now_addr*VLIW_SIZE+slot, 0);
             if(slot == 0){
                 add_to_vector(p_to_l, now_addr, line_num);
             }
@@ -104,7 +104,7 @@ int Reader::read_asm(string filename){
             #ifdef DEBUG
             pres.print_instr();
             #endif
-            instructions.at(unr.addr + unr.slot) = pres.code;
+            instructions.at(unr.addr*VLIW_SIZE + unr.slot) = pres.code;
         }else{
             stringstream err;
             err << "Label resolution Failed at line " << pc_to_line(unr.addr) << ":\n" << unr.str << endl;

@@ -57,6 +57,8 @@ private:
         {}
     };
 
+    vector<vector<int8_t>> writetoRegs; 
+
 protected:
     queue<tobeAssembled> unresolved;
     static vector<int> l_to_p;
