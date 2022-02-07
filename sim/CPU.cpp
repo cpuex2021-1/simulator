@@ -85,6 +85,13 @@ void CPU::revert(){
         }
     }
 
+    if(logd.dorapush){
+        rastackIdx--;
+    }
+    if(logd.dorapop){
+        rastack[rastackIdx++] = logd.dorapop;
+    }
+
     pc = logd.pc;
 }
 
