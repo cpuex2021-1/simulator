@@ -156,8 +156,10 @@ int Simulator::cont(){
 
 int Simulator::step(){
     simulate_acc();
+    updateProfilerResult();
     update_clkcount();
     
+
     if(pc >= instructions.size()){
         return 0;
     }else{

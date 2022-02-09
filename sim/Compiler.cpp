@@ -105,6 +105,9 @@ void Compiler::compileSingleInstruction(int pc){
     int memdestRd = -2;
 
     unsigned int instr = instructions[pc];
+
+    if(instr == 0) return;
+
     unsigned int op = getBits(instr, 2, 0);
     unsigned int funct3 = getBits(instr, 5, 3);
 

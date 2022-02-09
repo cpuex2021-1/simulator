@@ -3,11 +3,11 @@
 #include <fstream>
 
 Profiler::Profiler()
-:profready(false), numEachInstrExecuted(60,0), labelIdx(0)
+:profready(false), numEachInstrExecuted(stringOfEachInstr.size(),0), labelIdx(0)
 {}
 
 void Profiler::reset(){
-    for(size_t i=0; i<instructions.size(); i++){
+    for(size_t i=0; i<instructions.size() / VLIW_SIZE; i++){
         numExecuted[i] = 0;
         numBranchUnTaken[i] = 0;
         numCacheMiss[i] = 0;
@@ -54,7 +54,7 @@ void Profiler::updateProfilerResult(){
         for(uint8_t j=i*VLIW_SIZE; j<(i+1)*VLIW_SIZE; j++){
             translateInstructionType(instructionTypes[j].op, instructionTypes[j].funct3, instructionTypes[j].funct11, encoded);
             
-            numStall = std::max(checkIfForceStall(instructionTypes[i].op, instructionTypes[i].funct3), numStall);
+            numStall = std::max(checkIfForceStall(instructionTypes[j].op, instructionTypes[j].funct3), numStall);
             
             //assume always untaken
             if((instructionTypes[j].op == 6 && (instructionTypes[j].funct3 <= 5)) || instructionTypes[j].op == 7){
@@ -83,7 +83,7 @@ void Profiler::exportToCsv(){
     out.open("simulator_result.csv", ios::out);
 
     out << "Instruction, Times Executed\n";
-    for(int i=0; i<60; i++){
+    for(int i=0; i<stringOfEachInstr.size(); i++){
         out << stringOfEachInstr[i] << ", " << numEachInstrExecuted[i] << "\n";
     }
 
