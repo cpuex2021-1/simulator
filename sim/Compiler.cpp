@@ -638,7 +638,7 @@ void Compiler::compileAll(){
 
 void Compiler::getNewInvokeNode(InvokeNode*& ptr){
     ptr = (InvokeNode*)malloc(sizeof(InvokeNode));
-    nodes.push_back(ptr);
+    nodes.emplace_back(ptr);
 }
 
 int Compiler::run(){

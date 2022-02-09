@@ -6,7 +6,7 @@
 template<typename T>
 void add_to_vector(vector<T> &vec, uint64_t index, T value){
     if(vec.size() == index){
-        vec.push_back(value);
+        vec.emplace_back(value);
     }else{
         vec.at(index) = value;
     }
@@ -21,13 +21,18 @@ Reader::Reader()
 :hasDebuggingInfo(false), labellist(0)
 {}
 
+int32_t readerLineToRealLine(int32_t line_num){
+    return (line_num + 1) / VLIW_SIZE;
+}
+
 void Reader::read_one_line(int32_t &line_num, int32_t &now_addr, string str, int8_t &slot){
         #ifdef DEBUG
         cout << "PC:" << now_addr << endl;
         cout << "line:" << line_num << " ";
         Debug_parse(str);
         cout << endl;
-        #endif    
+        #endif
+        
         add_to_vector(l_to_p, line_num, now_addr);
         Parse pres(str, now_addr);
         if(pres.type == Parse::instruction){
@@ -42,7 +47,7 @@ void Reader::read_one_line(int32_t &line_num, int32_t &now_addr, string str, int
 
             for(int i=0; i<slot; i++){
                 if(wrt[i] == pres.writetoreg && pres.writetoreg != pres.reg_dfl){
-                    cerr << "[WARNING] Line: " << (line_num+1) << " Same destination register " << regName.at(pres.writetoreg) << \
+                    cerr << "[WARNING] Line: " << readerLineToRealLine(line_num) << " Same destination register " << regName.at(pres.writetoreg) << \
                      " used in slot " << (i+1) << " and slot " << (slot + 1) << endl; 
                 }
             }
@@ -51,7 +56,7 @@ void Reader::read_one_line(int32_t &line_num, int32_t &now_addr, string str, int
                 add_to_vector(p_to_l, now_addr, line_num);
             }
             if(slot == VLIW_SIZE - 1){
-                writetoRegs.push_back(wrt);
+                writetoRegs.emplace_back(wrt);
                 wrt = vector<int8_t>(4, -1);
                 now_addr++;
             }
@@ -64,7 +69,7 @@ void Reader::read_one_line(int32_t &line_num, int32_t &now_addr, string str, int
                 add_to_vector(p_to_l, now_addr, line_num);
             }
             if(slot == VLIW_SIZE - 1){
-                writetoRegs.push_back(wrt);
+                writetoRegs.emplace_back(wrt);
                 wrt = vector<int8_t>(4, -1);
                 now_addr++;
             }
@@ -77,10 +82,10 @@ void Reader::read_one_line(int32_t &line_num, int32_t &now_addr, string str, int
             }
             labels[pres.labl] = now_addr;
             pcandlabel linfo(now_addr, pres.labl);
-            labellist.push_back(linfo);
+            labellist.emplace_back(linfo);
         }else if(pres.type == Parse::error){
             stringstream err;
-            err << "[ERROR] Parsing Error at line " << (line_num) << ": " << str << endl;
+            err << "[ERROR] Syntax Error at line " << readerLineToRealLine(line_num) << ": " << str << endl;
             throw parsing_error(err.str());
         }
         add_to_vector(str_instr, line_num, str);
@@ -111,10 +116,16 @@ int Reader::read_asm(string filename){
     
     while(getline(ainput, str)){
         try{
-            read_one_line(line_num, now_addr, str, slot);
+            auto commaPos = str.find_first_of(';');
+            do{
+                commaPos = str.find_first_of(';');
+                auto str_tmp = str.substr(0, commaPos);
+                str = str.substr(commaPos + 1);
+                read_one_line(line_num, now_addr, str_tmp, slot);
+            }while(commaPos != string::npos && slot < VLIW_SIZE);
         }catch(exception &e){
             stringstream err;
-            err << "[ERROR] Parsing Error at line " << (line_num) << ": " << str << "\n" << e.what();
+            err << "[ERROR] Parsing Error at line " << readerLineToRealLine(line_num) << ": " << str << "\n" << e.what();
             throw parsing_error(err.str());
         }
     }
@@ -128,7 +139,7 @@ int Reader::read_asm(string filename){
             #endif
             for(int i=0; i<VLIW_SIZE; i++){
                 if(unr.slot != i && writetoRegs[unr.addr][i] == pres.writetoreg && pres.writetoreg != pres.reg_dfl){
-                    cerr << "[WARNING] Line: " << (pc_to_line(unr.addr)+1) << " Same destination register " << regName.at(pres.writetoreg) << \
+                    cerr << "[WARNING] Line: " << readerLineToRealLine(pc_to_line(unr.addr)+1) << " Same destination register " << regName.at(pres.writetoreg) << \
                      " used in slot " << (i+1) << " and slot " << (unr.slot + 1) << endl; 
                 }
             }
@@ -233,7 +244,7 @@ void Reader::import_debugging_info(string filename){
         uint32_t p;
         string l;
         in >> p >> l;
-        labellist.push_back(pcandlabel(p, l));
+        labellist.emplace_back(pcandlabel(p, l));
     }
     
     hasDebuggingInfo = true;

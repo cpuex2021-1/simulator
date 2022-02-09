@@ -97,7 +97,7 @@ int Simulator::del_brk(string bp){
     return bp_pc;
 }
 void Simulator::clk_set_brk(int new_br){
-    break_clk.push_back(new_br);
+    break_clk.emplace_back(new_br);
     sort(break_clk.begin(), break_clk.end());
 }
 void Simulator::clk_del_brk(int new_br){

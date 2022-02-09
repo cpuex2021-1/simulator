@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     if(argc > 1){
         vector<string> options;
         for(int i=0; i<argc; i++){
-            options.push_back(string(argv[i]));
+            options.emplace_back(string(argv[i]));
         }
 
         if(optionExists(options, "--help")){

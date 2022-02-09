@@ -124,6 +124,7 @@ public:
 
 inline void CPU::simulate_acc(){
     auto addr = pc * VLIW_SIZE;
+    numExecuted[pc]++;
     simulate_one_acc(instructions[addr+3], 0);
     simulate_one_acc(instructions[addr+2], 0);
     simulate_one_acc(instructions[addr+1], 0);
@@ -167,7 +168,6 @@ inline void CPU::simulate_one_acc(uint32_t instr, int8_t pcinc)
     int32_t former_val = 0;
 
     int32_t memdestRd = -2;
-    numExecuted[pc]++;
 
     bool dorapush = false;
     int32_t dorapop = -1;
