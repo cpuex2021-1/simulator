@@ -27,7 +27,7 @@ protected:
     vector<InstInfo> instructionTypes;
 
     int checkIfForceStall(char op, char funct3);
-    void translateInstructionType(char op, char funct3, char funct11, int& encoded, string& str);
+    void translateInstructionType(char op, char funct3, char funct11, int& encoded);
 
 
     class lstats

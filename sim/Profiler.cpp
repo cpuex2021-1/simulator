@@ -17,9 +17,9 @@ void Profiler::reset(){
 void Profiler::initProfiler(){
     if(profready) return;
 
-    numExecuted = vector<uint64_t> (instructions.size(), 0);
-    numBranchUnTaken = vector<uint64_t> (instructions.size(), 0);
-    numCacheMiss = vector<uint64_t> (instructions.size(), 0);
+    numExecuted = vector<uint64_t> (instructions.size() / VLIW_SIZE, 0);
+    numBranchUnTaken = vector<uint64_t> (instructions.size() / VLIW_SIZE, 0);
+    numCacheMiss = vector<uint64_t> (instructions.size() / VLIW_SIZE, 0);
     instructionTypes = vector<InstInfo> (instructions.size());
 
     for(size_t i=0; i<instructions.size(); i++){
@@ -47,13 +47,25 @@ void Profiler::updateProfilerResult(){
     num3stall = 0;
     num4stall = 0;
     numFlush = 0;
-    for(size_t i=0; i<instructions.size(); i++){
+    for(size_t i=0; i<instructions.size() / VLIW_SIZE; i++){
         int encoded = 0;
         string str;
-        translateInstructionType(instructionTypes[i].op, instructionTypes[i].funct3, instructionTypes[i].funct11, encoded, str);
+        int numStall = 0;
+        for(uint8_t j=i; j<i+VLIW_SIZE; j++){
+            translateInstructionType(instructionTypes[j].op, instructionTypes[j].funct3, instructionTypes[j].funct11, encoded);
+            
+            numStall = std::max(checkIfForceStall(instructionTypes[i].op, instructionTypes[i].funct3), numStall);
+            
+            //assume always untaken
+            if((instructionTypes[j].op == 6 && (instructionTypes[j].funct3 <= 5)) || instructionTypes[j].op == 7){
+                numFlush += numExecuted[i] - numBranchUnTaken[i];
+            }
+
+            numEachInstrExecuted[encoded] += numExecuted[i];
+        }
         
         numInstruction += numExecuted[i];
-        int numStall = checkIfForceStall(instructionTypes[i].op, instructionTypes[i].funct3);
+        
         if(numStall == 2){
             num2stall += numExecuted[i];
         }else if(numStall == 3){
@@ -61,12 +73,6 @@ void Profiler::updateProfilerResult(){
         }else if(numStall == 4){
             num4stall += numExecuted[i];
         }
-        //assume always untaken
-        if((instructionTypes[i].op == 6 && (instructionTypes[i].funct3 <= 5)) || instructionTypes[i].op == 7){
-            numFlush += numExecuted[i] - numBranchUnTaken[i];
-        }
-
-        numEachInstrExecuted[encoded] += numExecuted[i];
 
         if(hasDebuggingInfo&&labellist.size()) updateLabelStats(numExecuted[i], i);
     }
@@ -199,7 +205,7 @@ void Profiler::updateLabelStats(uint64_t numexec, uint64_t addr){
     return;
 }
 
-void Profiler::translateInstructionType(char op, char funct3, char funct11, int& encoded, string& str){
+void Profiler::translateInstructionType(char op, char funct3, char funct11, int& encoded){
     
     switch (op)
     {
@@ -208,33 +214,36 @@ void Profiler::translateInstructionType(char op, char funct3, char funct11, int&
         switch (funct3)
         {
         case 0:
-            switch (funct11)
-            {
-            case 0:
-                encoded = 0;
-                break;
-            case 1:
-                encoded = 1;
-                break;            
-            default:
-                break;
-            }
+            encoded = 0;
             break;
         case 1:
+            encoded = 1;
+            break;            
+        default:
+            break;
+        }
+        break;
+    }
+    case 1:
+    {
+        break;
+    }
+    case 2:
+    {   
+        #ifdef DEBUG
+        printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d\n", op, funct3, rd, rs1, rs2);
+        #endif
+
+        switch (funct3)
+        {
+        case 0:
             encoded = 2;
             break;
+        case 1:
+            encoded = 3;
+            break;
         case 2:
-            switch (funct11)
-            {
-            case 0:
-                encoded = 3;
-                break;
-            case 1:
-                encoded = 4;
-                break;
-            default:
-                break;
-            }
+            encoded = 4;
             break;
         case 3:
             encoded = 5;
@@ -256,8 +265,12 @@ void Profiler::translateInstructionType(char op, char funct3, char funct11, int&
         }
         break;
     }
-    case 1:
+    case 3:
     {
+        #ifdef DEBUG
+        printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d\n", op, funct3, rd, rs1, rs2);
+        #endif
+
         switch (funct3)
         {
         case 0:
@@ -269,94 +282,12 @@ void Profiler::translateInstructionType(char op, char funct3, char funct11, int&
         case 2:
             encoded = 12;
             break;
-        case 3:
+
+        case 6:
             encoded = 13;
             break;
-        case 4:
+        case 7:
             encoded = 14;
-            break;
-        case 5:
-            encoded = 15;
-            break;
-        case 6:
-            encoded = 16;
-            break;
-        case 7:
-            encoded = 17;
-            break;
-        default:
-            break;
-        }
-        break;
-    }
-    case 2:
-    {   
-        #ifdef DEBUG
-        printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d\n", op, funct3, rd, rs1, rs2);
-        #endif
-
-        switch (funct3)
-        {
-        case 0:
-            encoded = 18;
-            break;
-        case 1:
-            encoded = 19;
-            break;
-        case 2:
-            encoded = 20;
-            break;
-        case 3:
-            encoded = 21;
-            break;
-        case 4:
-            encoded = 22;
-            break;
-        case 5:
-            encoded = 23;
-            break;
-        case 6:
-            encoded = 24;
-            break;
-        case 7:
-            encoded = 25;
-            break;
-        default:
-            break;
-        }
-        break;
-    }
-    case 3:
-    {
-        #ifdef DEBUG
-        printf("op:%d funct3:%d rd:%d rs1:%d rs2:%d\n", op, funct3, rd, rs1, rs2);
-        #endif
-
-        switch (funct3)
-        {
-        case 0:
-            encoded = 26;
-            break;
-        case 1:
-            encoded = 27;
-            break;
-        case 2:
-            encoded = 28;
-            break;
-        case 3:
-            encoded = 29;
-            break;            
-        case 4:
-            encoded = 30;
-            break;
-        case 5:
-            encoded = 31;
-            break;
-        case 6:
-            encoded = 32;
-            break;
-        case 7:
-            encoded = 33;
             break;
         
         default:
@@ -373,33 +304,13 @@ void Profiler::translateInstructionType(char op, char funct3, char funct11, int&
         switch (funct3)
         {
         case 0:
-            encoded = 34;
+            encoded = 15;
             break;
         case 1:
-            encoded = 35;
+            encoded = 16;
             break;
         case 2:
-            if(funct11){
-                encoded = 36;
-                break;
-            }else{
-                encoded = 37;
-                break;
-            }
-        case 3:
-            encoded = 38;
-            break;
-        case 4:
-            encoded = 39;
-            break;
-        case 5:
-            encoded = 40;
-            break;
-        case 6:
-            encoded = 41;
-            break;
-        case 7:
-            encoded = 42;
+            encoded = 17;
             break;
         default:
             break;
@@ -415,23 +326,22 @@ void Profiler::translateInstructionType(char op, char funct3, char funct11, int&
         switch (funct3)
         {
         case 0:
-            encoded = 43;
+            encoded = 18;
             break;
         case 1:
-            encoded = 44;
             break;
         case 2:
-            encoded = 45;
+            encoded = 19;
             break;
 
         case 5:
-            encoded = 57;
+            encoded = 31;
             break;
         case 6:
-            encoded = 58;
+            encoded = 32;
             break;
         case 7:
-            encoded = 59;
+            encoded = 33;
             break;
         default:
             break;
@@ -447,28 +357,24 @@ void Profiler::translateInstructionType(char op, char funct3, char funct11, int&
         switch (funct3)
         {
         case 0:
-            encoded = 46;
+            encoded = 20;
             break;
         case 1:
-            encoded = 47;
+            encoded = 21;
             break;
         case 2:
-            encoded = 48;
+            encoded = 22;
             break;
         case 3:
-            encoded = 49;
-            break;
-        case 4:
-            encoded = 50;
+            encoded = 23;
             break;
         case 5:
-            encoded = 51;
+            encoded = 24;
             break;
         case 6:
-            encoded = 52;
+            encoded = 25;
             break;
         case 7:
-            encoded = 53;
             break;
         default:
             
@@ -481,13 +387,19 @@ void Profiler::translateInstructionType(char op, char funct3, char funct11, int&
         switch (funct3)
         {
         case 0:
-            encoded = 54;
+            encoded = 26;
             break;
         case 1:
-            encoded = 55;
+            encoded = 27;
             break;
         case 2:
-            encoded = 56;
+            encoded = 28;
+            break;
+        case 3:
+            encoded = 29;
+            break;
+        case 4:
+            encoded = 30;
             break;
         default:
             
@@ -503,22 +415,6 @@ void Profiler::translateInstructionType(char op, char funct3, char funct11, int&
 vector<string> Profiler::stringOfEachInstr = {
 "ADD",
 "SUB",
-"SLL",
-"SRL",
-"SRA",
-"SLT",
-"SLTU",
-"XOR",
-"OR",
-"AND",
-"MUL",
-"MULH",
-"MULHSU",
-"MULHU",
-"DIV",
-"DIVU",
-"REM",
-"REMU",
 "FADD",
 "FSUB",
 "FMUL",
@@ -530,34 +426,23 @@ vector<string> Profiler::stringOfEachInstr = {
 "FEQ",
 "FLT",
 "FLE",
-"FMV.X.W",
-"FMV.W.X",
-"FMV",
 "ITOF",
 "FTOI",
 "ADDI",
 "SLLI",
-"SRLI",
 "SRAI",
-"SLTI",
-"SLTUI",
-"XORI",
-"ORI",
-"ANDI",
 "LW",
-"FLW",
 "LUI",
 "BEQ",
 "BNE",
 "BLT",
 "BGE",
-"BLTU",
-"BGEU",
+"BNEI",
 "SW",
-"FSW",
 "JUMP",
-"JAL",
-"JALR",
+"JUMPR",
+"CALL",
+"CALLR",
 "(FSIN)",
 "(FCOS)",
 "(ATAN)"};
