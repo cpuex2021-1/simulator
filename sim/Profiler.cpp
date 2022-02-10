@@ -3,25 +3,23 @@
 #include <fstream>
 
 Profiler::Profiler()
-:profready(false), numEachInstrExecuted(stringOfEachInstr.size(),0), labelIdx(0)
-{}
+:profready(false), memrdIdx(0), numEachInstrExecuted(34,0), labelIdx(0)
+{
+    memrd3[0] = -2;
+    memrd3[1] = -2;
+    memrd4[0] = -2;
+    memrd4[1] = -2;
+}
 
 void Profiler::reset(){
     for(size_t i=0; i<instructions.size() / VLIW_SIZE; i++){
         numExecuted[i] = 0;
         numBranchUnTaken[i] = 0;
-        numCacheMiss[i] = 0;
     }
 }
 
-void Profiler::initProfiler(){
-    if(profready) return;
-
-    numExecuted = vector<uint64_t> (instructions.size() / VLIW_SIZE, 0);
-    numBranchUnTaken = vector<uint64_t> (instructions.size() / VLIW_SIZE, 0);
-    numCacheMiss = vector<uint64_t> (instructions.size() / VLIW_SIZE, 0);
+void Profiler::initInstructionTypes(){
     instructionTypes = vector<InstInfo> (instructions.size());
-
     for(size_t i=0; i<instructions.size(); i++){
         uint32_t instr = instructions[i];
         char op = getBits(instr, 2, 0);
@@ -35,7 +33,16 @@ void Profiler::initProfiler(){
             instructionTypes[i].funct11 = getBits(instr, 11, 11);
         }
     }
+}
 
+void Profiler::initProfiler(){
+    if(profready) return;
+
+    numExecuted = vector<uint64_t> (instructions.size() / VLIW_SIZE, 0);
+    numBranchUnTaken = vector<uint64_t> (instructions.size() / VLIW_SIZE, 0);
+
+    initInstructionTypes();
+    initIsDataHazard();
     if(hasDebuggingInfo) initLabelStats();
 
     profready = true;
@@ -62,10 +69,13 @@ void Profiler::updateProfilerResult(){
             }
 
             numEachInstrExecuted[encoded] += numExecuted[i];
+
         }
         
         numInstruction += numExecuted[i];
         
+        if(isDataHazard[i]) numDataHazard += numExecuted[i];
+
         if(numStall == 2){
             num2stall += numExecuted[i];
         }else if(numStall == 3){
@@ -83,9 +93,10 @@ void Profiler::exportToCsv(){
     out.open("simulator_result.csv", ios::out);
 
     out << "Instruction, Times Executed\n";
-    for(int i=0; i<stringOfEachInstr.size(); i++){
+    for(size_t i=0; i<34; i++){
         out << stringOfEachInstr[i] << ", " << numEachInstrExecuted[i] << "\n";
     }
+
 
     out << ",\nAddress, Instruction, Times Executed, Branch Taken Times, Branch Untaken Times\n";
     for(size_t i=0; i<str_instr.size(); i++){
@@ -328,8 +339,6 @@ void Profiler::translateInstructionType(char op, char funct3, char funct11, int&
         case 0:
             encoded = 18;
             break;
-        case 1:
-            break;
         case 2:
             encoded = 19;
             break;
@@ -412,6 +421,117 @@ void Profiler::translateInstructionType(char op, char funct3, char funct11, int&
     }
 }
 
+
+void Profiler::initIsDataHazard(){
+    isDataHazard = vector<int8_t>(instructions.size() / VLIW_SIZE, 0);
+
+    for(size_t i=0; i<instructions.size() / VLIW_SIZE; i++){
+        for(int8_t j=0; j<VLIW_SIZE; j++){
+            auto idx = i * VLIW_SIZE + j;
+            isDataHazard[i] |= checkIsDataHazard(instructions[idx], j);
+        }
+        updateMemrd();
+    }
+}
+
+int8_t Profiler::checkIsDataHazard(uint32_t instr, int8_t slot){
+    
+    uint32_t op = getBits(instr, 2, 0);
+    uint32_t funct3 = getBits(instr, 5, 3);
+
+    int32_t memrd = -2;
+    int32_t rs1 = -1;
+    int32_t rs2 = -1;  
+
+    switch (op)
+    {
+    case 0:
+    {
+        if(funct3 >= 0 && funct3 <= 1){
+            rs1 = getBits(instr, 31, 26);
+            rs2 = getBits(instr, 11, 6);
+        }
+        break;
+    }
+    case 1:
+    {
+        break;
+    }
+    case 2:
+    {
+        if(funct3 >= 0 && funct3 <= 3)
+        {
+            rs1 = getBits(instr, 31, 26);
+            rs2 = getBits(instr, 11, 6);
+        }else if(funct3 >= 4 && funct3 <= 7){
+            rs1 = getBits(instr, 31, 26);
+        }
+        break;
+    }
+    case 3:
+    {
+        if(funct3 >= 0 && funct3 <= 2)
+        {
+            rs1 = getBits(instr, 31, 26);
+            rs2 = getBits(instr, 11, 6);
+        }else if(funct3 >= 6 && funct3 <= 7){
+            rs1 = getBits(instr, 31, 26);
+        }
+        break;
+    }
+    case 4:
+    {
+        if(funct3 >= 0 && funct3 <= 2){
+            rs1 = getBits(instr, 31, 26);
+        }
+        break;
+    }
+    case 5:
+    {
+        if(funct3 == 0){
+            rs1 = getBits(instr, 31, 26);
+            memrd = getBits(instr, 25, 20);
+        }else if(funct3 == 2){
+            rs1 = getBits(instr, 31, 26);
+        }
+        break;
+    }
+    case 6:
+    {
+        if(funct3 >= 0 && funct3 <= 3){
+            rs1 = getBits(instr, 31, 26);
+            rs2 = getBits(instr, 11, 6);
+        }else if(funct3 >= 5 && funct3 <=6){
+            rs1 = getBits(instr, 31, 26);
+        }
+        break;
+    }
+    case 7:
+    {
+        if(funct3 == 1 && funct3 == 3){
+            rs1 = getBits(instr, 31, 26);
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
+    int8_t ret = 0;
+
+    if(getMemrd3() == rs1 || getMemrd3() == rs2 || getMemrd4() == rs1 || getMemrd4() == rs2){
+        ret = 1;
+    }
+    
+    if(slot == 2){
+        storeNewMemrd3(memrd);
+    }else if(slot == 3){
+        storeNewMemrd4(memrd);
+    }
+
+    return ret;
+}
+
 vector<string> Profiler::stringOfEachInstr = {
 "ADD",
 "SUB",
@@ -443,6 +563,7 @@ vector<string> Profiler::stringOfEachInstr = {
 "JUMPR",
 "CALL",
 "CALLR",
+"RET",
 "(FSIN)",
 "(FCOS)",
 "(ATAN)"};
