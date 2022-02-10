@@ -95,8 +95,6 @@ class CPU : public Profiler
 protected:
     void throw_err(int32_t instr);
     Log log;
-    int32_t memDestRd;
-
 
     inline void simulate_one_acc(uint32_t instr, int8_t pcinc);
     void revert_one();
@@ -115,9 +113,6 @@ public:
     static void print_register();
     void reset();
     void revert();
-
-    inline int checkDataHazard(int memDestRd, int rs1, int rs2);
-    inline void setMemDestRd();
 
     void update_clkcount();
 };
@@ -166,8 +161,6 @@ inline void CPU::simulate_one_acc(uint32_t instr, int8_t pcinc)
 
     int64_t memAddr = -1;
     int32_t former_val = 0;
-
-    int32_t memdestRd = -2;
 
     bool dorapush = false;
     int32_t dorapop = -1;
@@ -336,7 +329,6 @@ inline void CPU::simulate_one_acc(uint32_t instr, int8_t pcinc)
         case 0:
             memAddr = (int32_t)reg[rs1] + offset;
             former_val = reg[rd];
-            memdestRd = rd;
             reg[rd] = mem.read(memAddr);
             pc += pcinc; reg[0] = 0; break;
         case 1:
@@ -488,19 +480,8 @@ inline void CPU::simulate_one_acc(uint32_t instr, int8_t pcinc)
     }
 
     log.push(former_pc, rd, memAddr, former_val, dorapush, dorapop);
-    numDataHazard += checkDataHazard(memdestRd, rs1, rs2);
 
     return;
-}
-
-inline int CPU::checkDataHazard(int memdestRd, int rs1, int rs2){
-    if((memDestRd == rs1 || memDestRd == rs2)){
-        memDestRd = memdestRd;
-        return 1;
-    }else{
-        memDestRd = memdestRd;
-        return 0;
-    }
 }
 
 #undef FPU

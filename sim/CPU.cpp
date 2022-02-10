@@ -3,7 +3,7 @@
 using namespace std;
 
 CPU::CPU()
-: Profiler(), memDestRd(-2), rastackIdx(0), mem()
+: Profiler(), rastackIdx(0), mem()
 {
     pc = 0;
     clk = 0;
@@ -54,7 +54,6 @@ void CPU::reset(){
     num4stall = 0;
     numFlush = 0;
     numDataHazard = 0;
-    memDestRd = -2;
 
     mem.reset();
     log.reset();
