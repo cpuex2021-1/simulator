@@ -64,7 +64,7 @@ void Profiler::updateProfilerResult(){
             numStall = std::max(checkIfForceStall(instructionTypes[j].op, instructionTypes[j].funct3), numStall);
             
             //assume always untaken
-            if((instructionTypes[j].op == 6 && (instructionTypes[j].funct3 <= 5)) || instructionTypes[j].op == 7){
+            if((instructionTypes[j].op == 6 && (instructionTypes[j].funct3 <= 5)) || instructionTypes[j].op == 7 && (instructionTypes[j].funct3 == 1 || instructionTypes[j].funct3 == 3)){
                 numFlush += numExecuted[i] - numBranchUnTaken[i];
             }
 
