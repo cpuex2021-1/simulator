@@ -100,8 +100,8 @@ protected:
     void revert_one();
 
 public:
-    uint32_t* rastack;
-    uint32_t rastackIdx;
+    inline static uint32_t* rastack;
+    inline static uint32_t rastackIdx = 0;
     inline static int32_t* reg;
 
     uint64_t pc;

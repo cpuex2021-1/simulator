@@ -71,16 +71,14 @@ protected:
 
     void setUpLabel();
 
-    void preProcs(bool usera, int pc, int memdestRd, int rs1, int rs2);
+    void preProcs(int pc);
     
-    int memDestRd;
-
     JumpAnnotation* callann;
     JumpAnnotation* retann;
 
     Label RunLabel, LoadLabel;
 
-    static void JitBreakPoint(int pc);
+    static void JitBreakPoint(int, int);
 
     inline static vector<InvokeNode*> nodes;
     void getNewInvokeNode(InvokeNode*& ptr);

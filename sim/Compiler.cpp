@@ -10,7 +10,7 @@
 #endif
 
 Compiler::Compiler()
-: compiled(false), rt(), code(), cc(initCode(&code)), regAllocList(REGNUM), memDestRd(-2), labellistIdx(0)
+: compiled(false), rt(), code(), cc(initCode(&code)), regAllocList(REGNUM), labellistIdx(0)
 {
 }
 
@@ -51,14 +51,14 @@ void Compiler::setUpLabel(){
     endLabel = cc.newLabel();
     callann = cc.newJumpAnnotation();
     retann = cc.newJumpAnnotation();
-    for(uint64_t i=0; i<instructions.size(); i++){
+    for(uint64_t i=0; i<instructions.size() / VLIW_SIZE; i++){
         Label* l = new Label;
         (*l) = cc.newLabel();
         pctolabelptr[i] = l;
         cc.embedLabel(*l, sizeof(uint64_t));
     }
 
-    pctolabelptr[instructions.size()] = &endLabel;
+    pctolabelptr[instructions.size() / VLIW_SIZE] = &endLabel;
 
     for(int i=0; i<SLIDE; i++){
         cc.embedLabel(endLabel);
@@ -81,11 +81,19 @@ void Compiler::StoreAllRegs(){
     }
 }
 
-void Compiler::JitBreakPoint(int pc){
+void Compiler::JitBreakPoint(int pc, int rasidx){
     cout << "PC: " << pc;
     cout << " LINE: " << pc_to_line(pc);
     cout << " CLK: " << numInstruction << "\n";
-    cout << " Instruction: " << str_instr[pc_to_line(pc)] << endl;/*
+    for(int i=0; i<VLIW_SIZE; i++){
+        cout << " Instruction: " << str_instr[pc_to_line(pc) + i] << endl;
+    }
+    cout << "RAIDX: " << rasidx << endl;
+
+    for(int i=0; i<10; i++){
+        cout << rastack[i] << endl;
+    }
+    /*
     for(int i=0; i<32; i++){
         cout << i << " " << reg[i] << "\t";
     }
@@ -100,11 +108,9 @@ void Compiler::JitBreakPoint(int pc){
 }
 
 
-void Compiler::compileSingleInstruction(int pc){
-
-    int memdestRd = -2;
-
-    unsigned int instr = instructions[pc];
+void Compiler::compileSingleInstruction(int addr){
+    auto pc = addr / VLIW_SIZE;
+    unsigned int instr = instructions[addr];
 
     if(instr == 0) return;
 
@@ -134,7 +140,6 @@ void Compiler::compileSingleInstruction(int pc){
         switch (funct3)
         {
         case 0:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             if(rd == rs1){
                 cc.add(getRdRegGp(rd), getRegGp(rs2));
             }else if(rd == rs2){
@@ -145,7 +150,6 @@ void Compiler::compileSingleInstruction(int pc){
             }
             break;
         case 1:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             if(rd == rs1){
                 cc.sub(getRdRegGp(rd), getRegGp(rs2));
             }else if(rd == rs2){
@@ -181,53 +185,45 @@ void Compiler::compileSingleInstruction(int pc){
         switch (funct3)
         {
         case 0:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             cc.invoke(&fpuInvokeNode, FPU::fadd, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setArg(1, getRegGp(rs2));
             fpuInvokeNode->setRet(0, getRdRegGp(rd));
             break;
         case 1:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             cc.invoke(&fpuInvokeNode, FPU::fsub, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setArg(1, getRegGp(rs2));
             fpuInvokeNode->setRet(0, getRdRegGp(rd));
             break;
         case 2:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             cc.invoke(&fpuInvokeNode, FPU::fmul, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setArg(1, getRegGp(rs2));
             fpuInvokeNode->setRet(0, getRdRegGp(rd));
             break;
         case 3:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             cc.invoke(&fpuInvokeNode, FPU::fdiv, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setArg(1, getRegGp(rs2));
             fpuInvokeNode->setRet(0, getRdRegGp(rd));
             break;
         case 4:
-            preProcs(false, pc, memdestRd, rs1, -1);
             cc.invoke(&fpuInvokeNode, FPU::fsqrt, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setRet(0, getRdRegGp(rd));
             break;
         case 5:
-            preProcs(false, pc, memdestRd, rs1, -1);
             cc.invoke(&fpuInvokeNode, FPU::fneg, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setRet(0, getRdRegGp(rd));
             break;
         case 6:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             cc.invoke(&fpuInvokeNode, FPU::fabs, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setRet(0, getRdRegGp(rd));
             break;
         case 7:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             cc.invoke(&fpuInvokeNode, FPU::floor, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setRet(0, getRdRegGp(rd));
@@ -253,21 +249,18 @@ void Compiler::compileSingleInstruction(int pc){
         switch (funct3)
         {
         case 0:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             cc.invoke(&fpuInvokeNode, FPU::feq, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setArg(1, getRegGp(rs2));
             fpuInvokeNode->setRet(0, getRdRegGp(rd));
             break;
         case 1:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             cc.invoke(&fpuInvokeNode, FPU::flt, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setArg(1, getRegGp(rs2));
             fpuInvokeNode->setRet(0, getRdRegGp(rd));
             break;
         case 2:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             cc.invoke(&fpuInvokeNode, FPU::fle, FuncSignatureT<int,int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setArg(1, getRegGp(rs2));
@@ -275,13 +268,11 @@ void Compiler::compileSingleInstruction(int pc){
             break;
 
         case 6:
-            preProcs(false, pc, memdestRd, rs1, -1);
             cc.invoke(&fpuInvokeNode, FPU::itof, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setRet(0, getRdRegGp(rd));
             break;
         case 7:
-            preProcs(false, pc, memdestRd, rs1, -1);
             cc.invoke(&fpuInvokeNode, FPU::ftoi, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setRet(0, getRdRegGp(rd));
@@ -307,7 +298,6 @@ void Compiler::compileSingleInstruction(int pc){
         switch (funct3)
         {
         case 0:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             if(rd == rs1){
                 cc.add(getRdRegGp(rd), imm);
             }else{
@@ -316,7 +306,6 @@ void Compiler::compileSingleInstruction(int pc){
             }
             break;
         case 1:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             if(rd == rs1){
                 cc.sal(getRdRegGp(rd), shamt);
             }else{
@@ -325,7 +314,6 @@ void Compiler::compileSingleInstruction(int pc){
             }
             break;
         case 2:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             if(rd == rs1){
                 cc.sar(getRdRegGp(rd), shamt);
             }else{
@@ -358,7 +346,6 @@ void Compiler::compileSingleInstruction(int pc){
         switch (funct3)
         {
         case 0:
-            preProcs(false, pc, rd, rs1, rs2);
             if(rs1 == 0 && offset == 0){
                 cc.invoke(&uartInvokeNode, UART::pop, FuncSignatureT<int, void>());
                 uartInvokeNode->setRet(0, getRdRegGp(rd));
@@ -374,25 +361,21 @@ void Compiler::compileSingleInstruction(int pc){
             //tbd
             break;
         case 2:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             cc.mov(getRdRegGp(rd), ((rs1 << 16) + luioffset) << 12);
             break;
 
         #ifdef STDFPU
         case 5:
-            preProcs(false, pc, memdestRd, rs1, -1);
             cc.invoke(&fpuInvokeNode, FPU::fsin, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setRet(0, getRdRegGp(rd));
             break;
         case 6:
-            preProcs(false, pc, memdestRd, rs1, -1);
             cc.invoke(&fpuInvokeNode, FPU::fcos, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setRet(0, getRdRegGp(rd));
             break;
         case 7:
-            preProcs(false, pc, memdestRd, rs1, -1);
             cc.invoke(&fpuInvokeNode, FPU::atan, FuncSignatureT<int,int>());
             fpuInvokeNode->setArg(0, getRegGp(rs1));
             fpuInvokeNode->setRet(0, getRdRegGp(rd));
@@ -421,7 +404,6 @@ void Compiler::compileSingleInstruction(int pc){
         switch (funct3)
         {
         case 0:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             cc.cmp(getRegGp(rs1), getRegGp(rs2));
             cc.je(pctolabel(pc+imm));
             
@@ -432,7 +414,6 @@ void Compiler::compileSingleInstruction(int pc){
             
             break;
         case 1:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             cc.cmp(getRegGp(rs1), getRegGp(rs2));
             cc.jne(pctolabel(pc+imm));
             
@@ -443,7 +424,6 @@ void Compiler::compileSingleInstruction(int pc){
 
             break;
         case 2:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             cc.cmp(getRegGp(rs1), getRegGp(rs2));
             cc.jl(pctolabel(pc+imm));
             
@@ -454,7 +434,6 @@ void Compiler::compileSingleInstruction(int pc){
             
             break;
         case 3:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             cc.cmp(getRegGp(rs1), getRegGp(rs2));
             cc.jge(pctolabel(pc+imm));
             
@@ -466,7 +445,6 @@ void Compiler::compileSingleInstruction(int pc){
             break;
             
         case 5:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             cc.cmp(getRegGp(rs1), rs2imm);
             cc.jne(pctolabel(pc+imm));
             
@@ -478,7 +456,6 @@ void Compiler::compileSingleInstruction(int pc){
             break;
 
         case 6:
-            preProcs(false, pc, memdestRd, rs1, rs2);
             if(rs1 == 0 && imm == 0){
                 cc.invoke(&uartInvokeNode, UART::push, FuncSignatureT<void, int>());
                 uartInvokeNode->setArg(0, getRegGp(rs2));
@@ -511,29 +488,24 @@ void Compiler::compileSingleInstruction(int pc){
         switch (funct3)
         {
         case 0:
-            preProcs(false, pc, memdestRd, -1, -1);
             cc.jmp(pctolabel(addr));
             break;
         case 1:
-            preProcs(true, pc, memdestRd, rs1, -1);
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1), 3));
             cc.jmp(qtmpReg, callann);
             break;
         case 2:
-            preProcs(true, pc, memdestRd, -1, -1);
             cc.mov(x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0), pc+1);
             cc.inc(rastackIdxReg);
             cc.jmp(pctolabel(addr));
             break;
         case 3:
-            preProcs(true, pc, memdestRd, rs1, -1);
             cc.mov(x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0), pc+1);
             cc.inc(rastackIdxReg);
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1), 3));
             cc.jmp(qtmpReg, callann);
             break;
         case 4:
-            preProcs(true, pc, memdestRd, -1, -1);
             cc.dec(rastackIdxReg);
             cc.mov(tmpReg, x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0));
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, tmpReg, 3));
@@ -555,8 +527,8 @@ void Compiler::compileSingleInstruction(int pc){
 
 void Compiler::compileAll(){
     cerr << "[INFO] Started AOT compilation..." << endl; 
-    pctolabelptr = new Label*[instructions.size()+1];
-    pctoaddr = new uint64_t[instructions.size()+SLIDE];
+    pctolabelptr = new Label*[instructions.size() / VLIW_SIZE+1];
+    pctoaddr = new uint64_t[instructions.size() / VLIW_SIZE +SLIDE];
 
     /*
     //Logging
@@ -604,8 +576,16 @@ void Compiler::compileAll(){
     rastackBase = cc.newGpq();
     cc.mov(rastackBase, ((uint64_t)rastack));
 
-    for(size_t i=0; i<instructions.size(); i++){
-        compileSingleInstruction(i);
+    callann->addLabel(RunLabel);
+    retann->addLabel(RunLabel);
+
+    for(size_t i=0; i<instructions.size() / VLIW_SIZE; i++){
+        auto j = i * VLIW_SIZE;
+        preProcs(i);
+        compileSingleInstruction(j+3);
+        compileSingleInstruction(j+2);
+        compileSingleInstruction(j+1);
+        compileSingleInstruction(j);
     }
 
     cc.jmp(endLabel);
@@ -661,15 +641,10 @@ int Compiler::run(){
     else return -1;
 }
 
-void Compiler::preProcs(bool usera, int pc, int memdestRd, int rs1, int rs2){
-    
+void Compiler::preProcs(int pc){
 
-    if((memDestRd == rs1 || memDestRd == rs2)){
-        memDestRd = memdestRd;
-        cc.inc(numDataHazardptr);
-    }else{
-        memDestRd = memdestRd;
-    }
+    auto opfunct3 = getBits(instructions[pc * VLIW_SIZE], 5, 0);
+    bool usera = (opfunct3 == 31) || (opfunct3 == 23);
 
     bindLabel(pc);
     
@@ -680,20 +655,23 @@ void Compiler::preProcs(bool usera, int pc, int memdestRd, int rs1, int rs2){
                 labellistIdx++;
             }
         }
-        if(usera) retann->addLabel(pctolabel(pc+1));
+        if(usera) {
+            retann->addLabel(pctolabel(pc+1));
+        }
     }else{
         callann->addLabel(pctolabel(pc));
         retann->addLabel(pctolabel(pc));
     }
     
-    /*
+    /*    
     InvokeNode* printinvnode;
 
     cc.mov(tmpReg, pc);
-    cc.invoke(&printinvnode, JitBreakPoint, FuncSignatureT<void, int>());
+    cc.invoke(&printinvnode, JitBreakPoint, FuncSignatureT<void, int, int>());
     printinvnode->setArg(0, tmpReg);
+    printinvnode->setArg(1, rastackIdxReg);
     */
-   
+
     //incriment counter
     cc.mov(qtmpReg, x86::qword_ptr((uint64_t) &(numExecuted[pc])));
     cc.inc(qtmpReg);

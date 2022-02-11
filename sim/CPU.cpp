@@ -3,7 +3,7 @@
 using namespace std;
 
 CPU::CPU()
-: Profiler(), rastackIdx(0), mem()
+: Profiler(), mem()
 {
     pc = 0;
     clk = 0;
