@@ -72,6 +72,8 @@ private Q_SLOTS:
 
     void on_exportCSVButton_released();
 
+    void on_floatButton_released();
+
 private:
     Ui::MainWindow *ui;
     QThread simThread;
@@ -85,7 +87,7 @@ private:
     int mem_addr;
     int inst_line;
     int uart_in_line;
-    bool isReghex;
+    int isReghex;
     bool running;
 
 Q_SIGNALS:

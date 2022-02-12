@@ -91,12 +91,15 @@ void MainWindow::refreshRegView(){
                 regt->item(i,j)->setBackground(QBrush(Qt::gray));
             }else{
                 stringstream ss;
-                if(isReghex){
+                if(isReghex == 1){
                     ss.fill('0');
                     ss << hex << "0x" << setw(8) << sobj.sim.reg[(i * regt->columnCount() + j) / 2] << dec;
                     ss.fill(' ');
-                }else{
+                }else if(isReghex == 0){
                     ss << dec << sobj.sim.reg[(i * regt->columnCount() + j) / 2];
+                }else if(isReghex == 2){
+                    float* f = (float*)&(sobj.sim.reg[(i * regt->columnCount() + j) / 2]);
+                    ss << dec << *f;
                 }
                 if(regt->item(i,j) == NULL){
                     regt->setItem(i, j, new QTableWidgetItem(ss.str().data()));
@@ -125,12 +128,16 @@ void MainWindow::refreshMemView(){
             stringstream ss;
             int index = i * memt->columnCount() + j + mem_addr;
             if (index < MEMSIZE-GLOBALSMEMSIZE){
-                if(isReghex){
+                if(isReghex == 1){
                     ss.fill('0');
                     ss << "0x" << hex << sobj.sim.mem.read_without_cache(index) << dec;
                     ss.fill(' ');
-                }else{
+                }else if(isReghex == 0){
                     ss << sobj.sim.mem.read_without_cache(index);
+                }else if(isReghex == 2){
+                    auto i = sobj.sim.mem.read_without_cache(index);
+                    float* f = (float*)&i;
+                    ss << dec << *f;
                 }
             }
             if(memt->item(i, j) == NULL){
@@ -228,14 +235,14 @@ void MainWindow::refreshRAStackView(){
 
 void MainWindow::on_pushButton_7_released()
 {
-    isReghex = false;
+    isReghex = 0;
     refreshAll();
 }
 
 
 void MainWindow::on_pushButton_8_released()
 {
-    isReghex = true;
+    isReghex = 1;
     refreshAll();
 }
 
@@ -519,5 +526,12 @@ void MainWindow::on_exportCSVButton_released()
     if(sobj.sim.ready){
         sobj.sim.exportToCsv();
     }
+}
+
+
+void MainWindow::on_floatButton_released()
+{
+    isReghex = 2;
+    refreshAll();
 }
 

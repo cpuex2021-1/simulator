@@ -335,7 +335,7 @@ inline void CPU::simulate_one_acc(uint32_t instr, int8_t pcinc)
         case 1:
             //tbd
         case 2:
-            reg[rd] = (((rs1 << 16) + luioffset) & ((1 << 20) - 1)) << 12;
+            reg[rd] = (((rs1 << 14) + luioffset) & ((1 << 20) - 1)) << 12;
             pc += pcinc; reg[0] = 0; break;
 
         #ifdef STDFPU
