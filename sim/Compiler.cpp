@@ -361,7 +361,7 @@ void Compiler::compileSingleInstruction(int addr){
             //tbd
             break;
         case 2:
-            cc.mov(getRdRegGp(rd), ((rs1 << 16) + luioffset) << 12);
+            cc.mov(getRdRegGp(rd), ((rs1 << 14) + luioffset) << 12);
             break;
 
         #ifdef STDFPU
@@ -503,13 +503,13 @@ void Compiler::compileSingleInstruction(int addr){
             cc.mov(x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0), pc+1);
             cc.inc(rastackIdxReg);
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1), 3));
-            cc.jmp(qtmpReg, callann);
+            cc.jmp(qtmpReg);
             break;
         case 4:
             cc.dec(rastackIdxReg);
             cc.mov(tmpReg, x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0));
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, tmpReg, 3));
-            cc.jmp(qtmpReg, retann);
+            cc.jmp(qtmpReg);
             break;
 
         default:
