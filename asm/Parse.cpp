@@ -537,6 +537,7 @@ Parse :: Parse(string str, int now_addr)
             }
             
             //1st -> 2nd psuedo instructions
+            /*
             else if(match[1].str() == "fli"){
                 float imm = stof(match[3].str());
                 uint32_t* immint = (uint32_t *)&imm;
@@ -697,7 +698,7 @@ Parse :: Parse(string str, int now_addr)
                     stoi(match[4].str()) & 0b11111
                 ));
                 
-            }
+            }*/
 
             else{
                 stringstream err;
