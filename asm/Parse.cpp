@@ -260,7 +260,7 @@ Parse :: Parse(string str, int now_addr)
                 ));
                 codetype = alu;
                 writetoreg = regname_to_addr(match[2].str());                
-            }else if(match[1].str() ==  "srai"){
+            }else if(match[1].str() ==  "srli"){
                 code = (ILtype(
                     4,
                     2,
@@ -468,7 +468,17 @@ Parse :: Parse(string str, int now_addr)
             }
             
             //psuedo instructions
-            else if(match[1].str() == "lui.float"){
+            else if(match[1].str() ==  "li"){
+                code = (ILtype(
+                    4,
+                    0,
+                    regname_to_addr(match[2].str()),
+                    regname_to_addr(match[2].str()),
+                    stoi(match[3].str())
+                ));
+                codetype = alu;
+                writetoreg = regname_to_addr(match[2].str());
+            }else if(match[1].str() == "lui.float"){
                 float imm = stof(match[3].str());
                 uint32_t* immint = (uint32_t *)&imm;
                 uint32_t luiimm = (*immint) >> 12;
@@ -476,15 +486,15 @@ Parse :: Parse(string str, int now_addr)
                     5,
                     2,
                     regname_to_addr(match[2].str()),
-                    ((uint32_t)luiimm >> 16),
-                    luiimm & ((1 << 16) -1)
+                    ((uint32_t)luiimm >> 14),
+                    luiimm & ((1 << 14) -1)
                 ));
                 codetype = alu;
                 writetoreg = regname_to_addr(match[2].str()); 
             }else if(match[1].str() == "addi.float"){
-                float imm = stof(match[3].str());
+                float imm = stof(match[4].str());
                 uint32_t* immint = (uint32_t *)&imm;
-                uint32_t addiimm = (*immint) & ((1 << 12) - 1);
+                int32_t addiimm = (*immint) & ((1 << 12) - 1);
                 code = (ILtype(
                     4,
                     0,
@@ -502,13 +512,13 @@ Parse :: Parse(string str, int now_addr)
                     5,
                     2,
                     regname_to_addr(match[2].str()),
-                    ((uint32_t)luiimm >> 16),
-                    luiimm & ((1 << 16) -1)
+                    ((uint32_t)luiimm >> 14),
+                    luiimm & ((1 << 14) -1)
                 ));
                 codetype = alu;
                 writetoreg = regname_to_addr(match[2].str()); 
             }else if(match[1].str() == "addi.label"){
-                int imm = label_to_addr(match[3].str(), 0);
+                int imm = label_to_addr(match[4].str(), 0);
                 int addiimm = imm & ((1 << 12) - 1);
                 
                 code = (ILtype(
