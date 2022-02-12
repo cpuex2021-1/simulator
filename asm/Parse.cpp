@@ -492,8 +492,8 @@ Parse :: Parse(string str, int now_addr)
                     5,
                     2,
                     regname_to_addr("a21"),
-                    ((unsigned int)luiimm >> 16),
-                    luiimm & ((1 << 16) -1)
+                    ((unsigned int)luiimm >> 14),
+                    luiimm & ((1 << 14) -1)
                 ));
                 codes.push_back(ILtype(
                     4,
