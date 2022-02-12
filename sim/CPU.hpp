@@ -303,7 +303,7 @@ inline void CPU::simulate_acc()
             pc++; reg[0] = 0; break;
         case 2:
             reg[rd] = (int32_t)reg[rs1] >> shamt;
-            break;
+            pc++; reg[0] = 0; break;
         default:
             throw_err(instr); return;
             break;
