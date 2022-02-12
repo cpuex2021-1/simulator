@@ -527,14 +527,14 @@ void Compiler::compileSingleInstruction(int pc){
             cc.mov(x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0), pc+1);
             cc.inc(rastackIdxReg);
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1), 3));
-            cc.jmp(qtmpReg, callann);
+            cc.jmp(qtmpReg);
             break;
         case 4:
             preProcs(true, pc, memdestRd, -1, -1);
             cc.dec(rastackIdxReg);
             cc.mov(tmpReg, x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0));
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, tmpReg, 3));
-            cc.jmp(qtmpReg, retann);
+            cc.jmp(qtmpReg);
             break;
 
         default:
