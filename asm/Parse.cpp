@@ -543,21 +543,21 @@ Parse :: Parse(string str, int now_addr)
                 uint32_t* immint = (uint32_t *)&imm;
                 uint32_t luiimm = (*immint) >> 12;
                 uint32_t addiimm = (*immint) & ((1 << 12) - 1);
-                codes.push_back(ILtype(
+                code = (ILtype(
                     5,
                     2,
                     regname_to_addr("a21"),
                     ((unsigned int)luiimm >> 14),
                     luiimm & ((1 << 14) -1)
                 ));
-                codes.push_back(ILtype(
+                code = (ILtype(
                     4,
                     0,
                     regname_to_addr("a21"),
                     regname_to_addr("a21"),
                     addiimm
                 ));
-                codes.push_back(Rtype(
+                code = (Rtype(
                     4,
                     0,
                     regname_to_addr(match[2].str()),
@@ -571,7 +571,7 @@ Parse :: Parse(string str, int now_addr)
                     int luiimm = imm >> 12;
                     int addiimm = imm & ((1 << 12) - 1);
                     
-                    codes.push_back(ILtype(
+                    code = (ILtype(
                         5,
                         2,
                         regname_to_addr(match[2].str()),
@@ -579,7 +579,7 @@ Parse :: Parse(string str, int now_addr)
                         luiimm & ((1 << 14) -1)
                     ));
                     
-                    codes.push_back(ILtype(
+                    code = (ILtype(
                         4,
                         0,
                         regname_to_addr(match[2].str()),
@@ -587,7 +587,7 @@ Parse :: Parse(string str, int now_addr)
                         addiimm
                     ));
                 }else{
-                    codes.push_back(ILtype(
+                    code = (ILtype(
                         4,
                         0,
                         regname_to_addr(match[2].str()),
@@ -603,7 +603,7 @@ Parse :: Parse(string str, int now_addr)
                 int luiimm = imm >> 12;
                 int addiimm = imm & ((1 << 12) - 1);
                 
-                codes.push_back(ILtype(
+                code = (ILtype(
                     5,
                     2,
                     regname_to_addr(match[2].str()),
@@ -611,15 +611,17 @@ Parse :: Parse(string str, int now_addr)
                     luiimm & ((1 << 14) -1)
                 ));
                 
-                codes.push_back(ILtype(
+                code = (ILtype(
                     4,
                     0,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[2].str()),
                     addiimm
                 ));
-            }else if(match[1].str() ==  "fmv.x.w"){
-                codes.push_back(Rtype(
+            }*/
+            
+            else if(match[1].str() ==  "fmv.x.w"){
+                code = (Rtype(
                     4,
                     0,
                     regname_to_addr(match[2].str()),
@@ -627,7 +629,7 @@ Parse :: Parse(string str, int now_addr)
                     0,
                     0));
             }else if(match[1].str() ==  "fmv.w.x"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     4,
                     0,
                     regname_to_addr(match[2].str()),
@@ -635,7 +637,7 @@ Parse :: Parse(string str, int now_addr)
                     0,
                     0));
             }else if(match[1].str() ==  "fmv"){
-                codes.push_back(Rtype(
+                code = (Rtype(
                     4,
                     0,
                     regname_to_addr(match[2].str()),
@@ -644,7 +646,7 @@ Parse :: Parse(string str, int now_addr)
                     0));
             }            
             else if(match[1].str() ==  "flw"){
-                codes.push_back(ILtype(
+                code = (ILtype(
                     5,
                     0,
                     regname_to_addr(match[2].str()),
@@ -652,7 +654,7 @@ Parse :: Parse(string str, int now_addr)
                     stoi(match[3].str())
                 ));
             }else if(match[1].str() ==  "fsw"){
-                codes.push_back(SBtype(
+                code = (SBtype(
                     6,
                     6,
                     regname_to_addr(match[4].str()),
@@ -661,7 +663,7 @@ Parse :: Parse(string str, int now_addr)
                 ));
             }else if(match[1].str() ==  "jal"){
                 int lab = label_to_addr(match[3].str(), 0);
-                codes.push_back(Jtype(
+                code = (Jtype(
                     7,
                     2,
                     lab
@@ -669,20 +671,20 @@ Parse :: Parse(string str, int now_addr)
             }else if(match[1].str() ==  "jalr"){
                 int rs1 = regname_to_addr(match[3].str()) & 0b11111;
                 if(match[2].str() == "ra"){
-                    codes.push_back(Jtype(
+                    code = (Jtype(
                         7,
                         3,
                         (rs1 << 20)
                     ));
                 }else if(match[2].str() == "zero"){
                     if(match[3].str() == "swp"){
-                        codes.push_back(Jtype(
+                        code = (Jtype(
                             7,
                             1,
                             (rs1 << 20)
                         ));
                     }else if(match[3].str() == "ra"){
-                        codes.push_back(Jtype(
+                        code = (Jtype(
                             7,
                             4,
                             0
@@ -690,7 +692,7 @@ Parse :: Parse(string str, int now_addr)
                     }
                 }                
             }else if(match[1].str() ==  "srli"){
-                codes.push_back(ILtype(
+                code = (ILtype(
                     4,
                     2,
                     regname_to_addr(match[2].str()),
@@ -698,7 +700,7 @@ Parse :: Parse(string str, int now_addr)
                     stoi(match[4].str()) & 0b11111
                 ));
                 
-            }*/
+            }
 
             else{
                 stringstream err;
