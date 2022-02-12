@@ -372,7 +372,7 @@ void Compiler::compileSingleInstruction(int pc){
             break;
         case 2:
             preProcs(false, pc, memdestRd, rs1, rs2);
-            cc.mov(getRdRegGp(rd), ((rs1 << 16) + luioffset) << 12);
+            cc.mov(getRdRegGp(rd), ((rs1 << 14) + luioffset) << 12);
             break;
 
         #ifdef STDFPU

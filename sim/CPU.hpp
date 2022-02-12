@@ -20,7 +20,7 @@
 #define PIPELINE_STAGES 4
 #define LOG_SIZE 1000
 
-#define RASTACKSIZE 1024
+#define RASTACKSIZE 100000
 
 using std::exception;
 using std::cout;
@@ -460,7 +460,8 @@ inline void CPU::simulate_acc()
             pc = reg[rs1];
             break;
         case 4:
-            if(--rastackIdx < 0){
+            rastackIdx--;
+            if(rastackIdx >= RASTACKSIZE - 1){
                 throw out_of_range("Nothing to pop from ra stack");
             }
             dorapop = rastack[rastackIdx];
