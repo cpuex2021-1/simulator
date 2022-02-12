@@ -294,8 +294,8 @@ Parse :: Parse(string str, int now_addr)
                     5,
                     2,
                     regname_to_addr(match[2].str()),
-                    ((uint32_t)imm >> 16),
-                    imm & ((1 << 16) -1)
+                    ((uint32_t)imm >> 14),
+                    imm & ((1 << 14) -1)
                 ));
                 
             }
@@ -520,8 +520,8 @@ Parse :: Parse(string str, int now_addr)
                         5,
                         2,
                         regname_to_addr(match[2].str()),
-                        ((unsigned int)luiimm >> 16),
-                        luiimm & ((1 << 16) -1)
+                        ((unsigned int)luiimm >> 14),
+                        luiimm & ((1 << 14) -1)
                     ));
                     
                     codes.push_back(ILtype(
@@ -552,8 +552,8 @@ Parse :: Parse(string str, int now_addr)
                     5,
                     2,
                     regname_to_addr(match[2].str()),
-                    ((unsigned int)luiimm >> 16),
-                    luiimm & ((1 << 16) -1)
+                    ((unsigned int)luiimm >> 14),
+                    luiimm & ((1 << 14) -1)
                 ));
                 
                 codes.push_back(ILtype(
