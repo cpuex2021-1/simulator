@@ -305,7 +305,7 @@ inline void CPU::simulate_one_acc(uint32_t instr, int8_t pcinc)
             pc += pcinc; reg[0] = 0; break;
         case 2:
             reg[rd] = (int32_t)reg[rs1] >> shamt;
-            break;
+            pc += pcinc; reg[0] = 0; break;
         
         default:
             throw_err(instr); return;
