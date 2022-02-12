@@ -444,8 +444,8 @@ Parse :: Parse(string str, int now_addr)
                     5,
                     2,
                     regname_to_addr(match[2].str()),
-                    ((uint32_t)luiimm >> 16),
-                    luiimm & ((1 << 16) -1)
+                    ((uint32_t)luiimm >> 14),
+                    luiimm & ((1 << 14) -1)
                 ));
             }else if(match[1].str() == "addi.float"){
                 float imm = stof(match[3].str());
@@ -466,8 +466,8 @@ Parse :: Parse(string str, int now_addr)
                     5,
                     2,
                     regname_to_addr(match[2].str()),
-                    ((uint32_t)luiimm >> 16),
-                    luiimm & ((1 << 16) -1)
+                    ((uint32_t)luiimm >> 14),
+                    luiimm & ((1 << 14) -1)
                 ));
             }else if(match[1].str() == "addi.label"){
                 int imm = label_to_addr(match[3].str(), 0);
