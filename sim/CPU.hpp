@@ -18,7 +18,7 @@
 #define BRANCH 2
 
 #define PIPELINE_STAGES 4
-#define LOG_SIZE 1000
+#define LOG_SIZE 8192
 
 #define RASTACKSIZE 100000
 
@@ -120,11 +120,11 @@ public:
 inline void CPU::simulate_acc(){
     auto addr = pc * VLIW_SIZE;
     numExecuted[pc]++;
-    simulate_one_acc(instructions[addr+3], 0);
     simulate_one_acc(instructions[addr+2], 0);
+    simulate_one_acc(instructions[addr+3], 0);
     simulate_one_acc(instructions[addr+1], 0);
     simulate_one_acc(instructions[addr+0], 1);
-   }
+}
 
 inline void CPU::simulate_one_acc(uint32_t instr, int8_t pcinc)
 {

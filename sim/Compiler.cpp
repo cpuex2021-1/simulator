@@ -583,8 +583,8 @@ void Compiler::compileAll(){
     for(size_t i=0; i<instructions.size() / VLIW_SIZE; i++){
         auto j = i * VLIW_SIZE;
         preProcs(i);
-        compileSingleInstruction(j+3);
         compileSingleInstruction(j+2);
+        compileSingleInstruction(j+3);
         compileSingleInstruction(j+1);
         compileSingleInstruction(j);
     }

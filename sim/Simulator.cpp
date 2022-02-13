@@ -105,6 +105,7 @@ void Simulator::clk_del_brk(int new_br){
 }
 int Simulator::run(){
     int ret = cont();
+
     updateProfilerResult();
     update_clkcount();
     return ret;
@@ -158,7 +159,6 @@ int Simulator::step(){
     simulate_acc();
     updateProfilerResult();
     update_clkcount();
-    
 
     if(pc >= instructions.size()){
         return 0;

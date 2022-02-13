@@ -58,7 +58,7 @@ void Profiler::updateProfilerResult(){
         int encoded = 0;
         string str;
         int numStall = 0;
-        for(uint8_t j=i*VLIW_SIZE; j<(i+1)*VLIW_SIZE; j++){
+        for(size_t j=i*VLIW_SIZE; j<(i+1)*VLIW_SIZE; j++){
             translateInstructionType(instructionTypes[j].op, instructionTypes[j].funct3, instructionTypes[j].funct11, encoded);
             
             numStall = std::max(checkIfForceStall(instructionTypes[j].op, instructionTypes[j].funct3), numStall);
