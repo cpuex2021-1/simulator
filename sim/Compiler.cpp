@@ -556,11 +556,11 @@ void Compiler::compileAll(){
     pctolabelptr = new Label*[instructions.size() / VLIW_SIZE+1];
     pctoaddr = new uint64_t[instructions.size() / VLIW_SIZE +SLIDE];
 
-    
+    /*
     //Logging
     FileLogger logger(stderr);
     code.setLogger(&logger);
-        
+    */
 
     cc.addFunc(FuncSignatureT<void>());
     
