@@ -473,7 +473,7 @@ Parse :: Parse(string str, int now_addr)
                     4,
                     0,
                     regname_to_addr(match[2].str()),
-                    regname_to_addr(match[2].str()),
+                    regname_to_addr("zero"),
                     stoi(match[3].str())
                 ));
                 codetype = alu;

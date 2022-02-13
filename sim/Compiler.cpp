@@ -32,11 +32,16 @@ x86::Gp Compiler::getRdRegGp(int i){
 x86::Gp Compiler::getGp(int i, bool isrd){
     if(i != 0 && i != 32)
     {
-        if(!regAllocList[i].valid){
-            regAllocList[i].valid = true;
-            regAllocList[i].gp = cc.newGpd();
-        }        
-        return regAllocList[i].gp;
+        if(isrd){
+            rewroteidx[slot] = i;
+            return tmpregs[slot];
+        }else{
+            if(!regAllocList[i].valid){
+                regAllocList[i].valid = true;
+                regAllocList[i].gp = cc.newGpd();
+            }        
+            return regAllocList[i].gp;
+        }
     }else{
         if(isrd) return tmpReg;
         else return zero;
@@ -90,10 +95,11 @@ void Compiler::JitBreakPoint(int pc, int rasidx){
     }
     cout << "RAIDX: " << rasidx << endl;
 
+    /*
     for(int i=0; i<10; i++){
         cout << rastack[i] << endl;
     }
-    /*
+    
     for(int i=0; i<32; i++){
         cout << i << " " << reg[i] << "\t";
     }
@@ -111,9 +117,6 @@ void Compiler::JitBreakPoint(int pc, int rasidx){
 void Compiler::compileSingleInstruction(int addr){
     auto pc = addr / VLIW_SIZE;
     unsigned int instr = instructions[addr];
-
-    if(instr == 0) return;
-
     unsigned int op = getBits(instr, 2, 0);
     unsigned int funct3 = getBits(instr, 5, 3);
 
@@ -124,6 +127,8 @@ void Compiler::compileSingleInstruction(int addr){
     int rd = -1;
     int rs1 = -1;
     int rs2 = -1;
+
+    if(instr == 0) return;
 
     switch (op)
     {
@@ -405,7 +410,11 @@ void Compiler::compileSingleInstruction(int addr){
         switch (funct3)
         {
         case 0:
-            cc.cmp(getRegGp(rs1), getRegGp(rs2));
+            cc.mov(tmpReg1, getRegGp(rs1));
+            cc.mov(tmpReg2, getRegGp(rs2));
+            rewroteidx[0] = -1;
+            updateReg();
+            cc.cmp(tmpReg1, tmpReg2);
             cc.je(pctolabel(imm));
             
             //postproc for branch
@@ -415,7 +424,11 @@ void Compiler::compileSingleInstruction(int addr){
             
             break;
         case 1:
-            cc.cmp(getRegGp(rs1), getRegGp(rs2));
+            cc.mov(tmpReg1, getRegGp(rs1));
+            cc.mov(tmpReg2, getRegGp(rs2));
+            rewroteidx[0] = -1;
+            updateReg();
+            cc.cmp(tmpReg1, tmpReg2);
             cc.jne(pctolabel(imm));
             
             //postproc for branch
@@ -425,7 +438,11 @@ void Compiler::compileSingleInstruction(int addr){
 
             break;
         case 2:
-            cc.cmp(getRegGp(rs1), getRegGp(rs2));
+            cc.mov(tmpReg1, getRegGp(rs1));
+            cc.mov(tmpReg2, getRegGp(rs2));
+            rewroteidx[0] = -1;
+            updateReg();
+            cc.cmp(tmpReg1, tmpReg2);
             cc.jl(pctolabel(imm));
             
             //postproc for branch
@@ -435,7 +452,11 @@ void Compiler::compileSingleInstruction(int addr){
             
             break;
         case 3:
-            cc.cmp(getRegGp(rs1), getRegGp(rs2));
+            cc.mov(tmpReg1, getRegGp(rs1));
+            cc.mov(tmpReg2, getRegGp(rs2));
+            rewroteidx[0] = -1;
+            updateReg();
+            cc.cmp(tmpReg1, tmpReg2);
             cc.jge(pctolabel(imm));
             
             //postproc for branch
@@ -446,7 +467,10 @@ void Compiler::compileSingleInstruction(int addr){
             break;
             
         case 5:
-            cc.cmp(getRegGp(rs1), rs2imm);
+            cc.mov(tmpReg1, getRegGp(rs1));
+            rewroteidx[0] = -1;
+            updateReg();
+            cc.cmp(tmpReg1, rs2imm);
             cc.jne(pctolabel(imm));
             
             //postproc for branch
@@ -489,27 +513,37 @@ void Compiler::compileSingleInstruction(int addr){
         switch (funct3)
         {
         case 0:
+            rewroteidx[0] = -1;
+            updateReg();
             cc.jmp(pctolabel(addr));
             break;
         case 1:
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1), 3));
-            cc.jmp(qtmpReg, callann);
+            rewroteidx[0] = -1;
+            updateReg();
+            cc.jmp(qtmpReg);
             break;
         case 2:
             cc.mov(x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0), pc+1);
             cc.inc(rastackIdxReg);
+            rewroteidx[0] = -1;
+            updateReg();
             cc.jmp(pctolabel(addr));
             break;
         case 3:
             cc.mov(x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0), pc+1);
             cc.inc(rastackIdxReg);
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, getRegGp(rs1), 3));
+            rewroteidx[0] = -1;
+            updateReg();
             cc.jmp(qtmpReg);
             break;
         case 4:
             cc.dec(rastackIdxReg);
             cc.mov(tmpReg, x86::dword_ptr(rastackBase, rastackIdxReg, 2, 0));
             cc.mov(qtmpReg, x86::qword_ptr(jumpBase, tmpReg, 3));
+            rewroteidx[0] = -1;
+            updateReg();
             cc.jmp(qtmpReg);
             break;
 
@@ -526,16 +560,25 @@ void Compiler::compileSingleInstruction(int addr){
     return;
 }
 
+void Compiler::updateReg(){
+    for(auto i=0; i<VLIW_SIZE; i++){
+        auto idx = rewroteidx[i];
+        if(idx > 0){
+            cc.mov(regAllocList[idx].gp, tmpregs[i]);
+        }
+    }
+}
+
 void Compiler::compileAll(){
     cerr << "[INFO] Started AOT compilation..." << endl; 
     pctolabelptr = new Label*[instructions.size() / VLIW_SIZE+1];
     pctoaddr = new uint64_t[instructions.size() / VLIW_SIZE +SLIDE];
 
-    /*
+    
     //Logging
     FileLogger logger(stderr);
     code.setLogger(&logger);
-    */
+    
 
     cc.addFunc(FuncSignatureT<void>());
     
@@ -552,6 +595,16 @@ void Compiler::compileAll(){
     //zero register setup
     zero = cc.newGpd();
     cc.mov(zero, 0);
+
+    tmpReg1 = cc.newGpd();
+    cc.mov(tmpReg1, 0);
+    tmpReg2 = cc.newGpd();
+    cc.mov(tmpReg2, 0);
+
+    for(int i=0; i<VLIW_SIZE; i++){
+        tmpregs[i] = cc.newGpd();
+        cc.mov(tmpregs[i], 0);
+    }
 
     RunLabel = cc.newLabel();
     LoadLabel = cc.newLabel();
@@ -583,10 +636,19 @@ void Compiler::compileAll(){
     for(size_t i=0; i<instructions.size() / VLIW_SIZE; i++){
         auto j = i * VLIW_SIZE;
         preProcs(i);
+        rewroteidx[0] = -1;
+        rewroteidx[1] = -1;
+        rewroteidx[2] = -1;
+        rewroteidx[3] = -1;
+        slot = 2;
         compileSingleInstruction(j+2);
+        slot = 3;
         compileSingleInstruction(j+3);
+        slot = 1;
         compileSingleInstruction(j+1);
+        slot = 0;
         compileSingleInstruction(j);
+        updateReg();
     }
 
     cc.jmp(endLabel);
@@ -664,7 +726,7 @@ void Compiler::preProcs(int pc){
         retann->addLabel(pctolabel(pc));
     }
     
-    /*    
+    /*
     InvokeNode* printinvnode;
 
     cc.mov(tmpReg, pc);

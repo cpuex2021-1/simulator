@@ -29,7 +29,6 @@ protected:
         }
     };
 
-
     //compiler
     JitRuntime rt;
     CodeHolder code;
@@ -37,6 +36,10 @@ protected:
 
     //simulator register <-> vReg
     vector<regAlloc> regAllocList;
+
+    x86::Gp tmpregs[VLIW_SIZE];
+
+    int8_t slot;
 
     x86::Gp getRegGp(int i);
     x86::Gp getGp(int i, bool isrd);
@@ -48,6 +51,9 @@ protected:
     x86::Gp jumpBase;
     x86::Gp rastackBase;
     x86::Gp rastackIdxReg;
+
+    x86::Gp tmpReg1;
+    x86::Gp tmpReg2;
 
     //stats
     x86::Gp numDataHazardptr;
@@ -72,6 +78,7 @@ protected:
     void setUpLabel();
 
     void preProcs(int pc);
+    void updateReg();
     
     JumpAnnotation* callann;
     JumpAnnotation* retann;

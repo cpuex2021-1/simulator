@@ -226,7 +226,7 @@ void MainWindow::refreshUartView(){
 void MainWindow::refreshRAStackView(){
     auto& ras = sobj.sim.rastack;
     stringstream rasss;
-    for(uint32_t i=0; i<sobj.sim.rastackIdx; i++){
+    for(uint32_t i=0; i<sobj.sim.rastackIdx && sobj.sim.rastackIdx < RASTACKSIZE - 1; i++){
         rasss << ras[i] << "\n";
     }
     rasss << flush;
