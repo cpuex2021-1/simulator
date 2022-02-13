@@ -392,7 +392,8 @@ void Compiler::compileSingleInstruction(int addr){
     {
         rs1 = getBits(instr, 31, 26);
         rs2 = getBits(instr, 11, 6);
-        int imm = getSextBits(instr, 25, 12);
+        uint32_t imm = getBits(instr, 25, 12);
+        int32_t memimm = getSextBits(instr, 25, 12);
         int rs2imm = getSextBits(instr, 11, 6);
         #ifdef DEBUG
         printf("op:%d funct3:%d rs1:%d rs2:%d imm:%d\n", op, funct3, rs1, rs2, imm);
@@ -405,7 +406,7 @@ void Compiler::compileSingleInstruction(int addr){
         {
         case 0:
             cc.cmp(getRegGp(rs1), getRegGp(rs2));
-            cc.je(pctolabel(pc+imm));
+            cc.je(pctolabel(imm));
             
             //postproc for branch
             cc.mov(qtmpReg, x86::qword_ptr((uint64_t)&(numBranchUnTaken[pc])));
@@ -415,7 +416,7 @@ void Compiler::compileSingleInstruction(int addr){
             break;
         case 1:
             cc.cmp(getRegGp(rs1), getRegGp(rs2));
-            cc.jne(pctolabel(pc+imm));
+            cc.jne(pctolabel(imm));
             
             //postproc for branch
             cc.mov(qtmpReg, x86::qword_ptr((uint64_t)&(numBranchUnTaken[pc])));
@@ -425,7 +426,7 @@ void Compiler::compileSingleInstruction(int addr){
             break;
         case 2:
             cc.cmp(getRegGp(rs1), getRegGp(rs2));
-            cc.jl(pctolabel(pc+imm));
+            cc.jl(pctolabel(imm));
             
             //postproc for branch
             cc.mov(qtmpReg, x86::qword_ptr((uint64_t)&(numBranchUnTaken[pc])));
@@ -435,7 +436,7 @@ void Compiler::compileSingleInstruction(int addr){
             break;
         case 3:
             cc.cmp(getRegGp(rs1), getRegGp(rs2));
-            cc.jge(pctolabel(pc+imm));
+            cc.jge(pctolabel(imm));
             
             //postproc for branch
             cc.mov(qtmpReg, x86::qword_ptr((uint64_t)&(numBranchUnTaken[pc])));
@@ -446,7 +447,7 @@ void Compiler::compileSingleInstruction(int addr){
             
         case 5:
             cc.cmp(getRegGp(rs1), rs2imm);
-            cc.jne(pctolabel(pc+imm));
+            cc.jne(pctolabel(imm));
             
             //postproc for branch
             cc.mov(qtmpReg, x86::qword_ptr((uint64_t)&(numBranchUnTaken[pc])));
@@ -456,12 +457,12 @@ void Compiler::compileSingleInstruction(int addr){
             break;
 
         case 6:
-            if(rs1 == 0 && imm == 0){
+            if(rs1 == 0 && memimm == 0){
                 cc.invoke(&uartInvokeNode, UART::push, FuncSignatureT<void, int>());
                 uartInvokeNode->setArg(0, getRegGp(rs2));
             }else{
                 cc.mov(tmpReg, getRegGp(rs1));
-                cc.add(tmpReg, imm);
+                cc.add(tmpReg, memimm);
                 cc.invoke(&cacheInvokeNode, Memory::writeJit, FuncSignatureT<void, int, int>());
                 cacheInvokeNode->setArg(0, tmpReg);
                 cacheInvokeNode->setArg(1, getRegGp(rs2));

@@ -349,7 +349,7 @@ Parse :: Parse(string str, int now_addr)
                     0,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
-                    label_to_addr(match[4].str(), now_addr)
+                    label_to_addr(match[4].str(), 0)
                 ));
                 codetype = b_j;
                 writetoreg = reg_dfl;                                
@@ -359,7 +359,7 @@ Parse :: Parse(string str, int now_addr)
                     1,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
-                    label_to_addr(match[4].str(), now_addr)
+                    label_to_addr(match[4].str(), 0)
                 ));
                 codetype = b_j;
                 writetoreg = reg_dfl;                
@@ -369,7 +369,7 @@ Parse :: Parse(string str, int now_addr)
                     2,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
-                    label_to_addr(match[4].str(), now_addr)
+                    label_to_addr(match[4].str(), 0)
                 ));
                 codetype = b_j;
                 writetoreg = reg_dfl;                
@@ -379,7 +379,7 @@ Parse :: Parse(string str, int now_addr)
                     3,
                     regname_to_addr(match[2].str()),
                     regname_to_addr(match[3].str()),
-                    label_to_addr(match[4].str(), now_addr)
+                    label_to_addr(match[4].str(), 0)
                 ));
                 codetype = b_j;
                 writetoreg = reg_dfl;                
@@ -389,7 +389,7 @@ Parse :: Parse(string str, int now_addr)
                     5,
                     regname_to_addr(match[2].str()),
                     stoi(match[3].str()),
-                    label_to_addr(match[4].str(), now_addr)
+                    label_to_addr(match[4].str(), 0)
                 ));
                 codetype = b_j;
                 writetoreg = reg_dfl;                
