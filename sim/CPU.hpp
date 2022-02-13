@@ -361,7 +361,8 @@ inline void CPU::simulate_acc()
     {
         rs1 = getBits(instr, 31, 26);
         rs2 = getBits(instr, 11, 6);
-        int32_t imm = getSextBits(instr, 25, 12);
+        uint32_t imm = getBits(instr, 25, 12);
+        int32_t memimm = getSextBits(instr, 25, 12);
         int32_t rs2imm = getSextBits(instr, 11, 6);
         #ifdef DEBUG
         printf("op:%d funct3:%d rs1:%d rs2:%d imm:%d\n", op, funct3, rs1, rs2, imm);
@@ -411,7 +412,7 @@ inline void CPU::simulate_acc()
             }
             reg[0] = 0; break;
         case 6:
-            memAddr = reg[rs1]+imm;
+            memAddr = reg[rs1]+memimm;
             former_val = mem.read_without_cache(memAddr);
             mem.write((int32_t)memAddr, (int32_t)reg[rs2]);
             pc++; reg[0] = 0; break;
