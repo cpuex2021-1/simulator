@@ -37,9 +37,9 @@ protected:
     //simulator register <-> vReg
     vector<regAlloc> regAllocList;
 
-    x86::Gp tmpregs[VLIW_SIZE];
+    vector<x86::Gp> tmpregs;
 
-    int8_t slot;
+    int32_t slot;
 
     x86::Gp getRegGp(int i);
     x86::Gp getGp(int i, bool isrd);

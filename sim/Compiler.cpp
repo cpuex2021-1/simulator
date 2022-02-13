@@ -10,7 +10,7 @@
 #endif
 
 Compiler::Compiler()
-: compiled(false), rt(), code(), cc(initCode(&code)), regAllocList(REGNUM), labellistIdx(0)
+: compiled(false), rt(), code(), cc(initCode(&code)), regAllocList(REGNUM), tmpregs(VLIW_SIZE), labellistIdx(0)
 {
 }
 
@@ -32,14 +32,14 @@ x86::Gp Compiler::getRdRegGp(int i){
 x86::Gp Compiler::getGp(int i, bool isrd){
     if(i != 0 && i != 32)
     {
+        if(!regAllocList[i].valid){
+            regAllocList[i].valid = true;
+            regAllocList[i].gp = cc.newGpd();
+        }
         if(isrd){
             rewroteidx[slot] = i;
             return tmpregs[slot];
         }else{
-            if(!regAllocList[i].valid){
-                regAllocList[i].valid = true;
-                regAllocList[i].gp = cc.newGpd();
-            }        
             return regAllocList[i].gp;
         }
     }else{
@@ -89,11 +89,11 @@ void Compiler::StoreAllRegs(){
 void Compiler::JitBreakPoint(int pc, int rasidx){
     cout << "PC: " << pc;
     cout << " LINE: " << pc_to_line(pc);
-    cout << " CLK: " << numInstruction << "\n";
+    //cout << " CLK: " << numInstruction << "\n";
     for(int i=0; i<VLIW_SIZE; i++){
         cout << " Instruction: " << str_instr[pc_to_line(pc) + i] << endl;
     }
-    cout << "RAIDX: " << rasidx << endl;
+    //cout << "RAIDX: " << rasidx << endl;
 
     /*
     for(int i=0; i<10; i++){
@@ -145,25 +145,14 @@ void Compiler::compileSingleInstruction(int addr){
         switch (funct3)
         {
         case 0:
-            if(rd == rs1){
-                cc.add(getRdRegGp(rd), getRegGp(rs2));
-            }else if(rd == rs2){
-                cc.add(getRdRegGp(rd), getRegGp(rs1));
-            }else{
-                cc.mov(getRdRegGp(rd), getRegGp(rs1));
-                cc.add(getRdRegGp(rd), getRegGp(rs2));
-            }
+            cc.mov(getRdRegGp(rd), getRegGp(rs1));
+            cc.add(getRdRegGp(rd), getRegGp(rs2));
+        
             break;
         case 1:
-            if(rd == rs1){
-                cc.sub(getRdRegGp(rd), getRegGp(rs2));
-            }else if(rd == rs2){
-                cc.sub(getRdRegGp(rd), getRegGp(rs1));
-                cc.neg(getRdRegGp(rd));
-            }else{
-                cc.mov(getRdRegGp(rd), getRegGp(rs1));
-                cc.sub(getRdRegGp(rd), getRegGp(rs2));
-            }
+            cc.mov(getRdRegGp(rd), getRegGp(rs1));
+            cc.sub(getRdRegGp(rd), getRegGp(rs2));
+        
             break;
         default:
             throw_err(instr); return;
@@ -303,28 +292,16 @@ void Compiler::compileSingleInstruction(int addr){
         switch (funct3)
         {
         case 0:
-            if(rd == rs1){
-                cc.add(getRdRegGp(rd), imm);
-            }else{
-                cc.mov(getRdRegGp(rd), getRegGp(rs1));
-                cc.add(getRdRegGp(rd), imm);
-            }
+            cc.mov(getRdRegGp(rd), getRegGp(rs1));
+            cc.add(getRdRegGp(rd), imm);
             break;
         case 1:
-            if(rd == rs1){
-                cc.sal(getRdRegGp(rd), shamt);
-            }else{
-                cc.mov(getRdRegGp(rd), getRegGp(rs1));
-                cc.sal(getRdRegGp(rd), shamt);
-            }
+            cc.mov(getRdRegGp(rd), getRegGp(rs1));
+            cc.sal(getRdRegGp(rd), shamt);
             break;
         case 2:
-            if(rd == rs1){
-                cc.sar(getRdRegGp(rd), shamt);
-            }else{
-                cc.mov(getRdRegGp(rd), getRegGp(rs1));
-                cc.sar(getRdRegGp(rd), shamt);
-            }
+            cc.mov(getRdRegGp(rd), getRegGp(rs1));
+            cc.sar(getRdRegGp(rd), shamt);
             break;
             
         default:
@@ -412,7 +389,6 @@ void Compiler::compileSingleInstruction(int addr){
         case 0:
             cc.mov(tmpReg1, getRegGp(rs1));
             cc.mov(tmpReg2, getRegGp(rs2));
-            rewroteidx[0] = -1;
             updateReg();
             cc.cmp(tmpReg1, tmpReg2);
             cc.je(pctolabel(imm));
@@ -426,8 +402,7 @@ void Compiler::compileSingleInstruction(int addr){
         case 1:
             cc.mov(tmpReg1, getRegGp(rs1));
             cc.mov(tmpReg2, getRegGp(rs2));
-            rewroteidx[0] = -1;
-            updateReg();
+            updateReg();            
             cc.cmp(tmpReg1, tmpReg2);
             cc.jne(pctolabel(imm));
             
@@ -440,7 +415,6 @@ void Compiler::compileSingleInstruction(int addr){
         case 2:
             cc.mov(tmpReg1, getRegGp(rs1));
             cc.mov(tmpReg2, getRegGp(rs2));
-            rewroteidx[0] = -1;
             updateReg();
             cc.cmp(tmpReg1, tmpReg2);
             cc.jl(pctolabel(imm));
@@ -454,7 +428,6 @@ void Compiler::compileSingleInstruction(int addr){
         case 3:
             cc.mov(tmpReg1, getRegGp(rs1));
             cc.mov(tmpReg2, getRegGp(rs2));
-            rewroteidx[0] = -1;
             updateReg();
             cc.cmp(tmpReg1, tmpReg2);
             cc.jge(pctolabel(imm));
@@ -468,7 +441,6 @@ void Compiler::compileSingleInstruction(int addr){
             
         case 5:
             cc.mov(tmpReg1, getRegGp(rs1));
-            rewroteidx[0] = -1;
             updateReg();
             cc.cmp(tmpReg1, rs2imm);
             cc.jne(pctolabel(imm));
@@ -561,11 +533,21 @@ void Compiler::compileSingleInstruction(int addr){
 }
 
 void Compiler::updateReg(){
-    for(auto i=0; i<VLIW_SIZE; i++){
-        auto idx = rewroteidx[i];
-        if(idx > 0){
-            cc.mov(regAllocList[idx].gp, tmpregs[i]);
-        }
+    auto idx = rewroteidx[2];
+    if(idx > 0){
+        cc.mov(regAllocList[idx].gp, tmpregs[2]);
+    }
+    idx = rewroteidx[3];
+    if(idx > 0){
+        cc.mov(regAllocList[idx].gp, tmpregs[3]);
+    }
+    idx = rewroteidx[1];
+    if(idx > 0){
+        cc.mov(regAllocList[idx].gp, tmpregs[1]);
+    }
+    idx = rewroteidx[0];
+    if(idx > 0){
+        cc.mov(regAllocList[idx].gp, tmpregs[0]);
     }
 }
 
@@ -578,7 +560,7 @@ void Compiler::compileAll(){
     //Logging
     FileLogger logger(stderr);
     code.setLogger(&logger);
-    
+        
 
     cc.addFunc(FuncSignatureT<void>());
     
