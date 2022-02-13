@@ -16,6 +16,7 @@ CPU::CPU()
 
     //setup register
     reg = new int32_t[REGNUM];
+    tmpreg = new int32_t[REGNUM];
     for(int i=0; i<REGNUM; i++){
         reg[i] = 0;
     }
@@ -54,6 +55,8 @@ void CPU::reset(){
     num4stall = 0;
     numFlush = 0;
     numDataHazard = 0;
+
+    rastackIdx = 0;
 
     mem.reset();
     log.reset();
