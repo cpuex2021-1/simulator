@@ -448,7 +448,7 @@ Parse :: Parse(string str, int now_addr)
                     luiimm & ((1 << 14) -1)
                 ));
             }else if(match[1].str() == "addi.float"){
-                float imm = stof(match[3].str());
+                float imm = stof(match[4].str());
                 uint32_t* immint = (uint32_t *)&imm;
                 uint32_t addiimm = (*immint) & ((1 << 12) - 1);
                 codes.push_back(ILtype(
@@ -470,7 +470,7 @@ Parse :: Parse(string str, int now_addr)
                     luiimm & ((1 << 14) -1)
                 ));
             }else if(match[1].str() == "addi.label"){
-                int imm = label_to_addr(match[3].str(), 0);
+                int imm = label_to_addr(match[4].str(), 0);
                 int addiimm = imm & ((1 << 12) - 1);
                 
                 codes.push_back(ILtype(
