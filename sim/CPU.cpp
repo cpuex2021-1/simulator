@@ -91,7 +91,7 @@ void CPU::revert_one(){
         rastackIdx--;
     }
     if(logd.dorapop > 0){
-        if(rastackIdx >= 0 && rastackIdx <= RASTACKSIZE - 1)rastack[rastackIdx++] = logd.dorapop;
+        if(rastackIdx <= RASTACKSIZE - 1)rastack[rastackIdx++] = logd.dorapop;
         else rastackIdx++;
     }
 

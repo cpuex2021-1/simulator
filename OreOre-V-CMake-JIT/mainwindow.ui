@@ -378,6 +378,9 @@
           </item>
           <item>
            <widget class="QSpinBox" name="address">
+            <property name="minimum">
+             <number>-512</number>
+            </property>
             <property name="maximum">
              <number>1000000000</number>
             </property>
