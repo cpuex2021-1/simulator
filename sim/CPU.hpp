@@ -371,7 +371,7 @@ inline void CPU::simulate_acc()
         {
         case 0:
             if((int32_t)reg[rs1] == (int32_t)reg[rs2]){
-                pc += imm;
+                pc = imm;
             }else{
                 numBranchUnTaken[pc]++;
                 pc++;
@@ -379,7 +379,7 @@ inline void CPU::simulate_acc()
             reg[0] = 0; break;
         case 1:
             if((int32_t)reg[rs1] != (int32_t)reg[rs2]){
-                pc += imm;
+                pc = imm;
             }else{
                 numBranchUnTaken[pc]++;
                 pc++;
@@ -387,7 +387,7 @@ inline void CPU::simulate_acc()
             reg[0] = 0; break;
         case 2:
             if((int32_t)reg[rs1] < (int32_t)reg[rs2]){
-                pc += imm;
+                pc = imm;
             }else{
                 numBranchUnTaken[pc]++;
                 pc++;
@@ -395,7 +395,7 @@ inline void CPU::simulate_acc()
             reg[0] = 0; break;
         case 3:
             if((int32_t)reg[rs1] >= (int32_t)reg[rs2]){
-                pc += imm;
+                pc = imm;
             }else{
                 numBranchUnTaken[pc]++;
                 pc++;
@@ -404,7 +404,7 @@ inline void CPU::simulate_acc()
 
         case 5:
             if((int32_t)reg[rs1] != rs2imm){
-                pc += imm;
+                pc = imm;
             }else{
                 numBranchUnTaken[pc]++;
                 pc++;

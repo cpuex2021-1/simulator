@@ -420,7 +420,7 @@ void Compiler::compileSingleInstruction(int pc){
         case 0:
             preProcs(false, pc, memdestRd, rs1, rs2);
             cc.cmp(getRegGp(rs1), getRegGp(rs2));
-            cc.je(pctolabel(pc+imm));
+            cc.je(pctolabel(imm));
             
             //postproc for branch
             cc.mov(qtmpReg, x86::qword_ptr((uint64_t)&(numBranchUnTaken[pc])));
@@ -431,7 +431,7 @@ void Compiler::compileSingleInstruction(int pc){
         case 1:
             preProcs(false, pc, memdestRd, rs1, rs2);
             cc.cmp(getRegGp(rs1), getRegGp(rs2));
-            cc.jne(pctolabel(pc+imm));
+            cc.jne(pctolabel(imm));
             
             //postproc for branch
             cc.mov(qtmpReg, x86::qword_ptr((uint64_t)&(numBranchUnTaken[pc])));
@@ -442,7 +442,7 @@ void Compiler::compileSingleInstruction(int pc){
         case 2:
             preProcs(false, pc, memdestRd, rs1, rs2);
             cc.cmp(getRegGp(rs1), getRegGp(rs2));
-            cc.jl(pctolabel(pc+imm));
+            cc.jl(pctolabel(imm));
             
             //postproc for branch
             cc.mov(qtmpReg, x86::qword_ptr((uint64_t)&(numBranchUnTaken[pc])));
@@ -453,7 +453,7 @@ void Compiler::compileSingleInstruction(int pc){
         case 3:
             preProcs(false, pc, memdestRd, rs1, rs2);
             cc.cmp(getRegGp(rs1), getRegGp(rs2));
-            cc.jge(pctolabel(pc+imm));
+            cc.jge(pctolabel(imm));
             
             //postproc for branch
             cc.mov(qtmpReg, x86::qword_ptr((uint64_t)&(numBranchUnTaken[pc])));
@@ -465,7 +465,7 @@ void Compiler::compileSingleInstruction(int pc){
         case 5:
             preProcs(false, pc, memdestRd, rs1, rs2);
             cc.cmp(getRegGp(rs1), rs2imm);
-            cc.jne(pctolabel(pc+imm));
+            cc.jne(pctolabel(imm));
             
             //postproc for branch
             cc.mov(qtmpReg, x86::qword_ptr((uint64_t)&(numBranchUnTaken[pc])));
