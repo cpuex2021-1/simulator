@@ -76,7 +76,7 @@ public:
     {}
 
     InstInfo(int type, string str, string opcode, string rd, bool isMemory, string rs1, string rs2, bool isAnchor)
-    : type(type), str(str), opcode(opcode), rd(rd), isMemory(isMemory), rs1(rs1), rs2(rs2), isAnchor(isAnchor)
+    : type(type), str(str), opcode(opcode), rd(rd), isMemory(isMemory), rs1(rs1), rs2(rs2), isAnchor(isAnchor), isAlreadyPacked(false)
     {}
 
     void setAnchor(){
@@ -95,12 +95,12 @@ public:
         cerr << "rs1: " << rs1 << "\n";
         cerr << "rs2: " << rs2 << "\n";
         cerr << "war parent: ";
-        for(auto i=0; i<parent_war.size(); i++){
+        for(size_t i=0; i<parent_war.size(); i++){
             cerr << parent_war[i] << " ";
         }
         cerr << "\n";
         cerr << "wawraw parent: ";
-        for(auto i=0; i<parent_wawraw.size(); i++){
+        for(size_t i=0; i<parent_wawraw.size(); i++){
             cerr << parent_wawraw[i] << " ";
         }
         cerr << "\n";
@@ -151,12 +151,12 @@ private:
 public:
     vector<string> labels;
     bool haslabel;
-    int startIdx;
-    int endIdx;
-    int size;
+    size_t startIdx;
+    size_t endIdx;
+    size_t size;
 
-    int packstartIdx;
-    int packendIdx;
+    size_t packstartIdx;
+    size_t packendIdx;
     int needToBePackedNum;
     
     void add_instr(InstInfo* i){
@@ -295,7 +295,7 @@ InstInfo* checkInfo(string str, smatch& match){
     }else if(match[1].str() == "bge"){                
         return new InstInfo(b_j, str, match[1].str(), "zero", false, match[2].str(), match[3].str(), true);
     }else if(match[1].str() == "bnei"){
-        return new InstInfo(b_j, str, match[1].str(), "zero", false, match[2].str(), match[3].str(), true);
+        return new InstInfo(b_j, str, match[1].str(), "zero", false, match[2].str(), "zero", true);
                         
     }else if(match[1].str() == "sw"){
         if(match[4].str() == "zero" && stoi(match[3].str()) == 0){
@@ -323,15 +323,15 @@ InstInfo* checkInfo(string str, smatch& match){
         return new InstInfo(alu, str, match[1].str(), match[2].str(), false, "zero", "zero", false);
         
     }else if(match[1].str() == "addi.float"){
-        return new InstInfo(alu, str, match[1].str(), match[2].str(), false, "zero", "zero", false);
+        return new InstInfo(alu, str, match[1].str(), match[2].str(), false, match[2].str(), "zero", false);
         
     }else if(match[1].str() == "lui.label"){
         return new InstInfo(alu, str, match[1].str(), match[2].str(), false, "zero", "zero", false);
 
     }else if(match[1].str() == "addi.label"){
-        return new InstInfo(alu, str, match[1].str(), match[2].str(), false, "zero", "zero", false);
+        return new InstInfo(alu, str, match[1].str(), match[2].str(), false, match[2].str(), "zero", false);
     }else if(match[1].str() == "nop"){
-        return new InstInfo(nop, str, match[1].str(), match[2].str(), false, "zero", "zero", false);
+        return new InstInfo(nop, str, match[1].str(), "zero", false, "zero", "zero", false);
     }else{
         cerr << "Unknown Opecode: " << str << endl;
         exit(1);
@@ -443,8 +443,10 @@ void CodeSection::pack(){
 
         if(cwPack()->isnop()){
             for(size_t i=startIdx; i<endIdx; i++){
-                if(insts.at(i)->isfree() && !insts.at(i)->isAlreadyPacked){
-                    waitq.push(i);
+                if(!insts.at(i)->isAlreadyPacked){
+                    if(insts.at(i)->isfree()){
+                        waitq.push(i);
+                    }                    
                 }
             }
         }
@@ -458,10 +460,15 @@ void CodeSection::pack(){
             for(size_t j=0; j<packedinst.children_wawraw.size(); j++){
                 auto chldidx = packedinst.children_wawraw.at(j);
                 auto& chld = *insts.at(chldidx);
-                del(chld.parent_wawraw, packedinst.id);
-                if(chld.isfree()){
-                    waitq.push(chldidx);
-                }
+                del(chld.parent_wawraw, packedIdx.at(i));
+            }
+        }
+        
+        for(size_t i=startIdx; i<endIdx; i++){
+            if(!insts.at(i)->isAlreadyPacked){
+                if(insts.at(i)->isfree()){
+                    waitq.push(i);
+                }                    
             }
         }
     }
