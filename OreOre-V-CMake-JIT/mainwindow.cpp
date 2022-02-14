@@ -304,7 +304,9 @@ void MainWindow::refreshAll(){
     auto& memtmp = sobj.sim.mem;
     ssstats << "Cache valid rate:\n" << memtmp.getValidRate() \
             << "\n\nCache hit rate:\n" << memtmp.getHitRate() \
-            << "\n\nCache replace rate:\n" << memtmp.getReplaceRate() << endl;
+            << "\n\nCache replace rate:\n" << memtmp.getReplaceRate() << "\n\n";
+
+    ssstats << "Estimated Time:\n" << sobj.sim.get_estimated_time() << endl;
     ui->statsTextBrowser->setText(ssstats.str().data());
 
     if(sobj.sim.ready && (running)){
