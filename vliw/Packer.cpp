@@ -190,7 +190,7 @@ public:
     bool fit(int);
 
     void debug_print(){
-        for(auto i=0; i<insts.size(); i++){
+        for(size_t i=0; i<insts.size(); i++){
             insts[i]->debug_print();
         }
     }
@@ -504,7 +504,7 @@ void translate(string str){
     } else if(regex_match(str, match, regex(LABEL_EXPR))){
         if(cs->size == 0){
             cs->labels.push_back(match[1].str());
-            cerr << "added label: " << match[1].str() << endl;
+            //cerr << "added label: " << match[1].str() << endl;
         }else{
             //cerr << "found Anchor" << endl;
             //cerr << "found label: " << str << endl << "finalize code section, size " << cs->size << endl;
@@ -512,7 +512,7 @@ void translate(string str){
             wholecode.push_back(cs);
             cs = new CodeSection();
             cs->labels.push_back(match[1].str());
-            cerr << "added label: " << match[1].str() << endl;
+            //cerr << "added label: " << match[1].str() << endl;
         }
     } else if(regex_match(str, match, regex(THREE_ARGS_EXPR)) || regex_match(str, match, regex(TWO_ARGS_EXPR)) || regex_match(str, match, regex(SW_LIKE_EXPR)) || regex_match(str, match, regex(ONE_ARGS_EXPR)) || regex_match(str, match, regex(NO_ARGS_EXPR))){
         auto info = checkInfo(str, match);
@@ -531,13 +531,13 @@ void translate(string str){
 }
 
 void resolveDependensies(){
-    cerr << "Whole section size: " << wholecode.size() << endl;
+    //cerr << "Whole section size: " << wholecode.size() << endl;
     for(size_t i=0; i<wholecode.size(); i++){
-        cerr << "\rresolving section " << i << "          " << flush;
+        //cerr << "\rresolving section " << i << "          " << flush;
         wholecode[i]->setWawRaW();
         wholecode[i]->setWar();
     }
-    cerr << endl;
+    //cerr << endl;
 }
 
 void pack(){
@@ -622,7 +622,7 @@ int main(int argc, char* argv[]){
     string str;
     cs = new CodeSection(); 
 
-    cerr << "init complete" << endl;
+    //cerr << "init complete" << endl;
 
     while (getline(input, str))
     {
@@ -642,7 +642,7 @@ int main(int argc, char* argv[]){
     */
 
     //pack into vliw codes
-    cerr << "Packing" << endl;
+    //cerr << "Packing" << endl;
     pack();
 
     /*
