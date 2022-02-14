@@ -141,7 +141,7 @@ private:
     queue<int> freeq;
     queue<int> waitq;
 public:
-    string label;
+    vector<string> labels;
     bool haslabel;
     int startIdx;
     int endIdx;
@@ -186,7 +186,11 @@ public:
     }
 
     string print_packs(){
-        string ret = (label == "")? "" : (label + ":\n");
+        string ret = "";
+        for(size_t i=0; i<labels.size(); i++){
+            auto label = labels[i];
+            ret += ((label == "")? "" : (label + ":\n"));
+        }
 
         for(size_t i=packstartIdx; i<packendIdx; i++){
             ret += packs.at(i)->print();
@@ -458,14 +462,16 @@ void translate(string str){
     if(regex_match(str, match, regex(PSUEDO))){
     } else if(regex_match(str, match, regex(LABEL_EXPR))){
         if(cs->size == 0){
-            cs->label = match[1].str();
+            cs->labels.push_back(match[1].str());
+            cerr << "added label: " << match[1].str() << endl;
         }else{
             //cerr << "found Anchor" << endl;
             //cerr << "found label: " << str << endl << "finalize code section, size " << cs->size << endl;
             cs->finalize();
             wholecode.push_back(cs);
             cs = new CodeSection();
-            cs->label = match[1].str();
+            cs->labels.push_back(match[1].str());
+            cerr << "added label: " << match[1].str() << endl;
         }
     } else if(regex_match(str, match, regex(THREE_ARGS_EXPR)) || regex_match(str, match, regex(TWO_ARGS_EXPR)) || regex_match(str, match, regex(SW_LIKE_EXPR)) || regex_match(str, match, regex(ONE_ARGS_EXPR)) || regex_match(str, match, regex(NO_ARGS_EXPR))){
         auto info = checkInfo(str, match);
@@ -495,7 +501,9 @@ void resolveDependensies(){
 
 void pack(){
     for(size_t i=0; i<wholecode.size(); i++){
-        if(wholecode[i]->label != "") output << wholecode[i]->label << ":" << endl;
+        for(size_t j=0; j<wholecode[i]->labels.size();j++){
+            if(wholecode[i]->labels[j] != "") output << wholecode[i]->labels[j] << ":" << endl;
+        }
         wholecode[i]->pack();
     }
 }
