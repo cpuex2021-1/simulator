@@ -110,6 +110,7 @@ public:
     inline void setMemDestRd();
 
     void update_clkcount();
+    double get_estimated_time();
 };
 
 inline void CPU::simulate_acc()
