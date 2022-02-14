@@ -149,6 +149,8 @@ class CodeSection{
 private:
     queue<int> freeq;
     queue<int> waitq;
+    int retry;
+    bool hasRetry;
 public:
     vector<string> labels;
     bool haslabel;
@@ -208,7 +210,7 @@ public:
     }
 
     CodeSection()
-    : startIdx(insts.size()), endIdx(insts.size()), size(0), needToBePackedNum(0)
+    : hasRetry(false), startIdx(insts.size()), endIdx(insts.size()), size(0), needToBePackedNum(0)
     {}
 };
 
@@ -437,7 +439,13 @@ void CodeSection::pack(){
                     needToBePackedNum--;
                     packedIdx.push_back(instIdx);
                 }else{
-                    waitq.push(instIdx);
+                    if(instinfo.type == b_j){
+                        retry = instIdx;
+                        hasRetry = true;
+                    }
+                    else{
+                        waitq.push(instIdx);
+                    }
                 }
             }
         }
@@ -450,6 +458,16 @@ void CodeSection::pack(){
                     }                    
                 }
             }
+        }
+
+        if(hasRetry){
+            if(fit(retry)){
+                auto& instinfo = *insts.at(retry);
+                instinfo.isAlreadyPacked = true;
+                needToBePackedNum--;
+                packedIdx.push_back(retry);
+            }
+            hasRetry = false;
         }
 
         cwPack()->print_debug();
