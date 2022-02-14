@@ -70,6 +70,8 @@ void instTranslate(string& str, smatch& match, stringstream& ss){
         }                
     }else if(match[1].str() ==  "srli"){
         ss << "\tsrli " << match[2].str() << ", " << match[3].str() << ", " << match[4].str();
+    }else if((match[1].str() == "sw" || match[1].str() == "lw") && match[2].str() == "ra"){
+        ss << "";
     }else{
         ss << str;
     }
