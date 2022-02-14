@@ -126,6 +126,7 @@ public:
     }
     
     void print_debug(){
+        if(isnop()) return;
         string ret = "";
         for(int i=0; i<4; i++){
             if(instr.at(i) == -1) ret += "nop; ";

@@ -179,20 +179,22 @@ int Reader::eat_bin(string filename){
     uint32_t code = 0;
     int32_t now_addr = 0;
     int32_t line_num = 0;
+    int32_t now_pc = 0;
 
     int8_t packingidx = 0;
 
     while(binput.read((char *) &code, sizeof(uint32_t))){
         add_to_vector(instructions, now_addr, code);
         add_to_vector(str_instr, now_addr, disassemble(code));
-        add_to_vector(l_to_p, now_addr, line_num);
+        add_to_vector(l_to_p, now_pc, line_num);
 
         line_num++;
         packingidx = (packingidx + 1) % VLIW_SIZE;
         if(packingidx == 0){
-            add_to_vector(p_to_l, now_addr, line_num-VLIW_SIZE);
-            now_addr++;
+            add_to_vector(p_to_l, now_pc, line_num-VLIW_SIZE);
+            now_pc++;
         }
+        now_addr++;
     }
 
     binput.close();
