@@ -21,6 +21,9 @@ enum {b_j, alu, fpu, uart, ma, nop};
 
 vector<string> types = {"b_j", "alu", "fpu", "uart", "ma", "nop"};
 
+fstream input;
+fstream output;
+
 template<typename T>
 bool exists(vector<T>& vec, T val){
     return (vec.end() == find(vec.begin(), vec.end(), val));
@@ -85,22 +88,22 @@ public:
     }
 
     void debug_print(){
-        cout << "ID: " << id << "\n";
-        cout << "Type: " << types[type] << "\n";
-        cout << "Opcode: " << opcode << "\n";
-        cout << "rd: " << rd << "\n";
-        cout << "rs1: " << rs1 << "\n";
-        cout << "rs2: " << rs2 << "\n";
-        cout << "war parent: ";
+        cerr << "ID: " << id << "\n";
+        cerr << "Type: " << types[type] << "\n";
+        cerr << "Opcode: " << opcode << "\n";
+        cerr << "rd: " << rd << "\n";
+        cerr << "rs1: " << rs1 << "\n";
+        cerr << "rs2: " << rs2 << "\n";
+        cerr << "war parent: ";
         for(auto i=0; i<parent_war.size(); i++){
-            cout << parent_war[i] << " ";
+            cerr << parent_war[i] << " ";
         }
-        cout << "\n";
-        cout << "wawraw parent: ";
+        cerr << "\n";
+        cerr << "wawraw parent: ";
         for(auto i=0; i<parent_wawraw.size(); i++){
-            cout << parent_wawraw[i] << " ";
+            cerr << parent_wawraw[i] << " ";
         }
-        cout << "\n";
+        cerr << "\n";
     }
 };
 
@@ -128,7 +131,7 @@ public:
             if(instr.at(i) == -1) ret += "nop; ";
             else ret = ret + insts.at(instr.at(i))->str + "; ";
         }
-        cout << ret << endl;        
+        output << ret << endl;        
     }
 };
 vector<Pack*> packs;
@@ -150,14 +153,14 @@ public:
     int needToBePackedNum;
     
     void add_instr(InstInfo* i){
-        cout << "instruction num: " << insts.size() << endl;
-        cout << "added instruction: " << i->str << endl;
+        //cerr << "instruction num: " << insts.size() << endl;
+        //cerr << "added instruction: " << i->str << endl;
         
         insts.push_back(i);
         size++;
         endIdx++;
         needToBePackedNum++;
-        cout << "size: " << size << " endIdx: " << endIdx << endl;
+        //cerr << "size: " << size << " endIdx: " << endIdx << endl;
     }
 
     void finalize(){
@@ -319,7 +322,7 @@ InstInfo* checkInfo(string str, smatch& match){
     }else if(match[1].str() == "nop"){
         return new InstInfo(nop, str, match[1].str(), match[2].str(), false, "zero", "zero", false);
     }else{
-        cout << "Unknown Opecode: " << str << endl;
+        cerr << "Unknown Opecode: " << str << endl;
         exit(1);
     }    
 }
@@ -370,7 +373,7 @@ bool CodeSection::fit(int idx){
     }else if(instinfo.type == nop){
         return true;
     }else{
-        cout << "Type matching failed while packing" << endl;
+        cerr << "Type matching failed while packing" << endl;
         exit(1);
     }    
 }
@@ -450,15 +453,15 @@ void translate(string str){
     remove_comment(str);
     smatch match;
 
-    cout << "Reading: " << str << endl;
+    //cerr << "Reading: " << str << endl;
 
     if(regex_match(str, match, regex(PSUEDO))){
     } else if(regex_match(str, match, regex(LABEL_EXPR))){
         if(cs->size == 0){
             cs->label = match[1].str();
         }else{
-            cout << "found Anchor" << endl;
-            cout << "found label: " << str << endl << "finalize code section, size " << cs->size << endl;
+            //cerr << "found Anchor" << endl;
+            //cerr << "found label: " << str << endl << "finalize code section, size " << cs->size << endl;
             cs->finalize();
             wholecode.push_back(cs);
             cs = new CodeSection();
@@ -468,64 +471,65 @@ void translate(string str){
         auto info = checkInfo(str, match);
         cs->add_instr(info);
         if(info->isAnchor){
-            cout << "found Anchor" << endl;
+            //cerr << "found Anchor" << endl;
             cs->finalize();
             wholecode.push_back(cs);
             cs = new CodeSection();
         }
     } else if(regex_match(str, match, regex("\\s*"))){
     } else {
-        cout << "Match Error" << endl;
+        cerr << "Match Error" << endl;
         exit(1);
     }
 }
 
 void resolveDependensies(){
-    cout << "Whole section size: " << wholecode.size() << endl;
+    cerr << "Whole section size: " << wholecode.size() << endl;
     for(size_t i=0; i<wholecode.size(); i++){
-        cout << "resolving section " << i << endl;
+        cerr << "\rresolving section " << i << "          " << flush;
         wholecode[i]->setWawRaW();
         wholecode[i]->setWar();
     }
+    cerr << endl;
 }
 
 void pack(){
     for(size_t i=0; i<wholecode.size(); i++){
+        if(wholecode[i]->label != "") output << wholecode[i]->label << ":" << endl;
         wholecode[i]->pack();
     }
 }
 
 void singleWaW(InstInfo* par, InstInfo* chld){
-        cout << "checking waw: " << par->str << " -> " << chld->str << endl;
+        //cerr << "checking waw: " << par->str << " -> " << chld->str << endl;
     if(par->rd != "zero" && (par->rd == chld->rd)){
         add(par->children_wawraw, chld->id);
         add(chld->parent_wawraw, par->id);
-        cout << "found waw: " << par->str << " -> " << chld->str << endl;
+        //cerr << "found waw: " << par->str << " -> " << chld->str << endl;
     }
 }
 
 void singleRaW(InstInfo* par, InstInfo* chld){
-        cout << "checking raw: " << par->str << " -> " << chld->str << endl;
+        //cerr << "checking raw: " << par->str << " -> " << chld->str << endl;
     if(par->rd != "zero" && (par->rd == chld->rs1 || par->rd == chld->rs2)){
         add(par->children_wawraw, chld->id);
         add(chld->parent_wawraw, par->id);
-        cout << "found raw: " << par->str << " -> " << chld->str << endl;
+        //cerr << "found raw: " << par->str << " -> " << chld->str << endl;
     }
 }
 
 void singleWaR(InstInfo* par, InstInfo* chld){
-        cout << "checking war: " << par->str << " -> " << chld->str << endl;
+        //cerr << "checking war: " << par->str << " -> " << chld->str << endl;
     if(chld->rd != "zero" && (chld->rd == par->rs1 || chld->rd == par->rs2)){
         add(par->children_war, chld->id);
         add(chld->parent_war, par->id);
-        cout << "found war: " << par->str << " -> " << chld->str << endl;
+        //cerr << "found war: " << par->str << " -> " << chld->str << endl;
     }
 }
 
 void CodeSection::setWawRaW(){
     for(size_t i=startIdx; i<endIdx-1; i++){
         for(size_t j=i+1; j<endIdx; j++){
-            cout << i << " " << j << endl;
             singleWaW(insts.at(i), insts.at(j));
             singleRaW(insts.at(i), insts.at(j));
         }
@@ -535,7 +539,6 @@ void CodeSection::setWawRaW(){
 void CodeSection::setWar(){
     for(size_t i=startIdx; i<endIdx-1; i++){
         for(size_t j=i+1; j<endIdx; j++){
-            cout << i << " " << j << endl;
             singleWaR(insts.at(i), insts.at(j));
         }
     }
@@ -544,7 +547,7 @@ void CodeSection::setWar(){
 int main(int argc, char* argv[]){
     
     if(argc < 3) {
-        cout << "Usage: assembler [input file] [output file]" << endl;
+        cerr << "Usage: assembler [input file] [output file]" << endl;
         exit(1);
     }
 
@@ -554,14 +557,11 @@ int main(int argc, char* argv[]){
     ifstream test(infile); 
     if (!test)
     {
-        std::cout << "[ERROR] The file \"" << infile << "\" doesn't exist" << std::endl;
+        std::cerr << "[ERROR] The file \"" << infile << "\" doesn't exist" << std::endl;
         return -1;
     }
 
-    fstream input;
     input.open(infile, ios::in);
-
-    fstream output;
     output.open(outfile, ios::out);
     
     string str;
@@ -578,17 +578,21 @@ int main(int argc, char* argv[]){
     //resolve dependensies
     resolveDependensies();
 
-    cout << "Whole section size: " << wholecode.size() << endl;
+    /*
+    cerr << "Whole section size: " << wholecode.size() << endl;
     for(size_t i=0; i<wholecode.size(); i++){
-        cout << "Section Summary: " << i << endl;
+        cerr << "Section Summary: " << i << endl;
         wholecode.at(i)->debug_print();
     }
+    */
 
     //pack into vliw codes
+    cerr << "Packing" << endl;
     pack();
 
+    /*
     //write into output files
     for(size_t i=0; i<wholecode.size(); i++){
         output << wholecode.at(i)->print_packs() << flush;
-    }
+    }*/
 }
