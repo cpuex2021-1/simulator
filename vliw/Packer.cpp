@@ -546,6 +546,9 @@ void singleRaW(InstInfo* par, InstInfo* chld){
         add(par->children_wawraw, chld->id);
         add(chld->parent_wawraw, par->id);
         //cerr << "found raw: " << par->str << " -> " << chld->str << endl;
+    }else if(par->opcode == "sw" && chld->opcode == "lw"){
+        add(par->children_wawraw, chld->id);
+        add(chld->parent_wawraw, par->id);
     }
 }
 
