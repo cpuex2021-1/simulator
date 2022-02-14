@@ -6511,4 +6511,3 @@ nop; 	addi sp, sp, -45; nop; 	lw a0, -35(sp);
 nop; 	addi a0, zero, 128; nop; 	sw a0, 12(cl); 
 nop; nop; nop; 	lw swp, 0(cl); 
 	callr swp; nop; nop; nop; 
-	addi a0, zero, 0; 	addi sp, sp, 45; nop; nop; 

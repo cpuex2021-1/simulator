@@ -555,6 +555,9 @@ void singleWaW(InstInfo* par, InstInfo* chld){
         add(par->children_wawraw, chld->id);
         add(chld->parent_wawraw, par->id);
         //cerr << "found waw: " << par->str << " -> " << chld->str << endl;
+    }else if(par->type == uart && chld->type == uart){
+        add(par->children_wawraw, chld->id);
+        add(chld->parent_wawraw, par->id);
     }
 }
 
