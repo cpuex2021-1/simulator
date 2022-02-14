@@ -119,7 +119,7 @@ public:
     string print(){
         string ret = "";
         for(int i=0; i<4; i++){
-            if(instr.at(i) == -1) ret += "nop; ";
+            if(instr.at(i) == -1) ret += "\tnop; ";
             else ret = ret + insts.at(instr.at(i))->str + "; ";
         }
         return ret;
@@ -129,7 +129,7 @@ public:
         if(isnop()) return;
         string ret = "";
         for(int i=0; i<4; i++){
-            if(instr.at(i) == -1) ret += "nop; ";
+            if(instr.at(i) == -1) ret += "\tnop; ";
             else ret = ret + insts.at(instr.at(i))->str + "; ";
         }
         output << ret << endl;        
