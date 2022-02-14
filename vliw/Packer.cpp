@@ -133,6 +133,14 @@ public:
         }
         output << ret << endl;        
     }
+
+    bool isnop(){
+        bool ret = true;
+        for(int i=0; i<4; i++){
+            ret = ret && (instr[i] == -1);
+        }
+        return ret;
+    }
 };
 vector<Pack*> packs;
 
@@ -149,7 +157,6 @@ public:
 
     int packstartIdx;
     int packendIdx;
-    vector<bool> isAlreadyPacked;
     int needToBePackedNum;
     
     void add_instr(InstInfo* i){
@@ -430,6 +437,14 @@ void CodeSection::pack(){
                     packedIdx.push_back(instIdx);
                 }else{
                     waitq.push(instIdx);
+                }
+            }
+        }
+
+        if(cwPack()->isnop()){
+            for(size_t i=startIdx; i<endIdx; i++){
+                if(insts.at(i)->isfree() && !insts.at(i)->isAlreadyPacked){
+                    waitq.push(i);
                 }
             }
         }
