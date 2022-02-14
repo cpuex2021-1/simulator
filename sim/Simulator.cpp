@@ -17,7 +17,7 @@ void handler(int signum){
 }
 
 Simulator::Simulator() 
-: CPU(), sectionid(0), funcid(0), mode(accurate), ready(false), uart_ready(false)
+: CPU(), break_clk(0), hasclkbrk(false), sectionid(0), funcid(0), mode(accurate), ready(false), uart_ready(false)
 {
     isasm = false;
     stop = false;
@@ -31,7 +31,7 @@ void Simulator::full_reset(){
     reset();
     Reader::full_reset();
     break_pc = map<int,bool>();
-    break_clk = vector<unsigned long long>();
+    break_clk = 0;
 }
 
 int Simulator::read_asm(string filename){
@@ -96,12 +96,12 @@ int Simulator::del_brk(string bp){
     break_pc.erase(bp_pc);
     return bp_pc;
 }
-void Simulator::clk_set_brk(int new_br){
-    break_clk.emplace_back(new_br);
-    sort(break_clk.begin(), break_clk.end());
+void Simulator::clk_set_brk(uint64_t new_br){
+    break_clk = new_br;
+    hasclkbrk = true;
 }
-void Simulator::clk_del_brk(int new_br){
-    break_clk.erase(find(break_clk.begin(), break_clk.end(), new_br));
+void Simulator::clk_del_brk(){
+    hasclkbrk = false;
 }
 int Simulator::run(){
     int ret = cont();
@@ -138,8 +138,7 @@ int Simulator::cont(){
 
             if(break_pc.size() != 0 && break_pc[pc]){
                 return 1;
-            }else if(break_clk.size() != 0 && break_clk[0] <= clk){
-                clk_del_brk(break_clk[0]);
+            }else if(hasclkbrk && break_clk <= numInstruction){
                 return 2;
             }
 

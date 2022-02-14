@@ -122,6 +122,7 @@ public:
 inline void CPU::simulate_acc(){
     auto addr = pc * VLIW_SIZE;
     numExecuted[pc]++;
+    numInstruction++;
     rewroteidx[2] = simulate_one_acc(instructions[addr+2], 0);
     rewroteidx[3] = simulate_one_acc(instructions[addr+3], 0);
     rewroteidx[1] = simulate_one_acc(instructions[addr+1], 0);

@@ -16,7 +16,8 @@ public:
     typedef enum {accurate, fast} Mode;
 protected:
     map<int,bool> break_pc;
-    vector<unsigned long long> break_clk;
+    uint64_t break_clk;
+    bool hasclkbrk;
 
     //vars and functions for profiling
     int sectionid;
@@ -38,8 +39,8 @@ public:
     int set_brk(string bp);
     int del_brk(string bp);
     int brk_unified(int bp);
-    void clk_set_brk(int new_br);
-    void clk_del_brk(int new_br);
+    void clk_set_brk(uint64_t new_br);
+    void clk_del_brk();
     int rerun();
     int run();
     int cont();
