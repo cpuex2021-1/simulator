@@ -153,6 +153,34 @@
          </layout>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_13">
+          <item>
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Break:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="clkBrkEdit"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="brksetButton">
+            <property name="text">
+             <string>Set</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="brkdelButton">
+            <property name="text">
+             <string>Delete</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_10">
           <item>
            <widget class="QPushButton" name="jumpToPCButton">

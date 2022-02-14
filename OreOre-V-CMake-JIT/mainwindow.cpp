@@ -535,3 +535,21 @@ void MainWindow::on_floatButton_released()
     refreshAll();
 }
 
+
+void MainWindow::on_brksetButton_released()
+{
+    if(sobj.sim.ready){
+        uint64_t brk = stoll(ui->clkBrkEdit->text().toStdString());
+        sobj.sim.clk_set_brk(brk);
+    }
+}
+
+
+
+void MainWindow::on_brkdelButton_released()
+{
+    if(sobj.sim.ready){
+        sobj.sim.clk_del_brk();
+    }
+}
+

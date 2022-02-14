@@ -74,6 +74,10 @@ private Q_SLOTS:
 
     void on_floatButton_released();
 
+    void on_brksetButton_released();
+
+    void on_brkdelButton_released();
+
 private:
     Ui::MainWindow *ui;
     QThread simThread;

@@ -60,10 +60,8 @@ void CLI(bool joke){
             sim.clk_set_brk(new_br);
             cout << "set breakpoint at " << new_br << endl;
         }else if((!read_or_eat) && (comm == "clkdel" || comm == "cd")){
-            int new_br;
-            cin >> dec >> new_br;
-            sim.clk_del_brk(new_br);
-            cout << "deleted breakpoint at " << new_br << endl;
+                 sim.clk_del_brk();
+            cout << "deleted breakpoint" << endl;
         }else if((!read_or_eat) && (comm == "continue" || comm == "c")){
             cout << "continuing" << endl;
             int ret;
