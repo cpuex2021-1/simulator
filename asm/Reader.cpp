@@ -186,7 +186,7 @@ int Reader::eat_bin(string filename){
     while(binput.read((char *) &code, sizeof(uint32_t))){
         add_to_vector(instructions, now_addr, code);
         add_to_vector(str_instr, now_addr, disassemble(code));
-        add_to_vector(l_to_p, now_pc, line_num);
+        add_to_vector(l_to_p, line_num, now_pc);
 
         line_num++;
         packingidx = (packingidx + 1) % VLIW_SIZE;
