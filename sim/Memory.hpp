@@ -9,8 +9,8 @@
 #include <queue>
 
 #define MEMADDR_BITS 25
-#define CACHEINDEX_BITS 12
-#define CACHETAG_BITS 11
+#define CACHEINDEX_BITS 10
+#define CACHETAG_BITS 13
 
 #define MEMSIZE (1 << MEMADDR_BITS)
 #define CACHESIZE (1 << CACHEINDEX_BITS)
