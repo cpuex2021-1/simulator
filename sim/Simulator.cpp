@@ -198,7 +198,8 @@ void Simulator::show_cache(){
 }
 
 void Simulator::show_result(){
-    cerr << endl << "Result Summary" << endl << "Clock count: " << get_clock() << "\n\n Statistics\n";
+    cerr << endl << "Result Summary" << endl << "Clock count: " << get_clock() << \
+    "\nEstimated Time: " << get_estimated_time() << "\n\n Statistics\n";
     //show statistics
     stringstream ssstats;
     ssstats << "\tNumber of Instructions:                      \t" << numInstruction << "\n" \

@@ -117,6 +117,7 @@ public:
     void revert();
 
     void update_clkcount();
+    double get_estimated_time();
 };
 
 inline void CPU::simulate_acc(){
