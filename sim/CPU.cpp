@@ -110,8 +110,8 @@ void CPU::update_clkcount(){
     clk += num2stall;
     clk += 2 * num3stall;
     clk += 3 * num4stall;
-    clk += numDataHazard;
-    clk += 2 * numFlush;
+    //clk += numDataHazard;
+    //clk += 2 * numFlush;
     clk += 35 * mem.totalstall();
 }
 

@@ -66,6 +66,7 @@ void Profiler::updateProfilerResult(){
             //assume always untaken
             if((instructionTypes[j].op == 6 && (instructionTypes[j].funct3 <= 5)) || (instructionTypes[j].op == 7 && (instructionTypes[j].funct3 == 1 || instructionTypes[j].funct3 == 3))){
                 numFlush += numExecuted[i] - numBranchUnTaken[i];
+                numStall = std::max(numStall, 2);
             }
 
             numEachInstrExecuted[encoded] += numExecuted[i];
@@ -74,7 +75,10 @@ void Profiler::updateProfilerResult(){
         
         numInstruction += numExecuted[i];
         
-        if(isDataHazard[i]) numDataHazard += numExecuted[i];
+        if(isDataHazard[i]){
+            numDataHazard += numExecuted[i];
+            numStall = std::max(numStall, 2);
+        } 
 
         if(numStall == 2){
             num2stall += numExecuted[i];
