@@ -110,12 +110,13 @@ void CPU::update_clkcount(){
     clk += num2stall;
     clk += 2 * num3stall;
     clk += 3 * num4stall;
+    clk += numFlush;
     clk += 38 * mem.totalstall();
 }
 
 
 double CPU::get_estimated_time(){
-    double time = clk / 50000000.0;
+    double time = clk / 75000000.0;
     uint64_t totaluartComm = instructions.size() * 4 + mem.uart.getInbufSize();// + mem.uart.getOutbufIdx();
     time += (totaluartComm / 11520.0);
     return time;
