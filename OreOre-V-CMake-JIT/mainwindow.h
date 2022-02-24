@@ -74,6 +74,10 @@ private Q_SLOTS:
 
     void on_floatButton_released();
 
+    void on_brksetButton_released();
+
+    void on_brkdelButton_released();
+
 private:
     Ui::MainWindow *ui;
     QThread simThread;
@@ -83,6 +87,7 @@ private:
     void refreshMemView();
     void refreshInstView();
     void refreshUartView();
+    void refreshRAStackView();
     int mem_addr;
     int inst_line;
     int uart_in_line;

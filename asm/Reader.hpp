@@ -7,22 +7,67 @@
 #include <fstream>
 #include <queue>
 
+#define VLIW_SIZE 4
+
 using namespace std;
 
 class Reader
 {
-protected:
+private:
     class tobeAssembled{
     public:
-        int addr;
+        int32_t addr;
         string str;
-        tobeAssembled():addr(0), str(0){}
-        tobeAssembled(int a, string s):addr(a), str(s){}
+        int8_t slot;
+        tobeAssembled():addr(0), str(0), slot(0){}
+        tobeAssembled(int32_t a, string s, int8_t sl):addr(a), str(s), slot(sl){}
     };
+
+    const vector<vector<bool>> slotPolicy = {
+        {true, true, true, false, false, true},
+        {false, true, true, false, false, true},
+        {false, false, false, true, true, true},
+        {false, false ,false, false, true, true}
+    };
+
+    const bool checkSlotPolicy(int8_t slot, int8_t codetype){
+        return slotPolicy[slot][codetype];
+    }
+
+    const vector<string> slotTypeName = {
+        "Branch/Jump",
+        "ALU",
+        "FPU",
+        "UART",
+        "Memory Access",
+        "NOP"
+    };
+
+    class vliw_slot_policy_violation : public invalid_argument{
+    public:
+        vliw_slot_policy_violation(string _Message)
+        : invalid_argument(_Message)
+        {}
+    };
+    
+    class vliw_not_alingned : public invalid_argument{
+    public:
+        vliw_not_alingned(string _Message)
+        : invalid_argument(_Message)
+        {}
+    };
+
+    vector<int8_t> wrt;
+    vector<vector<int8_t>> writetoRegs; 
+
+protected:
     queue<tobeAssembled> unresolved;
     static vector<int> l_to_p;
     static vector<int> p_to_l;
-    void read_one_line(int &line_num, int &now_addr, string str);
+
+
+
+    void read_one_line(int32_t &line_num, int32_t &now_addr, string str, int8_t &slot);
 
     class pcandlabel{
     public:

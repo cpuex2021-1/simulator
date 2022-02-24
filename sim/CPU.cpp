@@ -3,7 +3,7 @@
 using namespace std;
 
 CPU::CPU()
-: Profiler(), memDestRd(-2), rastackIdx(0), mem()
+: Profiler(), mem()
 {
     pc = 0;
     clk = 0;
@@ -16,6 +16,7 @@ CPU::CPU()
 
     //setup register
     reg = new int32_t[REGNUM];
+    tmpreg = new int32_t[REGNUM];
     for(int i=0; i<REGNUM; i++){
         reg[i] = 0;
     }
@@ -54,7 +55,8 @@ void CPU::reset(){
     num4stall = 0;
     numFlush = 0;
     numDataHazard = 0;
-    memDestRd = -2;
+
+    rastackIdx = 0;
 
     mem.reset();
     log.reset();
@@ -63,12 +65,12 @@ void CPU::reset(){
 
 void CPU::throw_err(int instr){
     stringstream sserr;
-    sserr << "Invalid_instruction: " << disassemble(instr);
+    sserr << "[ERROR] Invalid_instruction: " << disassemble(instr);
     throw invalid_argument(sserr.str());
 }
 
 
-void CPU::revert(){
+void CPU::revert_one(){
     if(log.logSize <= 0) return;
     auto logd = log.pop();
     if(logd.rd > 0){
@@ -89,10 +91,17 @@ void CPU::revert(){
         rastackIdx--;
     }
     if(logd.dorapop > 0){
-        rastack[rastackIdx++] = logd.dorapop;
+        if(rastackIdx <= RASTACKSIZE - 1)rastack[rastackIdx++] = logd.dorapop;
+        else rastackIdx++;
     }
 
     pc = logd.pc;
+}
+
+void CPU::revert(){
+    for(int i=0; i<VLIW_SIZE; i++){
+        revert_one();
+    }
 }
 
 void CPU::update_clkcount(){
@@ -101,7 +110,14 @@ void CPU::update_clkcount(){
     clk += num2stall;
     clk += 2 * num3stall;
     clk += 3 * num4stall;
-    clk += numDataHazard;
-    clk += 2 * numFlush;
-    clk += 35 * mem.totalstall();
+    clk += numFlush;
+    clk += 38 * mem.totalstall();
+}
+
+
+double CPU::get_estimated_time(){
+    double time = clk / 75000000.0;
+    uint64_t totaluartComm = instructions.size() * 4 + mem.uart.getInbufSize();// + mem.uart.getOutbufIdx();
+    time += (totaluartComm / 11520.0);
+    return time;
 }

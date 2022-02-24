@@ -5,6 +5,10 @@
 using namespace std;
 
 string disassemble(uint32_t instr){
+
+    if(instr == 0){
+        return "NOP";
+    }
     
     uint32_t op = getBits(instr, 2, 0);
     uint32_t funct3 = getBits(instr, 5, 3);

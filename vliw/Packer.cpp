@@ -76,7 +76,7 @@ public:
     {}
 
     InstInfo(int type, string str, string opcode, string rd, bool isMemory, string rs1, string rs2, bool isAnchor)
-    : type(type), str(str), opcode(opcode), rd(rd), isMemory(isMemory), rs1(rs1), rs2(rs2), isAnchor(isAnchor)
+    : type(type), str(str), opcode(opcode), rd(rd), isMemory(isMemory), rs1(rs1), rs2(rs2), isAnchor(isAnchor), isAlreadyPacked(false)
     {}
 
     void setAnchor(){
@@ -95,12 +95,12 @@ public:
         cerr << "rs1: " << rs1 << "\n";
         cerr << "rs2: " << rs2 << "\n";
         cerr << "war parent: ";
-        for(auto i=0; i<parent_war.size(); i++){
+        for(size_t i=0; i<parent_war.size(); i++){
             cerr << parent_war[i] << " ";
         }
         cerr << "\n";
         cerr << "wawraw parent: ";
-        for(auto i=0; i<parent_wawraw.size(); i++){
+        for(size_t i=0; i<parent_wawraw.size(); i++){
             cerr << parent_wawraw[i] << " ";
         }
         cerr << "\n";
@@ -119,16 +119,17 @@ public:
     string print(){
         string ret = "";
         for(int i=0; i<4; i++){
-            if(instr.at(i) == -1) ret += "nop; ";
+            if(instr.at(i) == -1) ret += "\tnop; ";
             else ret = ret + insts.at(instr.at(i))->str + "; ";
         }
         return ret;
     }
     
     void print_debug(){
+        if(isnop()) return;
         string ret = "";
         for(int i=0; i<4; i++){
-            if(instr.at(i) == -1) ret += "nop; ";
+            if(instr.at(i) == -1) ret += "\tnop; ";
             else ret = ret + insts.at(instr.at(i))->str + "; ";
         }
         output << ret << endl;        
@@ -148,15 +149,17 @@ class CodeSection{
 private:
     queue<int> freeq;
     queue<int> waitq;
+    int retry;
+    bool hasRetry;
 public:
     vector<string> labels;
     bool haslabel;
-    int startIdx;
-    int endIdx;
-    int size;
+    size_t startIdx;
+    size_t endIdx;
+    size_t size;
 
-    int packstartIdx;
-    int packendIdx;
+    size_t packstartIdx;
+    size_t packendIdx;
     int needToBePackedNum;
     
     void add_instr(InstInfo* i){
@@ -187,7 +190,7 @@ public:
     bool fit(int);
 
     void debug_print(){
-        for(auto i=0; i<insts.size(); i++){
+        for(size_t i=0; i<insts.size(); i++){
             insts[i]->debug_print();
         }
     }
@@ -207,7 +210,7 @@ public:
     }
 
     CodeSection()
-    : startIdx(insts.size()), endIdx(insts.size()), size(0), needToBePackedNum(0)
+    : hasRetry(false), startIdx(insts.size()), endIdx(insts.size()), size(0), needToBePackedNum(0)
     {}
 };
 
@@ -295,7 +298,7 @@ InstInfo* checkInfo(string str, smatch& match){
     }else if(match[1].str() == "bge"){                
         return new InstInfo(b_j, str, match[1].str(), "zero", false, match[2].str(), match[3].str(), true);
     }else if(match[1].str() == "bnei"){
-        return new InstInfo(b_j, str, match[1].str(), "zero", false, match[2].str(), match[3].str(), true);
+        return new InstInfo(b_j, str, match[1].str(), "zero", false, match[2].str(), "zero", true);
                         
     }else if(match[1].str() == "sw"){
         if(match[4].str() == "zero" && stoi(match[3].str()) == 0){
@@ -323,15 +326,15 @@ InstInfo* checkInfo(string str, smatch& match){
         return new InstInfo(alu, str, match[1].str(), match[2].str(), false, "zero", "zero", false);
         
     }else if(match[1].str() == "addi.float"){
-        return new InstInfo(alu, str, match[1].str(), match[2].str(), false, "zero", "zero", false);
+        return new InstInfo(alu, str, match[1].str(), match[2].str(), false, match[2].str(), "zero", false);
         
     }else if(match[1].str() == "lui.label"){
         return new InstInfo(alu, str, match[1].str(), match[2].str(), false, "zero", "zero", false);
 
     }else if(match[1].str() == "addi.label"){
-        return new InstInfo(alu, str, match[1].str(), match[2].str(), false, "zero", "zero", false);
+        return new InstInfo(alu, str, match[1].str(), match[2].str(), false, match[2].str(), "zero", false);
     }else if(match[1].str() == "nop"){
-        return new InstInfo(nop, str, match[1].str(), match[2].str(), false, "zero", "zero", false);
+        return new InstInfo(nop, str, match[1].str(), "zero", false, "zero", "zero", false);
     }else{
         cerr << "Unknown Opecode: " << str << endl;
         exit(1);
@@ -436,17 +439,35 @@ void CodeSection::pack(){
                     needToBePackedNum--;
                     packedIdx.push_back(instIdx);
                 }else{
-                    waitq.push(instIdx);
+                    if(instinfo.type == b_j){
+                        retry = instIdx;
+                        hasRetry = true;
+                    }
+                    else{
+                        waitq.push(instIdx);
+                    }
                 }
             }
         }
 
         if(cwPack()->isnop()){
             for(size_t i=startIdx; i<endIdx; i++){
-                if(insts.at(i)->isfree() && !insts.at(i)->isAlreadyPacked){
-                    waitq.push(i);
+                if(!insts.at(i)->isAlreadyPacked){
+                    if(insts.at(i)->isfree()){
+                        waitq.push(i);
+                    }                    
                 }
             }
+        }
+
+        if(hasRetry){
+            if(fit(retry)){
+                auto& instinfo = *insts.at(retry);
+                instinfo.isAlreadyPacked = true;
+                needToBePackedNum--;
+                packedIdx.push_back(retry);
+            }
+            hasRetry = false;
         }
 
         cwPack()->print_debug();
@@ -458,10 +479,15 @@ void CodeSection::pack(){
             for(size_t j=0; j<packedinst.children_wawraw.size(); j++){
                 auto chldidx = packedinst.children_wawraw.at(j);
                 auto& chld = *insts.at(chldidx);
-                del(chld.parent_wawraw, packedinst.id);
-                if(chld.isfree()){
-                    waitq.push(chldidx);
-                }
+                del(chld.parent_wawraw, packedIdx.at(i));
+            }
+        }
+        
+        for(size_t i=startIdx; i<endIdx; i++){
+            if(!insts.at(i)->isAlreadyPacked){
+                if(insts.at(i)->isfree()){
+                    waitq.push(i);
+                }                    
             }
         }
     }
@@ -478,7 +504,7 @@ void translate(string str){
     } else if(regex_match(str, match, regex(LABEL_EXPR))){
         if(cs->size == 0){
             cs->labels.push_back(match[1].str());
-            cerr << "added label: " << match[1].str() << endl;
+            //cerr << "added label: " << match[1].str() << endl;
         }else{
             //cerr << "found Anchor" << endl;
             //cerr << "found label: " << str << endl << "finalize code section, size " << cs->size << endl;
@@ -486,7 +512,7 @@ void translate(string str){
             wholecode.push_back(cs);
             cs = new CodeSection();
             cs->labels.push_back(match[1].str());
-            cerr << "added label: " << match[1].str() << endl;
+            //cerr << "added label: " << match[1].str() << endl;
         }
     } else if(regex_match(str, match, regex(THREE_ARGS_EXPR)) || regex_match(str, match, regex(TWO_ARGS_EXPR)) || regex_match(str, match, regex(SW_LIKE_EXPR)) || regex_match(str, match, regex(ONE_ARGS_EXPR)) || regex_match(str, match, regex(NO_ARGS_EXPR))){
         auto info = checkInfo(str, match);
@@ -505,13 +531,13 @@ void translate(string str){
 }
 
 void resolveDependensies(){
-    cerr << "Whole section size: " << wholecode.size() << endl;
+    //cerr << "Whole section size: " << wholecode.size() << endl;
     for(size_t i=0; i<wholecode.size(); i++){
-        cerr << "\rresolving section " << i << "          " << flush;
+        //cerr << "\rresolving section " << i << "          " << flush;
         wholecode[i]->setWawRaW();
         wholecode[i]->setWar();
     }
-    cerr << endl;
+    //cerr << endl;
 }
 
 void pack(){
@@ -529,6 +555,9 @@ void singleWaW(InstInfo* par, InstInfo* chld){
         add(par->children_wawraw, chld->id);
         add(chld->parent_wawraw, par->id);
         //cerr << "found waw: " << par->str << " -> " << chld->str << endl;
+    }else if(par->type == uart && chld->type == uart){
+        add(par->children_wawraw, chld->id);
+        add(chld->parent_wawraw, par->id);
     }
 }
 
@@ -538,6 +567,9 @@ void singleRaW(InstInfo* par, InstInfo* chld){
         add(par->children_wawraw, chld->id);
         add(chld->parent_wawraw, par->id);
         //cerr << "found raw: " << par->str << " -> " << chld->str << endl;
+    }else if(par->opcode == "sw" && chld->opcode == "lw"){
+        add(par->children_wawraw, chld->id);
+        add(chld->parent_wawraw, par->id);
     }
 }
 
@@ -590,7 +622,7 @@ int main(int argc, char* argv[]){
     string str;
     cs = new CodeSection(); 
 
-    cerr << "init complete" << endl;
+    //cerr << "init complete" << endl;
 
     while (getline(input, str))
     {
@@ -610,7 +642,7 @@ int main(int argc, char* argv[]){
     */
 
     //pack into vliw codes
-    cerr << "Packing" << endl;
+    //cerr << "Packing" << endl;
     pack();
 
     /*

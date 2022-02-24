@@ -17,7 +17,7 @@ void handler(int signum){
 }
 
 Simulator::Simulator() 
-: CPU(), sectionid(0), funcid(0), mode(accurate), ready(false), uart_ready(false)
+: CPU(), break_clk(0), hasclkbrk(false), sectionid(0), funcid(0), mode(accurate), ready(false), uart_ready(false)
 {
     isasm = false;
     stop = false;
@@ -31,7 +31,7 @@ void Simulator::full_reset(){
     reset();
     Reader::full_reset();
     break_pc = map<int,bool>();
-    break_clk = vector<unsigned long long>();
+    break_clk = 0;
 }
 
 int Simulator::read_asm(string filename){
@@ -68,7 +68,7 @@ int Simulator::set_brk(string bp){
         }
         catch(std::out_of_range& e)
         {
-            cerr << "Label not found : " << bp << endl;
+            cerr << "[ERROR] Label not found : " << bp << endl;
             return -1;
         }                
     }
@@ -89,22 +89,23 @@ int Simulator::del_brk(string bp){
         }
         catch(std::out_of_range& e)
         {
-            cerr << "Label not found : " << bp << endl;
+            cerr << "[ERROR] Label not found : " << bp << endl;
             return -1;
         }                
     }
     break_pc.erase(bp_pc);
     return bp_pc;
 }
-void Simulator::clk_set_brk(int new_br){
-    break_clk.push_back(new_br);
-    sort(break_clk.begin(), break_clk.end());
+void Simulator::clk_set_brk(uint64_t new_br){
+    break_clk = new_br;
+    hasclkbrk = true;
 }
-void Simulator::clk_del_brk(int new_br){
-    break_clk.erase(find(break_clk.begin(), break_clk.end(), new_br));
+void Simulator::clk_del_brk(){
+    hasclkbrk = false;
 }
 int Simulator::run(){
     int ret = cont();
+
     updateProfilerResult();
     update_clkcount();
     return ret;
@@ -119,13 +120,13 @@ int Simulator::cont(){
 
     #ifndef WINDOWS
     if(signal(SIGINT, handler) == SIG_ERR){
-        cerr << "signal init error" << endl;
+        cerr << "[ERROR] signal init error" << endl;
         exit(1);
     }
     #endif
 
     if(step()){
-        while(pc < instructions.size()){
+        while(pc < instructions.size() / VLIW_SIZE){
             #ifdef DEBUG
             cout << "PC:" << pc << endl << "Instruction:";
             print_register();
@@ -137,8 +138,7 @@ int Simulator::cont(){
 
             if(break_pc.size() != 0 && break_pc[pc]){
                 return 1;
-            }else if(break_clk.size() != 0 && break_clk[0] <= clk){
-                clk_del_brk(break_clk[0]);
+            }else if(hasclkbrk && break_clk <= numInstruction){
                 return 2;
             }
 
@@ -156,8 +156,9 @@ int Simulator::cont(){
 
 int Simulator::step(){
     simulate_acc();
+    updateProfilerResult();
     update_clkcount();
-    
+
     if(pc >= instructions.size()){
         return 0;
     }else{
@@ -197,7 +198,8 @@ void Simulator::show_cache(){
 }
 
 void Simulator::show_result(){
-    cerr << endl << "Result Summary" << endl << "Clock count: " << get_clock() << "\n\n Statistics\n";
+    cerr << endl << "Result Summary" << endl << "Clock count: " << get_clock() << \
+    "\nEstimated Time: " << get_estimated_time() << "\n\n Statistics\n";
     //show statistics
     stringstream ssstats;
     ssstats << "\tNumber of Instructions:                      \t" << numInstruction << "\n" \

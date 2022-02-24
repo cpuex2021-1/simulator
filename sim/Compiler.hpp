@@ -29,7 +29,6 @@ protected:
         }
     };
 
-
     //compiler
     JitRuntime rt;
     CodeHolder code;
@@ -37,6 +36,10 @@ protected:
 
     //simulator register <-> vReg
     vector<regAlloc> regAllocList;
+
+    vector<x86::Gp> tmpregs;
+
+    int32_t slot;
 
     x86::Gp getRegGp(int i);
     x86::Gp getGp(int i, bool isrd);
@@ -48,6 +51,9 @@ protected:
     x86::Gp jumpBase;
     x86::Gp rastackBase;
     x86::Gp rastackIdxReg;
+
+    x86::Gp tmpReg1;
+    x86::Gp tmpReg2;
 
     //stats
     x86::Gp numDataHazardptr;
@@ -71,16 +77,15 @@ protected:
 
     void setUpLabel();
 
-    void preProcs(bool usera, int pc, int memdestRd, int rs1, int rs2);
+    void preProcs(int pc);
+    void updateReg();
     
-    int memDestRd;
-
     JumpAnnotation* callann;
     JumpAnnotation* retann;
 
     Label RunLabel, LoadLabel;
 
-    static void JitBreakPoint(int pc);
+    static void JitBreakPoint(int, int);
 
     inline static vector<InvokeNode*> nodes;
     void getNewInvokeNode(InvokeNode*& ptr);

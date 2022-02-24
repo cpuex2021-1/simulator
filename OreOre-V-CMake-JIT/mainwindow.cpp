@@ -177,8 +177,11 @@ void MainWindow::refreshInstView(){
         }
     }
     if(sobj.sim.ready){
-        int highlight_line = sobj.sim.pc_to_line(sobj.sim.get_pc()) - inst_line;
-        if(highlight_line >= 0 && highlight_line < instt->rowCount()) instt->item(highlight_line,0)->setBackground(QBrush(Qt::yellow));
+        int highlight_line_base = sobj.sim.pc_to_line(sobj.sim.get_pc()) - inst_line;
+        for(int i=0; i<VLIW_SIZE; i++){
+            auto highlight_line = highlight_line_base + i;
+            if(highlight_line >= 0 && highlight_line < instt->rowCount()) instt->item(highlight_line,0)->setBackground(QBrush(Qt::yellow));
+        }
         for(int i=0; i<instt->rowCount(); i++){
             if(sobj.sim.isbrk(sobj.sim.line_to_pc(i + inst_line)) && sobj.sim.pc_to_line(sobj.sim.line_to_pc(i + inst_line)) == i + inst_line){
                 ui->Instructions->item(i, 0)->setForeground(QBrush(Qt::red));
@@ -218,6 +221,16 @@ void MainWindow::refreshUartView(){
     uout << flush;
 
     ui->uartOutputTextBrowser->setText(uout.str().data());
+}
+
+void MainWindow::refreshRAStackView(){
+    auto& ras = sobj.sim.rastack;
+    stringstream rasss;
+    for(uint32_t i=0; i<sobj.sim.rastackIdx && sobj.sim.rastackIdx < RASTACKSIZE - 1; i++){
+        rasss << ras[i] << "\n";
+    }
+    rasss << flush;
+    ui->raStackViewer->setText(rasss.str().data());
 }
 
 void MainWindow::on_pushButton_7_released()
@@ -284,7 +297,8 @@ void MainWindow::refreshAll(){
     auto& memtmp = sobj.sim.mem;
     ssstats << "Cache valid rate:\n" << memtmp.getValidRate() \
             << "\n\nCache hit rate:\n" << memtmp.getHitRate() \
-            << "\n\nCache replace rate:\n" << memtmp.getReplaceRate() << endl;
+            << "\n\nCache replace rate:\n" << memtmp.getReplaceRate() \
+            << "\n\nEstimated Time: " << sobj.sim.get_estimated_time() << endl;
     ui->statsTextBrowser->setText(ssstats.str().data());
 
     if(sobj.sim.ready && (running)){
@@ -316,6 +330,7 @@ void MainWindow::refreshAll(){
     refreshMemView();
     refreshRegView();
     refreshUartView();
+    refreshRAStackView();
 }
 
 void MainWindow::on_pushButton_released()
@@ -519,5 +534,23 @@ void MainWindow::on_floatButton_released()
 {
     isReghex = 2;
     refreshAll();
+}
+
+
+void MainWindow::on_brksetButton_released()
+{
+    if(sobj.sim.ready){
+        uint64_t brk = stoll(ui->clkBrkEdit->text().toStdString());
+        sobj.sim.clk_set_brk(brk);
+    }
+}
+
+
+
+void MainWindow::on_brkdelButton_released()
+{
+    if(sobj.sim.ready){
+        sobj.sim.clk_del_brk();
+    }
 }
 

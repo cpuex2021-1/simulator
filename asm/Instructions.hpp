@@ -17,6 +17,9 @@ inline uint32_t Rtype(uint32_t op, uint32_t funct3, uint32_t rd, uint32_t rs1, u
 }
 
 inline uint32_t ILtype(uint32_t op, uint32_t funct3, uint32_t rd, uint32_t rs1, int32_t imm){
+    if(std::abs(imm) > (1 << 14) - 1){
+        throw invalid_argument("[ERROR] Immidiate value exceeded the limit: " + to_string(imm));
+    }
     op &= ((1 << 3) - 1);
     funct3 &= ((1 << 3) - 1);
     imm &= ((1 << 14) - 1);    

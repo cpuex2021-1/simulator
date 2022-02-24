@@ -49,7 +49,7 @@ public:
 
         uint32_t code = 0;
         while(in.read((char *) &code, sizeof(char))){
-            inbuf.push_back(code);
+            inbuf.emplace_back(code);
         }
     }
 
@@ -63,7 +63,7 @@ public:
     }
 
     inline static void push(int n){
-        outbuf.push_back(n & ((1 << 8) - 1));
+        outbuf.emplace_back(n & ((1 << 8) - 1));
         outbufIdx++;
     }
 
@@ -88,7 +88,7 @@ public:
         if(index < 0){
             throw out_of_range("");
         }else if(index == (long long)inbuf.size()){
-            inbuf.push_back(data);
+            inbuf.emplace_back(data);
         }else if(index > (long long)inbuf.size()){
             throw out_of_range("");
         }else{
@@ -218,6 +218,7 @@ inline void Memory::write(int32_t index, int32_t data){
         pushed = true;
         return uart.push(data);
     }
+    latest_write_index = index;
     index += GLOBALSMEMSIZE;
     if(index >= MEMSIZE){
         stringstream ss;
@@ -226,7 +227,6 @@ inline void Memory::write(int32_t index, int32_t data){
     }
     cachehit = false;
     update_cache(index);
-    latest_write_index = index;
     memory[index] = data;
 }
 
@@ -236,6 +236,7 @@ inline int32_t Memory::read(int32_t index){
         popped = true;
         return uart.pop();        
     }
+    latest_read_index = index;
     index += GLOBALSMEMSIZE;
     if(index >= MEMSIZE){
         stringstream ss;
@@ -244,7 +245,6 @@ inline int32_t Memory::read(int32_t index){
     }
     cachehit = false;
     update_cache(index);
-    latest_read_index = index;
     return memory[index];
 }
 

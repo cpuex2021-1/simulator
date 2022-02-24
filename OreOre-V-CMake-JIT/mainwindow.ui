@@ -22,7 +22,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_6">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="3,5,1,1,1">
+     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="4,8,2,1,2">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
@@ -149,6 +149,34 @@
              </size>
             </property>
            </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_13">
+          <item>
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Break:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="clkBrkEdit"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="brksetButton">
+            <property name="text">
+             <string>Set</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="brkdelButton">
+            <property name="text">
+             <string>Delete</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -378,6 +406,9 @@
           </item>
           <item>
            <widget class="QSpinBox" name="address">
+            <property name="minimum">
+             <number>-512</number>
+            </property>
             <property name="maximum">
              <number>1000000000</number>
             </property>
@@ -561,10 +592,6 @@
         <item>
          <widget class="QTextBrowser" name="uartInputTextBrowser"/>
         </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <widget class="QLabel" name="uartOutputLabel">
           <property name="text">
@@ -574,6 +601,20 @@
         </item>
         <item>
          <widget class="QTextBrowser" name="uartOutputTextBrowser"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QLabel" name="raStackLabel">
+          <property name="text">
+           <string>RA Stack</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextBrowser" name="raStackViewer"/>
         </item>
        </layout>
       </item>
