@@ -100,8 +100,8 @@ void CPU::update_clkcount(){
     clk += 2 * num3stall;
     clk += 3 * num4stall;
     clk += numDataHazard;
-    clk += 2 * numFlush;
-    clk += 35 * mem.totalstall();
+    clk += numFlush;
+    clk += 38 * mem.totalstall();
 }
 
 double CPU::get_estimated_time(){
