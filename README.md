@@ -1,4 +1,4 @@
-# simulator
+# simulator (CPU実験 2021)
 
 ## ビルド方法(CLI on Ubuntu)
 
