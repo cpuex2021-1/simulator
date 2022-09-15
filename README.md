@@ -1,8 +1,6 @@
 # simulator
 
-FPUをStandardじゃないほうにするときはトップの`CMakeLists.txt`の`add_definition(-DSTDFPU)`をコメントアウトしてください
-
-## ビルド方法(CLI)
+## ビルド方法(CLI on Ubuntu)
 
 ```shell
 sudo apt install cmake
@@ -43,7 +41,7 @@ make ninja
 
 ## ビルド方法(GUI on Windows)
 
-QtCreatorでビルドするのがおすすめ
+QtCreatorでビルド
 
 ## 実行方法
 
@@ -53,13 +51,8 @@ QtCreatorでビルドするのがおすすめ
 
 GUIのシミュレータです
 
-フィーリングで操作してください（雑）
+FPUを自作仕様にあわせるときはトップの`CMakeLists.txt`の`add_definition(-DSTDFPU)`をコメントアウトしてください
 
-## fsinとfcosの検証
-`$make fver`をすると、`fverify`という実行ファイルができる。
+## 補足
 
-fsinの検証
-`fsin.s`があるディレクトリで、`$./fverify sin`とする。
-
-fcosの検証
-`fcos.s`があるディレクトリで、`$./fverify cos`とする。
+長いこと更新していないので、正常に動作しない可能性があります。
